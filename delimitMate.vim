@@ -22,47 +22,69 @@
 " the sort of work that computers are for.
 
 " Init:{{{1
-if exists("loaded_annoying_delimiters")
+if exists("loaded_delimitMate")
 	"	finish
 endif
 if v:version < 700
-	echoerr "AnnoyingDelimiters: this plugin requires vim >= 7!"
+	echoerr "delimitMate: this plugin requires vim >= 7!"
 	finish
 endif
-let loaded_annoying_delimiters = 1
+let loaded_delimitMate = 1
 
-if !exists("g:annoyDelims_delims_list")
-	let s:delims = split (") } ] ' \" `")
-else
-	let s:delims = g:annoyDelims_delims_list
-endif
-
-if !exists("g:annoyDelims_autocomplete")
+" Set user preferences:{{{2
+if !exists("g:delimitMate_autocomplete")
 	let s:autocomplete = 1
 else
-	let s:autocomplete = g:annoyDelims_autocomplete
+	let s:autocomplete = g:delimitMate_autocomplete
 endif
 
-let s:paired_delims = split( &matchpairs, ',' )
-let s:quote_delims = split("\" ' ` ´")
-"let s:left_delims = []
-"let s:right_delims = []
+if !exists("g:delimitMate_paired_delims")
+	let s:paired_delims_temp = &matchpairs
+else
+	let s:paired_delims_temp = g:delimitMate_paired_delims
+endif
 
-"for pair in s:paired_delims
-"let pairl = split(pair,":")
-"let s:left_delims = s:left_delims + pairl[0]
-"let s:right_delims = s:right_delims + pairl[1]
-"endfor
+if !exists("g:delimitMate_quote_delims")
+	let s:quote_delims = split("\" ' `")
+else
+	let s:quote_delims = g:delimitMate_quote_delims
+endif
 
-let s:left_delims = split(&matchpairs, ':.,\=')
-let s:right_delims = split(&matchpairs, ',\=.:')
+if !exists("g:delimitMate_leader")
+	let s:leader = "q"
+else
+	let s:leader = g:delimitMate_leader
+endif
 
-let s:leader = "q"
+if exists("g:delimitMate_expand_all")
+	let s:expand_space = g:delimitMate_expand_all
+elseif exists("g:delimitMate_expand_space")
+	let s:expand_space = g:delimitMate_expand_space
+else
+	let s:expand_space = 1
+endif
+
+if exists("g:delimitMate_expand_all")
+	let s:expand_return = g:delimitMate_expand_all
+elseif exists("g:delimitMate_expand_return")
+	let s:expand_return = g:delimitMate_expand_return
+else
+	let s:expand_return = 1
+endif
+
+let s:paired_delims = split(s:paired_delims_temp, ',')
+let s:left_delims = split(s:paired_delims_temp, ':.,\=')
+let s:right_delims = split(s:paired_delims_temp, ',\=.:')
 
 " Functions:{{{1
 function! IsEmptyPair(str)
-	for pair in split( &matchpairs, ',' ) + [ "''", '""', '``' ]
+	for pair in s:paired_delims
 		if a:str == join( split( pair, ':' ),'' )
+			return 1
+		endif
+	endfor
+	for quote in s:quote_delims
+		if a:str == quote . quote
 			return 1
 		endif
 	endfor
@@ -124,20 +146,23 @@ endfunction
 call ResetMappings()
 if s:autocomplete == 0
 	" Don't auto-complete:{{{2
-	let test_string = "Don't"
-	"inoremap <expr> ) SkipDelim(')')
+
+	"inoremap <expr> ) SkipDelim('\)')
 	for delim in s:right_delims + s:quote_delims
 		exec 'imap <expr> ' . delim . ' SkipDelim("\' . delim . '")'
 	endfor
 
 	" Wrap the selection with delimiters:
-	"vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s(\<C-R>\")\<Esc>"
 	let s:i = 0
 	while s:i < len(s:paired_delims)
+
+	"vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s(\<C-R>\")\<Esc>"		
 		exec 'vmap <expr> ' . s:leader . s:left_delims[s:i] . 
 					\' visualmode() == "<C-V>" ? "I' . s:left_delims[s:i] . 
 					\'\<Esc>" : "s' . s:left_delims[s:i] . '\<C-R>\"' . 
 					\s:right_delims[s:i] . '\<Esc>"'
+
+	"vmap <expr> q) visualmode() == "<C-V>" ? "A\<Esc>" : "s(\<C-R>\")\<Esc>"
 		exec 'vmap <expr> ' . s:leader . s:right_delims[s:i] . 
 					\' visualmode() == "<C-V>" ? "I' . s:left_delims[s:i] . 
 					\'\<Esc>" : "s' . s:left_delims[s:i] . '\<C-R>\"' . 
@@ -145,6 +170,7 @@ if s:autocomplete == 0
 		let s:i = s:i + 1
 	endwhile
 
+	"vmap <expr> q" visualmode() == "<C-V>" ? "I"\<Esc>" : "s"\<C-R>\""\<Esc>"
 	for quote in s:quote_delims
 		exec 'vmap <expr> ' . s:leader . quote . 
 					\' visualmode() == "<C-V>" ? "I' . quote . 
@@ -153,59 +179,69 @@ if s:autocomplete == 0
 
 else
 	" Do auto-complete:{{{2
-	let test_string = "Do"
+
+	"imap ( ()<Left>
 	let s:i = 0
 	while s:i < len(s:paired_delims)
 		exec 'imap ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
 		let s:i = s:i + 1
 	endwhile
-	"imap ( ()<Left>
-	"imap [ []<Left>
-	"imap { {}<Left>
-	"autocmd Syntax html,vim imap < <lt>><Left>
-	"let test_list = []
+	
+	"imap " <c-r>=QuoteDelim("\"")<CR>
 	let s:i = 0
 	for delim in s:quote_delims
 		exec 'imap ' . delim . ' <c-r>=QuoteDelim("\' . delim . '")<CR>'
 	endfor
+
+	"imap ) <c-r>=ClosePair(')')<CR>
 	for delim in s:right_delims
 		exec 'imap ' . delim . ' <c-r>=ClosePair("\' . delim . '")<CR>'
 	endfor
-	"imap " <c-r>=QuoteDelim('"')<CR>
-	"imap ' <c-r>=QuoteDelim("'")<CR>
-	"imap ) <c-r>=ClosePair(')')<CR>
-	"imap ] <c-r>=ClosePair(']')<CR>
-	"imap } <c-r>=ClosePair('}')<CR>
 
 	" Wrap the selection with delimiters:
-	"vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s()\<C-R>\"\<Esc>"
 	let s:i = 0
 	while s:i < len(s:paired_delims)
+		"vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s()\<C-R>\"\<Esc>"
 		exec 'vmap <expr> ' . s:leader . s:left_delims[s:i] . ' visualmode() == "<C-V>" ? "I' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
-		exec 'vmap <expr> ' . s:leader . s:right_delims[s:i] . ' visualmode() == "<C-V>" ? "I' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
+
+	"vmap <expr> q) visualmode() == "<C-V>" ? "A)\<Esc>" : "s"\<C-R>\""\<Esc>"
+		exec 'vmap <expr> ' . s:leader . s:right_delims[s:i] . ' visualmode() == "<C-V>" ? "A' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
 		let s:i = s:i + 1
 	endwhile
 
 	for quote in s:quote_delims
-		exec 'vmap <expr> ' . s:leader . quote . 
-					\' visualmode() == "<C-V>" ? "I' . quote . 
-					\'\<Esc>" : "s' . quote . '\<C-R>\"' . quote . '\<Esc>"'
+		if quote == '"'
+			" Ugly fix for double quotes:
+			"vmap <expr> q" visualmode() == "<C-V>" ? 'I\"<Left><BS><Right><Esc>' : "s\"\<C-R>\"\<Esc>"
+			exec 'vmap <expr> ' . s:leader . '" visualmode() == "<C-V>" ? ' .
+						\ "'I\\\"<Left><BS><Right><Esc>' : " .
+						\ '"s\"\<C-R>\"\<Esc>"'
+		else
+
+			"vmap <expr> q' visualmode() == "<C-V>" ? "I\\'\<Left>\<BS>\<Right>\<Esc>" : "s'\<C-R>\"'\<Esc>"
+			exec 'vmap <expr> ' . s:leader . quote .
+						\ ' visualmode() == "<C-V>" ? "I\\' . quote .
+						\ '\<Left>\<BS>\<Right>\<Esc>" : "s' . quote .
+						\ '\<C-R>\"' . quote . '\<Esc>"'
+		endif
 	endfor
-	"vmap (  <ESC>`>a)<ESC>`<i(<ESC>
-	"vmap )  <ESC>`>a)<ESC>`<i(<ESC>
-	"vmap {  <ESC>`>a}<ESC>`<i{<ESC>
-	"vmap }  <ESC>`>a}<ESC>`<i{<ESC>
-	"vmap "  <ESC>`>a"<ESC>`<i"<ESC>
-	"vmap '  <ESC>`>a'<ESC>`<i'<ESC>
-	"vmap `  <ESC>`>a`<ESC>`<i`<ESC>
-	"vmap [  <ESC>`>a]<ESC>`<i[<ESC>
-	"vmap ]  <ESC>`>a]<ESC>`<i[<ESC>
-
-
 endif
-" Expansions:{{{2
-imap <expr> <BS> WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
-imap <expr> <CR> WithinEmptyPair() ? "\<CR>\<CR>\<Up>" : "\<CR>"
-imap <expr> <Space> WithinEmptyPair() ? "\<Space>\<Space>\<Left>" : "\<Space>"
 
-" vim:foldmethod=marker:foldcolumn=2
+" Expansions and Deletion:{{{2
+
+" If pair is empty, delete both delimiters:
+imap <expr> <BS> WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
+
+" If pair is empty, expand the pair to three lines and place the cursor
+" in the middle:
+if s:expand_return
+	imap <expr> <CR> WithinEmptyPair() ? "\<CR>\<CR>\<Up>" : "\<CR>"
+endif
+
+" If pair is emtpy, add a space to each side of the cursor:
+if s:expand_space
+	imap <expr> <Space> WithinEmptyPair() ? "\<Space>\<Space>\<Left>" : "\<Space>"
+endif
+
+"}}}1
+" vim:foldmethod=marker:foldcolumn=4
