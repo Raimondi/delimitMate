@@ -1,4 +1,5 @@
-" DELIMITERS MADE LESS ANNOYING:{{{1
+" DELIMITERS MADE LESS ANNOYING
+" Introduction:{{{1
 "
 " Main novelty here (if it is one): this does NOT try to be helpful by
 " inserting the closing delimiter for you when you type an opening one.
