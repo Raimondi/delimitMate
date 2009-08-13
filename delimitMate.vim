@@ -152,8 +152,15 @@ function! s:ResetMappings()
 	endfor
 endfunction
 
+function! s:MapMsg(msg)
+	redraw
+	echomsg a:msg
+	return ""
+endfunction
+
 " Mappings:{{{1
 
+let s:VMapMsg = "delimitMate doesn't work on blockwise visual mode when autocomplete is enabled"
 call s:ResetMappings()
 if s:autocomplete == 0
 	" Don't auto-complete:{{{2
@@ -216,32 +223,27 @@ else
 	" Wrap the selection with matching pairs:
 	let s:i = 0
 	while s:i < len(s:paired_delims)
-		" But only insert opening delimiter if blocking visual is active:
-		" vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s()\<C-R>\"\<Esc>"
-		exec 'vmap <expr> ' . s:leader . s:left_delims[s:i] . ' visualmode() == "<C-V>" ? "I' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
+		" But do nothing if blockwise visual mode is active:
+		" vmap <expr> q( visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\"\<Esc>"
+		exec 'vmap <expr> ' . s:leader . s:left_delims[s:i] . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"\<Esc>"'
 
-		" But only insert closing delimiter if blocking visual is active:
-		"vmap <expr> q) visualmode() == "<C-V>" ? "A)\<Esc>" : "s"\<C-R>\""\<Esc>"
-		exec 'vmap <expr> ' . s:leader . s:right_delims[s:i] . ' visualmode() == "<C-V>" ? "A' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
+		" But do nothing if blockwise visual mode is active:
+		" vmap <expr> q) visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s"\<C-R>\""\<Esc>"
+		exec 'vmap <expr> ' . s:leader . s:right_delims[s:i] . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"\<Esc>"'
 		let s:i = s:i + 1
 	endwhile
 
-	" Wrap the selection with matching quotes, but only insert the opening
-	" quote if blocking visual is active:
+	" Wrap the selection with matching quotes, but do nothing if blockwise visual
+	" mode is active:
 	for quote in s:quote_delims
 		if quote == '"'
 			" Ugly fix for double quotes:
-			" vmap <expr> q" visualmode() == "<C-V>" ? 'I\"<Left><BS><Right><Esc>' : "s\"\<C-R>\"\<Esc>"
-			exec 'vmap <expr> ' . s:leader . '" visualmode() == "<C-V>" ? ' .
-						\ "'I\\\"<Left><BS><Right><Esc>' : " .
-						\ '"s\"\<C-R>\"\<Esc>"'
+			" vmap <expr> q" visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s\"\<C-R>\"\<Esc>"
+			exec 'vmap <expr> ' . s:leader . '" visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s\"\<C-R>\"\<Esc>"'
 		else
 
-			"vmap <expr> q' visualmode() == "<C-V>" ? "I\\'\<Left>\<BS>\<Right>\<Esc>" : "s'\<C-R>\"'\<Esc>"
-			exec 'vmap <expr> ' . s:leader . quote .
-						\ ' visualmode() == "<C-V>" ? "I\\' . quote .
-						\ '\<Left>\<BS>\<Right>\<Esc>" : "s' . quote .
-						\ '\<C-R>\"' . quote . '\<Esc>"'
+			" vmap <expr> q' visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s'\<C-R>\"'\<Esc>"
+			exec 'vmap <expr> ' . s:leader . quote . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . quote .'\<C-R>\"' . quote . '\<Esc>"'
 		endif
 	endfor
 endif
@@ -263,4 +265,5 @@ if s:expand_space
 endif
 
 "}}}1
+"echomsg "finished!"
 " vim:foldmethod=marker:foldcolumn=4
