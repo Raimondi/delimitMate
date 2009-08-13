@@ -1,4 +1,4 @@
-" DELIMITERS MADE LESS ANNOYING
+" delimitMate
 " Introduction:{{{1
 "
 " Main novelty here (if it is one): this does NOT try to be helpful by
@@ -23,7 +23,7 @@
 
 " Init:{{{1
 if exists("loaded_delimitMate")
-	"	finish
+	"finish
 endif
 if v:version < 700
 	echoerr "delimitMate: this plugin requires vim >= 7!"
@@ -32,30 +32,39 @@ endif
 let loaded_delimitMate = 1
 
 " Set user preferences:{{{2
+
+" Should auto-complete delimiters?
 if !exists("g:delimitMate_autocomplete")
 	let s:autocomplete = 1
 else
 	let s:autocomplete = g:delimitMate_autocomplete
 endif
 
+" Override matchpairs?
 if !exists("g:delimitMate_paired_delims")
 	let s:paired_delims_temp = &matchpairs
 else
+	if g:delimitMate_paired_delims =~ '^\(.:\)\+\(,.:.\)*$'
+		finish
+	endif
 	let s:paired_delims_temp = g:delimitMate_paired_delims
 endif
 
+" Define your own quoting delimiters?
 if !exists("g:delimitMate_quote_delims")
 	let s:quote_delims = split("\" ' `")
 else
 	let s:quote_delims = g:delimitMate_quote_delims
 endif
 
+" Leader for visual mode:
 if !exists("g:delimitMate_leader")
 	let s:leader = "q"
 else
 	let s:leader = g:delimitMate_leader
 endif
 
+" Should space be expanded?
 if exists("g:delimitMate_expand_all")
 	let s:expand_space = g:delimitMate_expand_all
 elseif exists("g:delimitMate_expand_space")
@@ -64,6 +73,7 @@ else
 	let s:expand_space = 1
 endif
 
+" Should return be expanded?
 if exists("g:delimitMate_expand_all")
 	let s:expand_return = g:delimitMate_expand_all
 elseif exists("g:delimitMate_expand_return")
@@ -77,7 +87,8 @@ let s:left_delims = split(s:paired_delims_temp, ':.,\=')
 let s:right_delims = split(s:paired_delims_temp, ',\=.:')
 
 " Functions:{{{1
-function! IsEmptyPair(str)
+
+function! s:IsEmptyPair(str)
 	for pair in s:paired_delims
 		if a:str == join( split( pair, ':' ),'' )
 			return 1
@@ -91,12 +102,12 @@ function! IsEmptyPair(str)
 	return 0
 endfunc
 
-function! WithinEmptyPair()
+function! s:WithinEmptyPair()
 	let cur = strpart( getline('.'), col('.')-2, 2 )
 	return IsEmptyPair( cur )
 endfunc
 
-function! SkipDelim(char)
+function! s:SkipDelim(char)
 	let cur = strpart( getline('.'), col('.')-2, 3 )
 	if cur[0] == "\\"
 		return a:char
@@ -111,7 +122,7 @@ function! SkipDelim(char)
 	endif
 endfunc
 
-function! QuoteDelim(char)
+function! s:QuoteDelim(char)
 	let line = getline('.')
 	let col = col('.')
 	if line[col - 2] == "\\"
@@ -126,7 +137,7 @@ function! QuoteDelim(char)
 	endif
 endf
 
-function! ClosePair(char)
+function! s:ClosePair(char)
 	if getline('.')[col('.') - 1] == a:char
 		return "\<Right>"
 	else
@@ -134,7 +145,7 @@ function! ClosePair(char)
 	endif
 endf
 
-function! ResetMappings()
+function! s:ResetMappings()
 	for delim in s:right_delims + s:left_delims + s:quote_delims
 		silent! exec 'iunmap ' . delim
 		silent! exec 'vunmap ' . s:leader . delim
@@ -143,13 +154,13 @@ endfunction
 
 " Mappings:{{{1
 
-call ResetMappings()
+call s:ResetMappings()
 if s:autocomplete == 0
 	" Don't auto-complete:{{{2
-
-	"inoremap <expr> ) SkipDelim('\)')
+	let test_string = "Don't"
+	"inoremap <expr> ) <SID>SkipDelim('\)')
 	for delim in s:right_delims + s:quote_delims
-		exec 'imap <expr> ' . delim . ' SkipDelim("\' . delim . '")'
+		exec 'imap <expr> ' . delim . ' <SID>SkipDelim("\' . delim . '")'
 	endfor
 
 	" Wrap the selection with delimiters:
@@ -180,39 +191,47 @@ if s:autocomplete == 0
 else
 	" Do auto-complete:{{{2
 
-	"imap ( ()<Left>
+	" Add matching pair and jump to the midle:
+	" imap ( ()<Left>
 	let s:i = 0
 	while s:i < len(s:paired_delims)
 		exec 'imap ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
 		let s:i = s:i + 1
 	endwhile
 	
-	"imap " <c-r>=QuoteDelim("\"")<CR>
+	" Add matching quote and jump to the midle, or exit if inside a pair of
+	" matching quotes:
+	" imap " <c-r>=<SID>QuoteDelim("\"")<CR>
 	let s:i = 0
 	for delim in s:quote_delims
-		exec 'imap ' . delim . ' <c-r>=QuoteDelim("\' . delim . '")<CR>'
+		exec 'imap ' . delim . ' <c-r>=<SID>QuoteDelim("\' . delim . '")<CR>'
 	endfor
 
-	"imap ) <c-r>=ClosePair(')')<CR>
+	" Exit from inside the matching pair:
+	" imap ) <c-r>=<SID>ClosePair(')')<CR>
 	for delim in s:right_delims
-		exec 'imap ' . delim . ' <c-r>=ClosePair("\' . delim . '")<CR>'
+		exec 'imap ' . delim . ' <c-r>=<SID>ClosePair("\' . delim . '")<CR>'
 	endfor
 
-	" Wrap the selection with delimiters:
+	" Wrap the selection with matching pairs:
 	let s:i = 0
 	while s:i < len(s:paired_delims)
-		"vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s()\<C-R>\"\<Esc>"
+		" But only insert opening delimiter if blocking visual is active:
+		" vmap <expr> q( visualmode() == "<C-V>" ? "I(\<Esc>" : "s()\<C-R>\"\<Esc>"
 		exec 'vmap <expr> ' . s:leader . s:left_delims[s:i] . ' visualmode() == "<C-V>" ? "I' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
 
-	"vmap <expr> q) visualmode() == "<C-V>" ? "A)\<Esc>" : "s"\<C-R>\""\<Esc>"
+		" But only insert closing delimiter if blocking visual is active:
+		"vmap <expr> q) visualmode() == "<C-V>" ? "A)\<Esc>" : "s"\<C-R>\""\<Esc>"
 		exec 'vmap <expr> ' . s:leader . s:right_delims[s:i] . ' visualmode() == "<C-V>" ? "A' . s:left_delims[s:i] . '\<Esc>" : "s' . s:left_delims[s:i] . s:right_delims[s:i] . '\<C-R>\"\<Esc>"'
 		let s:i = s:i + 1
 	endwhile
 
+	" Wrap the selection with matching quotes, but only insert the opening
+	" quote if blocking visual is active:
 	for quote in s:quote_delims
 		if quote == '"'
 			" Ugly fix for double quotes:
-			"vmap <expr> q" visualmode() == "<C-V>" ? 'I\"<Left><BS><Right><Esc>' : "s\"\<C-R>\"\<Esc>"
+			" vmap <expr> q" visualmode() == "<C-V>" ? 'I\"<Left><BS><Right><Esc>' : "s\"\<C-R>\"\<Esc>"
 			exec 'vmap <expr> ' . s:leader . '" visualmode() == "<C-V>" ? ' .
 						\ "'I\\\"<Left><BS><Right><Esc>' : " .
 						\ '"s\"\<C-R>\"\<Esc>"'
@@ -230,17 +249,17 @@ endif
 " Expansions and Deletion:{{{2
 
 " If pair is empty, delete both delimiters:
-imap <expr> <BS> WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
+imap <expr> <BS> <SID>WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
 
 " If pair is empty, expand the pair to three lines and place the cursor
 " in the middle:
 if s:expand_return
-	imap <expr> <CR> WithinEmptyPair() ? "\<CR>\<CR>\<Up>" : "\<CR>"
+	imap <expr> <CR> <SID>WithinEmptyPair() ? "\<CR>\<CR>\<Up>" : "\<CR>"
 endif
 
 " If pair is emtpy, add a space to each side of the cursor:
 if s:expand_space
-	imap <expr> <Space> WithinEmptyPair() ? "\<Space>\<Space>\<Left>" : "\<Space>"
+	imap <expr> <Space> <SID>WithinEmptyPair() ? "\<Space>\<Space>\<Left>" : "\<Space>"
 endif
 
 "}}}1
