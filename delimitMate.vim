@@ -2,7 +2,7 @@
 " File:        delimitMate.vim
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
-" Maintainer:  Israel Chauca F. <israel@chauca.net>
+" Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
 " Credits:     Some of the code is modified or just copied from the following:
 "
 "			   - Ian McCracken

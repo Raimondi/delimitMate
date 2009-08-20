@@ -5,5 +5,7 @@
 
 [X] 100% Use escape()
 
+[_] % Add command-line auto-pairing
+	: Would this have to be constant? consider only vim language? I think so...
 
-
+vim:tw:78
