@@ -1,4 +1,4 @@
-" ===========================================================================
+" ============================================================================
 " File:        delimitMate.vim
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
@@ -22,6 +22,7 @@ if exists("g:loaded_delimitMate") "{{{1
 	call s:DelimitMateDo()
 	finish
 endif
+
 if v:version < 700
 	echoerr "delimitMate: this plugin requires vim >= 7!"
 	finish
@@ -41,7 +42,7 @@ function! s:Init() "{{{1
 		if s:ValidMatchpairs(&matchpairs) == 1
 			let s:matchpairs_temp = &matchpairs
 		else
-			echoerr "There seems to be a problem with 'matchpairs', read ':help matchpairs' and fix it or notify the maintainer of this script if it's a bug."
+			echoerr "There seems to be a problem with 'matchpairs', read ':help matchpairs' and fix it or notify the maintainer of this script if this is a bug."
 			finish
 		endif
 	else
@@ -53,7 +54,7 @@ function! s:Init() "{{{1
 			if s:ValidMatchpairs(&matchpairs) == 1
 				let s:matchpairs_temp = &matchpairs
 			else
-				echoerr "There seems tobe a problem with 'matchpairs', read ':help matchpairs' and fix it or notify the maintainer of this script if it's a bug."
+				echoerr "There seems to be a problem with 'matchpairs', read ':help matchpairs' and fix it or notify the maintainer of this script if this is a bug."
 				let s:matchpairs_temp = ""
 			endif
 
@@ -96,7 +97,7 @@ function! s:Init() "{{{1
 	let s:matchpairs = split(s:matchpairs_temp, ',')
 	let s:left_delims = split(s:matchpairs_temp, ':.,\=')
 	let s:right_delims = split(s:matchpairs_temp, ',\=.:')
-	let s:VMapMsg = "delimitMate is disabled on blockwise visual mode."
+	let s:VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
 
 endfunction
 

@@ -54,21 +54,21 @@ Unless |delimitMate_matchpairs| is set, this script uses the values in
 The following table shows the behaviour, this applies to quotes too (the final
 position of the cursor is represented by a "|"):
 
-With auto-close:
+With auto-close: >
                           Type   |  You get
                         ====================
                            (     |    (|)
                         –––––––––|––––––––––
                            ()    |    ()|
-
-Without auto-close:
+<
+Without auto-close: >
 
                           Type   |  You get
                         ====================
                            ()    |    (|)
                         –––––––––|––––––––––
                            ())   |    ()|
-
+<
 ------------------------------------------------------------------------------
    2.2 EXPANSION OF SPACE AND CAR RETURN                *delimitMateExpansion*
 
@@ -76,32 +76,32 @@ When the cursor is inside an empty pair of delimiters, space and car return
 can be expanded to follow your coding style using |'delimitMate_expand_space'|
 and |'delimitMate_expand_return'|. e.g. (cursor represented by a "|"):
 
-Expand <Space> to:
+Expand <Space> to: >
 
                   <Space><Space><Left>  |  You get
                 ====================================
                             (|)         |    ( | )
-
-Expand <CR> to:
+<
+Expand <CR> to: >
 
                     <CR><CR><Up>  |  You get
                   ============================
                          (|)      |    (
                                   |    |
                                   |    )
-
+<
 
 ------------------------------------------------------------------------------
    2.3 DELETION OF EMPTY PAIR                           *delimitMateBackspace*
 
 If you press backspace inside an empty pair, both delimiters are deleted.
 
-e.g.:
+e.g.: >
 
                  Before           |  After
                ====================================
                  call expand(|)   |  call expand|
-
+<
 
 ------------------------------------------------------------------------------
    2.4 WRAPPING OF VISUAL SELECTION                *delimitMateVisualWrapping*
@@ -111,12 +111,12 @@ with delimiters. But, since brackets have special meaning in visual mode, a
 leader ("q" by default) should precede the delimiter. This feature doesn't
 currently work on blockwise visual mode, any sugestions are welcome.
 
-e.g. (selection represented between square brackets):
+e.g. (selection represented between square brackets): >
 
              Selected text       |  After q"
            =============================================
             An [absurd] example! | An "absurd" example!
-
+<
 ==============================================================================
  3. CUSTOMIZATION                                         *delimitMateOptions*
 
