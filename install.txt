@@ -1,1 +1,0 @@
-To install this script just copy delimitMate.vim to your Vim's plugin folder (e.g.: $HOME/.vim/plugin) and delimitMate.txt to the respective 'doc' folder, then run 'helptags /path/to/.vim/doc'. After that you can read ':help delimitMate' for more info.
