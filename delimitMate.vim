@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        delimitMate.vim
-" Version:     1.0
+" Version:     1.1
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -71,7 +71,11 @@ function! s:Init() "{{{1
 	endif
 
 	if !exists("g:delimitMate_visual_leader")
-		let s:visual_leader = g:mapleader
+		if !exists("g:mapleader")
+			let s:visual_leader = "\\"
+		else
+			let s:visual_leader = g:mapleader
+		endif
 	else
 		let s:visual_leader = g:delimitMate_visual_leader
 	endif
@@ -368,4 +372,5 @@ command! DelimitMateReload call s:DelimitMateDo()
 " Quick test:
 command! DelimitMateTest call s:TestMappingsDo()
 
+" GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
 " vim:foldmethod=marker:foldcolumn=2
