@@ -17,8 +17,14 @@
 "              - Vim Scripts:
 "           	 http://www.vim.org/scripts/
 
-if exists("g:loaded_delimitMate") && !exists("g:delimitMate_testing") "{{{1
-	" Don't define the functions if they already exist: just do the work (unless we are testing):
+if exists("g:loaded_delimitMate") "{{{1
+	" User doesn't want this plugin, let's get out!
+	finish
+endif
+
+if exists("s:loaded_delimitMate") && !exists("g:delimitMate_testing")
+	" Don't define the functions if they already exist: just do the work
+	" (unless we are testing):
 	call s:DelimitMateDo()
 	finish
 endif
@@ -28,7 +34,7 @@ if v:version < 700
 	finish
 endif
 
-let g:loaded_delimitMate = 1
+let s:loaded_delimitMate = 1
 
 function! s:Init() "{{{1
 
@@ -216,7 +222,7 @@ function! s:AutoClose() "{{{1
 	" imap <buffer> ( ()<Left>
 	let s:i = 0
 	while s:i < len(s:matchpairs)
-		exec 'imap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+		exec 'imap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . '_<Left>' . s:right_delims[s:i] . '<Del><Left>'
 		let s:i += 1
 	endwhile
 
@@ -270,7 +276,7 @@ endfunction
 
 function! s:ExtraMappings() "{{{1
 	" If pair is empty, delete both delimiters:
-	imap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
+	imap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "\<Left>\<Del>\<Del>" : "\<BS>"
 
 	" Expand return if inside an empty pair:
 	imap <buffer> <CR> <C-R>=<SID>ExpandReturn()<CR>
@@ -358,6 +364,7 @@ function! s:DelimitMateDo() "{{{1
 			call s:NoAutoClose()
 		endif
 		call s:ExtraMappings()
+		let b:loaded_delimitMate = 1
 	finally
 		let &cpo = s:save_cpo
 	endtry
@@ -371,6 +378,8 @@ command! DelimitMateReload call s:DelimitMateDo()
 
 " Quick test:
 command! DelimitMateTest call s:TestMappingsDo()
+
+autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
 
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
 " vim:foldmethod=marker:foldcolumn=2
