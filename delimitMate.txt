@@ -20,7 +20,7 @@
     5. TODO list_______________________________|delimitMateTodo|
     6. Maintainer______________________________|delimitMateMaintainer|
     7. Credits_________________________________|delimitMateCredits|
-
+    8. History_________________________________|delimitMateHistory|
 
 ==============================================================================
  1.- INTRODUCTION                                                *delimitMate*
@@ -133,38 +133,47 @@ e.g. (selection represented between square brackets): >
    3.1 OPTIONS SUMMARY                              *delimitMateOptionSummary*
 
 The behaviour of this script can be customized setting the following options
-in your vimrc file.
+in your vimrc file. You can use local options to set the configuration for
+specific file types, see |delimitMateOptionDetails| for examples.
 
 |'loaded_delimitMate'|          Turns off the script.
 
 |'delimitMate_autoclose'|       Tells delimitMate whether to automagically
                                 insert the closing delimiter.
 
-|'b:delimitMate_matchpairs'|    Tells delimitMate which characters are
+|'delimitMate_matchpairs'|      Tells delimitMate which characters are
                                 matching pairs.
 
-|'b:delimitMate_quotes'|        Tells delimitMate which quotes should be
+|'delimitMate_quotes'|          Tells delimitMate which quotes should be
                                 used.
 
 |'delimitMate_visual_leader'|   Sets the leader to be used in visual mode.
 
-|'b:delimitMate_expand_cr'|     Sets the expansion for <CR> inside an empty
+|'delimitMate_expand_cr'|       Sets the expansion for <CR> inside an empty
                                 pair of matching delimiters or quotes.
 
-|'b:delimitMate_expand_space'|  Sets the expansion for <Space> inside an
+|'delimitMate_expand_space'|    Sets the expansion for <Space> inside an
                                 empty pair of matching delimiters or quotes.
+
+|'delimitMate_excluded_ft'|    Turns off the script for the given file types.
 
 ------------------------------------------------------------------------------
    3.2 OPTIONS DETAILS                              *delimitMateOptionDetails*
 
 Add the shown lines to your vimrc files in order to set the below options.
+Local options take precedence over global ones and can be used along with
+autocmd to modify delimitMate's behavior for specific file types.
 
                                                      *'loaded_delimitMate'*
-You can turn off this plugin using this line in your vimrc: >
+                                                   *'b:loaded_delimitMate'*
+This option prevents delimitMate from loading.
+e.g.: >
         let loaded_delimitMate = 1
+        au FileType mail let b:loaded_delimitMate = 1
 <
 ------------------------------------------------------------------------------
                                                      *'delimitMate_autoclose'*
+                                                   *'b:delimitMate_autoclose'*
 Values: 0 or 1.
 Default: 1
 
@@ -172,9 +181,11 @@ If this option is set to 0, delimitMate will not add a closing delimiter
 automagically. See |delimitMateAutoClose| for details.
 e.g.: >
         let delimitMate_autoclose = 0
+        au FileType mail let b:delimitMate_autoclose = 0
 <
 ------------------------------------------------------------------------------
-                                                *'b:delimitMate_matchpairs'*
+                                                    *'delimitMate_matchpairs'*
+                                                  *'b:delimitMate_matchpairs'*
 Values: A string with |matchpairs| syntax.
 Default: &matchpairs
 
@@ -182,8 +193,10 @@ Use this option to tell delimitMate which characters should be considered
 matching pairs. Read |delimitMateAutoClose| for details.
 e.g: >
         let delimitMate = "(:),[:],{:},<:>"
+        au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:},<:>"
 <
 ------------------------------------------------------------------------------
+                                                        *'delimitMate_quotes'*
                                                       *'b:delimitMate_quotes'*
 Values: A string of characters separated by spaces.
 Default: "\" ' `"
@@ -192,9 +205,11 @@ Use this option to tell delimitMate which characters should be considered as
 quotes. Read |delimitMateAutoClose| for details.
 e.g.: >
         let b:delimitMate_quotes = "\" ' ` *"
+        au FileType html let b:delimitMate_quotes = "\" '"
 <
 ------------------------------------------------------------------------------
                                                  *'delimitMate_visual_leader'*
+                                               *'b:delimitMate_visual_leader'*
 Values: Any character.
 Default: q
 
@@ -202,8 +217,10 @@ The value of this option will be used to wrap the selection in visual mode
 when followed by a delimiter. Read |delimitMateVisualWrap| for details.
 e.g: >
         let delimitMate_visual_leader = "f"
+        au FileType html let b:delimitMate_visual_leader = "f"
 <
 ------------------------------------------------------------------------------
+                                                     *'delimitMate_expand_cr'*
                                                    *'b:delimitMate_expand_cr'*
 Values: A key mapping.
 Default: "\<CR>"
@@ -212,8 +229,10 @@ The value of this option will be used to expand the car return character when
 typed inside an empty delimiter pair. Read |delimitMateExpansion| for details.
 e.g.: >
         let b:delimitMate_expand_cr = "\<CR>\<CR>\<Up>"
+        au FileType mail let b:delimitMate_expand_cr = "\<CR>
 <
 ------------------------------------------------------------------------------
+                                                  *'delimitMate_expand_space'*
                                                 *'b:delimitMate_expand_space'*
 Values: A key mapping.
 Default: "\<Space>"
@@ -221,9 +240,19 @@ Default: "\<Space>"
 The value of this option will be used to expand the space character when typed
 inside an empty delimiter pair. Read |delimitMateExpansion| for details.
 e.g.: >
-        let b:delimitMate_expand_space = "\<Space>\<Space>\<Left>"
+        let delimitMate_expand_space = "\<Space>\<Space>\<Left>"
+        au filetype tcl let b:delimitMate_expand_space = "\<Space>"
 <
+------------------------------------------------------------------------------
+                                                   *'delimitMate_excluded_ft'*
+Values: A string of file type names separated by single commas.
+Defaul: Empty.
 
+This options turns delimitMate off for the listed file types, use this option
+only if don't want any of the features it provides.
+e.g.: >
+        let delimitMate_excluded_ft = "mail,txt"
+<
 ==============================================================================
  4. PUBLIC COMMANDS                                *delimitMatePublicCommands*
 
@@ -231,7 +260,7 @@ e.g.: >
 :DelimitMateReload                                        *:DelimitMateReload*
 
 Re-sets all the mappings used for this script, use it if any option has been
-changed.
+changed or if the filetype option hasn't been set yet.
 
 ------------------------------------------------------------------------------
 :DelimitMateTest                                            *:DelimitMateTest*
@@ -310,7 +339,6 @@ represented by an "|": >
 - Automatic set-up by file type.
 - Make visual wrapping work on blockwise visual mode.
 - Limit behaviour by region.
-- Fix some problems wrapping a single empty line in visual mode.
 
 ==============================================================================
  6. MAINTAINER                                         *delimitMateMaintainer*
@@ -339,5 +367,36 @@ from the following sources:
      http://www.vim.org/scripts
 
 This script was inspired by the auto-completion of delimiters of TextMate.
+
+==============================================================================
+ 8. HISTORY                                               *delimitMateHistory*
+
+  Version      Date      Release notes
+|---------|------------|-----------------------------------------------------|
+    1.3     2009-09-24   Now local options can be used along with autocmd
+                         for specific file type configurations.
+                         Fixes:
+                         - Unnamed register content is not lost on visual
+                         mode.
+                         - Use noremap where appropiate.
+                         - Wrapping a single empty line works as expected.
+
+|---------|------------|-----------------------------------------------------|
+    1.2	    2009-09-07   Fixes:
+                         - When inside nested empty pairs, deleting the
+                         innermost left delimiter would delete all right
+                         contiguous delimiters.
+                         - When inside an empty pair, inserting a left
+                         delimiter wouldn't insert the right one, instead
+                         the cursor would jump to the right.
+                         - New buffer inside the current window wouldn't
+                         have the mappings set.
+|---------|------------|-----------------------------------------------------|
+    1.1     2009-08-25   Fixed an error that ocurred when mapleader wasn't
+                         set and added support for GetLatestScripts
+                         auto-detection.
+|---------|------------|-----------------------------------------------------|
+    1.0     2009-08-23   Initial upload.
+|---------|------------|-----------------------------------------------------|
 
 vim:tw=78:ts=8:ft=help:norl:

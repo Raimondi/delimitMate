@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        delimitMate.vim
-" Version:     1.1
+" Version:     1.3
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -21,6 +21,7 @@ if exists("g:loaded_delimitMate") "{{{1
 	" User doesn't want this plugin, let's get out!
 	finish
 endif
+let g:loaded_delimitMate = 1
 
 if exists("s:loaded_delimitMate") && !exists("g:delimitMate_testing")
 	" Don't define the functions if they already exist: just do the work
@@ -34,24 +35,26 @@ if v:version < 700
 	finish
 endif
 
-let s:loaded_delimitMate = 1
+let s:loaded_delimitMate = 1 " }}}1
 
 function! s:Init() "{{{1
 
-	if !exists("g:delimitMate_autoclose")
+	if !exists("b:delimitMate_autoclose") && !exists("g:delimitMate_autoclose") " {{{
 		let s:autoclose = 1
+	elseif exists("b:delimitMate_autoclose")
+		let s:autoclose = b:delimitMate_autoclose
 	else
 		let s:autoclose = g:delimitMate_autoclose
-	endif
+	endif " }}}
 
-	if !exists("b:delimitMate_matchpairs")
+	if !exists("b:delimitMate_matchpairs") && !exists("g:delimitMate_matchpairs") " {{{
 		if s:ValidMatchpairs(&matchpairs) == 1
 			let s:matchpairs_temp = &matchpairs
 		else
 			echoerr "delimitMate: There seems to be a problem with 'matchpairs', read ':help matchpairs' and fix it or notify the maintainer of this script if this is a bug."
 			finish
 		endif
-	else
+	elseif exists("b:delimitMate_matchpairs")
 		if s:ValidMatchpairs(b:delimitMate_matchpairs) || b:delimitMate_matchpairs == ""
 			let s:matchpairs_temp = b:delimitMate_matchpairs
 		else
@@ -63,51 +66,93 @@ function! s:Init() "{{{1
 				let s:matchpairs_temp = ""
 			endif
 		endif
-	endif
+	else
+		if s:ValidMatchpairs(g:delimitMate_matchpairs) || g:delimitMate_matchpairs == ""
+			let s:matchpairs_temp = g:delimitMate_matchpairs
+		else
+			echoerr "delimitMate: Invalid format in 'g:delimitMate_matchpairs', falling back to matchpairs. Fix the error and use the command :DelimitMateReload to try again."
+			if s:ValidMatchpairs(&matchpairs) == 1
+				let s:matchpairs_temp = &matchpairs
+			else
+				echoerr "delimitMate: There seems to be a problem with 'matchpairs', read ':help matchpairs' and fix it or notify the maintainer of this script if this is a bug."
+				let s:matchpairs_temp = ""
+			endif
+		endif
 
-	if exists("b:delimitMate_quotes")
+	endif " }}}
+
+	if exists("b:delimitMate_quotes") " {{{
 		if b:delimitMate_quotes =~ '^\(\S\)\(\s\S\)*$' || b:delimitMate_quotes == ""
 			let s:quotes = split(b:delimitMate_quotes)
 		else
 			let s:quotes = split("\" ' `")
 			echoerr "delimitMate: There is a problem with the format of 'b:delimitMate_quotes', it should be a string of single characters separated by spaces. Falling back to default values."
 		endif
+	elseif exists("g:delimitMate_quotes")
+		if g:delimitMate_quotes =~ '^\(\S\)\(\s\S\)*$' || g:delimitMate_quotes == ""
+			let s:quotes = split(g:delimitMate_quotes)
+		else
+			let s:quotes = split("\" ' `")
+			echoerr "delimitMate: There is a problem with the format of 'g:delimitMate_quotes', it should be a string of single characters separated by spaces. Falling back to default values."
+		endif
 	else
 		let s:quotes = split("\" ' `")
-	endif
+	endif " }}}
 
-	if !exists("g:delimitMate_visual_leader")
+	if !exists("b:delimitMate_visual_leader") && !exists("g:delimitMate_visual_leader") " {{{
 		if !exists("g:mapleader")
 			let s:visual_leader = "\\"
 		else
 			let s:visual_leader = g:mapleader
 		endif
+	elseif exists("b:delimitMate_visual_leader")
+		let s:visual_leader = b:delimitMate_visual_leader
 	else
-		let s:visual_leader = g:delimitMate_visual_leader
-	endif
+		let s:visual_leader = g:delimitMate_visual_leader		
+	endif " }}}
 
-	if !exists("b:delimitMate_expand_space")
+	if !exists("b:delimitMate_expand_space") && !exists("g:delimitMate_expand_space") " {{{
 		let s:expand_space = "\<Space>"
 	elseif b:delimitMate_expand_space == ""
 		let s:expand_space = "\<Space>"
-	else
+	elseif exists("b:delimitMate_expand_space")
 		let s:expand_space = b:delimitMate_expand_space
-	endif
-
-	if !exists("b:delimitMate_expand_cr")
-		let s:expand_return = "\<CR>"
-	elseif b:delimitMate_expand_cr == ""
-		let s:expand_return = "\<CR>"
 	else
-		let s:expand_return = b:delimitMate_expand_cr
-	endif
+		let s:expand_space = g:delimitMate_expand_space
+	endif " }}}
+
+	if !exists("b:delimitMate_expand_cr") && !exists("g:delimitMate_expand_cr") " {{{
+		let s:expand_return = "\<CR>"
+	elseif exists("b:delimitMate_expand_cr")
+		if b:delimitMate_expand_cr == ""
+			let s:expand_return = "\<CR>"
+		else
+			let s:expand_return = b:delimitMate_expand_cr
+		endif
+	else
+		if g:delimitMate_expand_cr == ""
+			let s:expand_return = "\<CR>"
+		else
+			let s:expand_return = g:delimitMate_expand_cr
+		endif
+
+	endif " }}}
 
 	let s:matchpairs = split(s:matchpairs_temp, ',')
 	let s:left_delims = split(s:matchpairs_temp, ':.,\=')
 	let s:right_delims = split(s:matchpairs_temp, ',\=.:')
 	let s:VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
 
-endfunction
+	call s:ResetMappings()
+	if s:autoclose
+		call s:AutoClose()
+	else
+		call s:NoAutoClose()
+	endif
+	call s:ExtraMappings()
+	let b:loaded_delimitMate = 1
+
+endfunction "}}}1
 
 function! s:ValidMatchpairs(str) "{{{1
 	if a:str !~ '^\(.:.\)\+\(,.:.\)*$'
@@ -119,7 +164,7 @@ function! s:ValidMatchpairs(str) "{{{1
 		endif
 	endfor
 	return 1
-endfunc
+endfunction "}}}1
 
 function! s:IsEmptyPair(str) "{{{1
 	for pair in s:matchpairs
@@ -133,12 +178,12 @@ function! s:IsEmptyPair(str) "{{{1
 		endif
 	endfor
 	return 0
-endfunc
+endfunction "}}}1
 
 function! s:WithinEmptyPair() "{{{1
 	let cur = strpart( getline('.'), col('.')-2, 2 )
 	return s:IsEmptyPair( cur )
-endfunc
+endfunction "}}}1
 
 function! s:SkipDelim(char) "{{{1
 	let cur = strpart( getline('.'), col('.')-2, 3 )
@@ -154,7 +199,7 @@ function! s:SkipDelim(char) "{{{1
 	else
 		return a:char
 	endif
-endfunc
+endfunction "}}}1
 
 function! s:QuoteDelim(char) "{{{1
 	let line = getline('.')
@@ -169,7 +214,7 @@ function! s:QuoteDelim(char) "{{{1
 		"Starting a string
 		return a:char.a:char."\<Left>"
 	endif
-endf
+endfunction "}}}1
 
 function! s:ClosePair(char) "{{{1
 	if getline('.')[col('.') - 1] == a:char
@@ -177,7 +222,7 @@ function! s:ClosePair(char) "{{{1
 	else
 		return a:char
 	endif
-endf
+endfunction "}}}1
 
 function! s:ResetMappings() "{{{1
 	for delim in s:right_delims + s:left_delims + s:quotes
@@ -186,77 +231,99 @@ function! s:ResetMappings() "{{{1
 	endfor
 	silent! iunmap <buffer> <CR>
 	silent! iunmap <buffer> <Space>
-endfunction
+endfunction "}}}1
 
 function! s:MapMsg(msg) "{{{1
 	redraw
 	echomsg a:msg
 	return ""
-endfunction
+endfunction "}}}1
 
 function! s:NoAutoClose() "{{{1
-	" imap <buffer> ) <C-R>=<SID>SkipDelim('\)')<CR>
+	" inoremap <buffer> ) <C-R>=<SID>SkipDelim('\)')<CR>
 	for delim in s:right_delims + s:quotes
-		exec 'imap <buffer> ' . delim . ' <C-R>=<SID>SkipDelim("' . escape(delim,'"') . '")<CR>'
-	endfor
-
-	" Wrap the selection with delimiters, but do nothing if blockwise visual mode is active:
-	for i in range(len(s:matchpairs))
-		" Map left delimiter:
-		" vmap <buffer> <expr> q( visualmode() == "<C-V>" ? <SID>MapMsg(VMapMsg) : "s(\<C-R>\")\<Esc>"
-		exec 'vmap <buffer> <expr> ' . s:visual_leader . s:left_delims[i] . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[i] . '\<C-R>\"' . s:right_delims[i] . '\<Esc>"'
-
-		" Map right delimiter:
-		" vmap <buffer> <expr> q) visualmode() == "<C-V>" ? <SID>MapMsg(VMapMsg) : "s(\<C-R>\")\<Esc>"
-		exec 'vmap <buffer> <expr> ' . s:visual_leader . s:right_delims[i] . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[i] . '\<C-R>\"' . s:right_delims[i] . '"'
-	endfor
-
-	for quote in s:quotes
-		" vmap <buffer> <expr> q" visualmode() == "<C-V>" ? <SID>MapMsg(VMapMsg) : "s'\<C-R>\"'\<Esc>"
-		exec 'vmap <buffer> <expr> ' . s:visual_leader . quote . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') . '\<C-R>\"' . escape(quote,'"') . '\<Esc>"'
-	endfor
-endfunction
-
-function! s:AutoClose() "{{{1
-	" Add matching pair and jump to the midle:
-	" imap <buffer> ( ()<Left>
-	let s:i = 0
-	while s:i < len(s:matchpairs)
-		exec 'imap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . '_<Left>' . s:right_delims[s:i] . '<Del><Left>'
-		let s:i += 1
-	endwhile
-
-	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
-	" imap <buffer> " <C-R>=<SID>QuoteDelim("\"")<CR>
-	for delim in s:quotes
-		exec 'imap <buffer> ' . delim . ' <C-R>=<SID>QuoteDelim("\' . delim . '")<CR>'
-	endfor
-
-	" Exit from inside the matching pair:
-	" imap <buffer> ) <C-R>=<SID>ClosePair(')')<CR>
-	for delim in s:right_delims
-		exec 'imap <buffer> ' . delim . ' <C-R>=<SID>ClosePair("\' . delim . '")<CR>'
+		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>SkipDelim("' . escape(delim,'"') . '")<CR>'
 	endfor
 
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	let s:i = 0
 	while s:i < len(s:matchpairs)
 		" Map left delimiter:
-		" vmap <buffer> <expr> q( visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\"\<Esc>"
-		exec 'vmap <buffer> <expr> ' . s:visual_leader . s:left_delims[s:i] . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"\<Esc>"'
+		" vnoremap <buffer> <expr> q( visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\"\<Esc>"
+		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . s:left_delims[s:i] . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"' . s:right_delims[s:i] . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 
 		" Map right delimiter:
-		" vmap <buffer> <expr> q) visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\""\<Esc>"
-		exec 'vmap <buffer> <expr> ' . s:visual_leader . s:right_delims[s:i] . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\""'
+		" vnoremap <buffer> <expr> q) visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\""\<Esc>"
+		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . s:right_delims[s:i] . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"' . s:right_delims[s:i] . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 		let s:i += 1
 	endwhile
 
 	" Wrap the selection with matching quotes, but do nothing if blockwise visual mode is active:
 	for quote in s:quotes
-		" vmap <buffer> <expr> q' visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s'\<C-R>\"'\<Esc>"
-		exec 'vmap <buffer> <expr> ' . s:visual_leader . quote . ' visualmode() == "<C-V>" ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>"'
+		" vnoremap <buffer> <expr> q' visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s'\<C-R>\"'\<Esc>"
+		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . quote . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 	endfor
-endfunction
+endfunction "}}}1
+
+function! s:AutoClose() "{{{1
+	" Add matching pair and jump to the midle:
+	" inoremap <buffer> ( ()<Left>
+	let s:i = 0
+	while s:i < len(s:matchpairs)
+		exec 'inoremap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+		let s:i += 1
+	endwhile
+
+	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
+	" inoremap <buffer> " <C-R>=<SID>QuoteDelim("\"")<CR>
+	for delim in s:quotes
+		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>QuoteDelim("\' . delim . '")<CR>'
+	endfor
+
+	" Exit from inside the matching pair:
+	" inoremap <buffer> ) <C-R>=<SID>ClosePair(')')<CR>
+	for delim in s:right_delims
+		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>ClosePair("\' . delim . '")<CR>'
+	endfor
+
+	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
+	let s:i = 0
+	while s:i < len(s:matchpairs)
+		" Map left delimiter:
+		" vnoremap <buffer> <expr> q( visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\"\<Esc>"
+		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . s:left_delims[s:i] . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"' . s:right_delims[s:i] . '\<Esc>:call <SID>RestoreRegister()<CR>"'
+
+		" Map right delimiter:
+		" vnoremap <buffer> <expr> q) visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s(\<C-R>\""\<Esc>"
+		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . s:right_delims[s:i] . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . s:left_delims[s:i] . '\<C-R>\"' . s:right_delims[s:i] . '\<Esc>:call <SID>RestoreRegister()<CR>"'
+		let s:i += 1
+	endwhile
+
+	" Wrap the selection with matching quotes, but do nothing if blockwise visual mode is active:
+	for quote in s:quotes
+		" vnoremap <buffer> <expr> q' visualmode() == "<C-V>" ? <SID>MapMsg("Message") : "s'\<C-R>\"'\<Esc>"
+		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . quote . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call <SID>RestoreRegister()<CR>"'
+	endfor
+endfunction "}}}1
+
+function! s:IsBlockVisual() " {{{1
+	if visualmode() == "<C-V>"
+		return 1
+	endif
+	let s:save_reg = getreg('"')
+	echomsg s:save_reg
+	let s:save_reg_mode = getregtype('"')
+	echomsg s:save_reg_mode
+	if len(getline('.')) == 0
+		let @" = "\n"
+	endif
+	return 0
+endfunction " }}}1
+
+function! s:RestoreRegister() " {{{1
+	call setreg('"', s:save_reg, s:save_reg_mode)
+	echo ""
+endfunction " }}}1
 
 function! s:ExpandReturn() "{{{1
 	if s:WithinEmptyPair()
@@ -264,7 +331,7 @@ function! s:ExpandReturn() "{{{1
 	else
 		return "\<CR>"
 	endif
-endfunction
+endfunction "}}}1
 
 function! s:ExpandSpace() "{{{1
 	if s:WithinEmptyPair()
@@ -272,18 +339,18 @@ function! s:ExpandSpace() "{{{1
 	else
 		return "\<Space>"
 	endif
-endfunction
+endfunction "}}}1
 
 function! s:ExtraMappings() "{{{1
 	" If pair is empty, delete both delimiters:
-	imap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "\<Left>\<Del>\<Del>" : "\<BS>"
+	inoremap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "<Right><BS><BS>" : "\<BS>"
 
 	" Expand return if inside an empty pair:
-	imap <buffer> <CR> <C-R>=<SID>ExpandReturn()<CR>
+	inoremap <buffer> <CR> <C-R>=<SID>ExpandReturn()<CR>
 
 	" Expand space if inside an empty pair:
-	imap <buffer> <Space> <C-R>=<SID>ExpandSpace()<CR>
-endfunction
+	inoremap <buffer> <Space> <C-R>=<SID>ExpandSpace()<CR>
+endfunction "}}}1
 
 function! s:TestMappings() "{{{1
 	if s:autoclose
@@ -326,7 +393,7 @@ function! s:TestMappings() "{{{1
 		endfor
 	endif
 	exec "normal \<Esc>"
-endfunction
+endfunction "}}}1
 
 function! s:SwitchAutoclose() "{{{1
 	if !exists("g:delimitMate_autoclose")
@@ -337,7 +404,7 @@ function! s:SwitchAutoclose() "{{{1
 		let g:delimitMate_autoclose = 1
 	endif
 	DelimitMateReload
-endfunction
+endfunction "}}}1
 
 function! s:TestMappingsDo() "{{{1
 	if !exists("g:delimitMate_testing")
@@ -350,28 +417,29 @@ function! s:TestMappingsDo() "{{{1
 		call s:SwitchAutoclose()
 		call s:TestMappings()
 	endif
-endfunction
+endfunction "}}}1
 
 function! s:DelimitMateDo() "{{{1
+	if exists("g:delimitMate_excluded_ft")
+		for ft in split(g:delimitMate_excluded_ft,',')
+			if ft ==? &filetype
+				echomsg "Excluded"
+				return 1
+			endif
+		endfor
+	endif
 	try
-		let s:save_cpo = &cpo
+		let save_cpo = &cpo
 		set cpo&vim
 		call s:Init()
-		call s:ResetMappings()
-		if s:autoclose
-			call s:AutoClose()
-		else
-			call s:NoAutoClose()
-		endif
-		call s:ExtraMappings()
-		let b:loaded_delimitMate = 1
 	finally
-		let &cpo = s:save_cpo
+		let &cpo = save_cpo
 	endtry
-endfunction
+	let &cpo = save_cpo
+endfunction "}}}1
 
 " Do the real work: {{{1
-call s:DelimitMateDo()
+"call s:DelimitMateDo()
 
 " Let me refresh without re-loading the buffer:
 command! DelimitMateReload call s:DelimitMateDo()
@@ -379,7 +447,8 @@ command! DelimitMateReload call s:DelimitMateDo()
 " Quick test:
 command! DelimitMateTest call s:TestMappingsDo()
 
-autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
+"autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") || &filetype !=? "mailapp" | call <SID>DelimitMateDo() | endif
+autocmd VimEnter * autocmd FileType * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
 
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
 " vim:foldmethod=marker:foldcolumn=2
