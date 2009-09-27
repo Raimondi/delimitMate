@@ -174,8 +174,8 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                      *'delimitMate_autoclose'*
                                                    *'b:delimitMate_autoclose'*
-Values: 0 or 1.
-Default: 1
+Values: 0 or 1.                                                              ~
+Default: 1                                                                   ~
 
 If this option is set to 0, delimitMate will not add a closing delimiter
 automagically. See |delimitMateAutoClose| for details.
@@ -186,8 +186,8 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                     *'delimitMate_matchpairs'*
                                                   *'b:delimitMate_matchpairs'*
-Values: A string with |matchpairs| syntax.
-Default: &matchpairs
+Values: A string with |matchpairs| syntax.                                   ~
+Default: &matchpairs                                                         ~
 
 Use this option to tell delimitMate which characters should be considered
 matching pairs. Read |delimitMateAutoClose| for details.
@@ -198,8 +198,8 @@ e.g: >
 ------------------------------------------------------------------------------
                                                         *'delimitMate_quotes'*
                                                       *'b:delimitMate_quotes'*
-Values: A string of characters separated by spaces.
-Default: "\" ' `"
+Values: A string of characters separated by spaces.                          ~
+Default: "\" ' `"                                                            ~
 
 Use this option to tell delimitMate which characters should be considered as
 quotes. Read |delimitMateAutoClose| for details.
@@ -210,8 +210,8 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                  *'delimitMate_visual_leader'*
                                                *'b:delimitMate_visual_leader'*
-Values: Any character.
-Default: q
+Values: Any character.                                                       ~
+Default: q                                                                   ~
 
 The value of this option will be used to wrap the selection in visual mode
 when followed by a delimiter. Read |delimitMateVisualWrap| for details.
@@ -222,8 +222,8 @@ e.g: >
 ------------------------------------------------------------------------------
                                                      *'delimitMate_expand_cr'*
                                                    *'b:delimitMate_expand_cr'*
-Values: A key mapping.
-Default: "\<CR>"
+Values: A key mapping.                                                       ~
+Default: "\<CR>"                                                             ~
 
 The value of this option will be used to expand the car return character when
 typed inside an empty delimiter pair. Read |delimitMateExpansion| for details.
@@ -234,8 +234,8 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                   *'delimitMate_expand_space'*
                                                 *'b:delimitMate_expand_space'*
-Values: A key mapping.
-Default: "\<Space>"
+Values: A key mapping.                                                       ~
+Default: "\<Space>"                                                          ~
 
 The value of this option will be used to expand the space character when typed
 inside an empty delimiter pair. Read |delimitMateExpansion| for details.
@@ -245,8 +245,8 @@ e.g.: >
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_excluded_ft'*
-Values: A string of file type names separated by single commas.
-Defaul: Empty.
+Values: A string of file type names separated by single commas.              ~
+Defaul: Empty.                                                               ~
 
 This options turns delimitMate off for the listed file types, use this option
 only if don't want any of the features it provides.
@@ -371,7 +371,11 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 ==============================================================================
  8. HISTORY                                               *delimitMateHistory*
 
-  Version      Date      Release notes
+  Version      Date      Release notes                                       ~
+|---------|------------|-----------------------------------------------------|
+    1.4     2009-09-27   Fix: delimitMate is now enabled on new buffers even
+                         if they don't have set the file type option or were
+                         opened directly from the terminal.
 |---------|------------|-----------------------------------------------------|
     1.3     2009-09-24   Now local options can be used along with autocmd
                          for specific file type configurations.

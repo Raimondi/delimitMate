@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        delimitMate.vim
-" Version:     1.3
+" Version:     1.4
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -108,7 +108,7 @@ function! s:Init() "{{{1
 	elseif exists("b:delimitMate_visual_leader")
 		let s:visual_leader = b:delimitMate_visual_leader
 	else
-		let s:visual_leader = g:delimitMate_visual_leader		
+		let s:visual_leader = g:delimitMate_visual_leader
 	endif " }}}
 
 	if !exists("b:delimitMate_expand_space") && !exists("g:delimitMate_expand_space") " {{{
@@ -392,7 +392,7 @@ function! s:TestMappings() "{{{1
 			exec "normal A\<CR>Car return: " . s:quotes[i] . s:quotes[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 	endif
-	exec "normal \<Esc>"
+	exec "normal \<Esc>i"
 endfunction "}}}1
 
 function! s:SwitchAutoclose() "{{{1
@@ -405,6 +405,42 @@ function! s:SwitchAutoclose() "{{{1
 	endif
 	DelimitMateReload
 endfunction "}}}1
+
+function! s:UnMap() " {{{
+
+	for char in s:right_delims + s:quotes
+		if maparg(char,"i") =~ 'SkipDelim'
+			exec 'iunmap <buffer> ' . char
+			"echomsg 'iunmap <buffer> ' . char
+		endif
+	endfor
+	for char in s:right_delims + s:left_delims + s:quotes
+		if maparg(s:visual_leader . char,"v") =~ 'IsBlock'
+			exec 'vunmap <buffer> ' . s:visual_leader . char
+			"echomsg 'vunmap <buffer> ' . s:visual_leader . char
+		endif
+	endfor
+	let s:i = 0
+	while s:i < len(s:matchpairs)
+		if maparg(char,"i") =~ s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+			exec 'iunmap <buffer> ' . char
+			"echomsg 'iunmap <buffer> ' . char
+		endif
+		let s:i += 1
+	endwhile
+	for char in s:quotes
+		if maparg(char, "i") =~ 'QuoteDelim'
+			exec 'iunmap <buffer> ' . char
+			"echomsg 'iunmap <buffer> ' . char
+		endif
+	endfor
+	for char in s:right_delims
+		if maparg(char, "i")
+			exec 'iunmap <buffer> ' . char
+			"echomsg 'iunmap <buffer> ' . char
+		endif
+	endfor
+endfunction " }}}
 
 function! s:TestMappingsDo() "{{{1
 	if !exists("g:delimitMate_testing")
@@ -423,7 +459,7 @@ function! s:DelimitMateDo() "{{{1
 	if exists("g:delimitMate_excluded_ft")
 		for ft in split(g:delimitMate_excluded_ft,',')
 			if ft ==? &filetype
-				echomsg "Excluded"
+				call s:UnMap()
 				return 1
 			endif
 		endfor
@@ -439,7 +475,7 @@ function! s:DelimitMateDo() "{{{1
 endfunction "}}}1
 
 " Do the real work: {{{1
-"call s:DelimitMateDo()
+call s:DelimitMateDo()
 
 " Let me refresh without re-loading the buffer:
 command! DelimitMateReload call s:DelimitMateDo()
@@ -447,8 +483,11 @@ command! DelimitMateReload call s:DelimitMateDo()
 " Quick test:
 command! DelimitMateTest call s:TestMappingsDo()
 
-"autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") || &filetype !=? "mailapp" | call <SID>DelimitMateDo() | endif
-autocmd VimEnter * autocmd FileType * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
+" Run on file type events.
+autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
+
+" Run on new buffers.
+autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
 
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
 " vim:foldmethod=marker:foldcolumn=2
