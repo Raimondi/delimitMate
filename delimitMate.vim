@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        delimitMate.vim
-" Version:     1.4
+" Version:     1.5
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -343,7 +343,7 @@ endfunction "}}}1
 
 function! s:ExtraMappings() "{{{1
 	" If pair is empty, delete both delimiters:
-	inoremap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "<Right><BS><BS>" : "\<BS>"
+	inoremap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
 
 	" Expand return if inside an empty pair:
 	inoremap <buffer> <CR> <C-R>=<SID>ExpandReturn()<CR>
@@ -407,39 +407,58 @@ function! s:SwitchAutoclose() "{{{1
 endfunction "}}}1
 
 function! s:UnMap() " {{{
-
+	" No Autoclose Mappings:
 	for char in s:right_delims + s:quotes
-		if maparg(char,"i") =~ 'SkipDelim'
+		if maparg(char,"i") =~? 'SkipDelim'
 			exec 'iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
 	endfor
-	for char in s:right_delims + s:left_delims + s:quotes
-		if maparg(s:visual_leader . char,"v") =~ 'IsBlock'
-			exec 'vunmap <buffer> ' . s:visual_leader . char
-			"echomsg 'vunmap <buffer> ' . s:visual_leader . char
-		endif
-	endfor
+
+	" Autoclose Mappings:
 	let s:i = 0
 	while s:i < len(s:matchpairs)
-		if maparg(char,"i") =~ s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
-			exec 'iunmap <buffer> ' . char
-			"echomsg 'iunmap <buffer> ' . char
+		if maparg(s:left_delims[s:i],"i") =~? s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+			exec 'iunmap <buffer> ' . s:left_delims[s:i]
+			"echomsg 'iunmap <buffer> ' . s:left_delims[s:i]
 		endif
 		let s:i += 1
 	endwhile
 	for char in s:quotes
-		if maparg(char, "i") =~ 'QuoteDelim'
+		if maparg(char, "i") =~? 'QuoteDelim'
 			exec 'iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
 	endfor
 	for char in s:right_delims
-		if maparg(char, "i")
+		if maparg(char, "i") =~? 'ClosePair'
 			exec 'iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
 	endfor
+
+	" Visual Mappings:
+	for char in s:right_delims + s:left_delims + s:quotes
+		if maparg(s:visual_leader . char,"v") =~? 'IsBlock'
+			exec 'vunmap <buffer> ' . s:visual_leader . char
+			"echomsg 'vunmap <buffer> ' . s:visual_leader . char
+		endif
+	endfor
+
+	" Expansion Mappings:
+	if maparg('<BS>', "i") =~? 'WithinEmptyPair'
+		iunmap <buffer> <BS>
+		"echomsg "iunmap <buffer> <BS>"
+	endif
+	if maparg('<CR>',"i") =~? 'ExpandReturn'
+		iunmap <buffer> <CR>
+		"echomsg "iunmap <buffer> <CR>"
+	endif
+	if maparg('<Space>',"i") =~? 'ExpandSpace'
+		iunmap <buffer> <Space>
+		"echomsg "iunmap <buffer> <Space>"
+	endif
+
 endfunction " }}}
 
 function! s:TestMappingsDo() "{{{1
@@ -459,12 +478,17 @@ function! s:DelimitMateDo() "{{{1
 	if exists("g:delimitMate_excluded_ft")
 		for ft in split(g:delimitMate_excluded_ft,',')
 			if ft ==? &filetype
+				if !exists("s:quotes")
+					return 1
+				endif
+				"echomsg "excluded"
 				call s:UnMap()
 				return 1
 			endif
 		endfor
 	endif
 	try
+		"echomsg "included"
 		let save_cpo = &cpo
 		set cpo&vim
 		call s:Init()
@@ -484,10 +508,13 @@ command! DelimitMateReload call s:DelimitMateDo()
 command! DelimitMateTest call s:TestMappingsDo()
 
 " Run on file type events.
-autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
+"autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
+autocmd FileType * call <SID>DelimitMateDo()
 
 " Run on new buffers.
 autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
+
+"function! s:GetSynRegion () | echo synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') | endfunction
 
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
 " vim:foldmethod=marker:foldcolumn=2

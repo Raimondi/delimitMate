@@ -1,4 +1,4 @@
-*delimitMate.txt* Trying to keep those beasts at bay!
+*delimitMate.txt* Trying to keep those beasts at bay! v.1.5
 
 
                               REFERENCE MANUAL *
@@ -373,9 +373,15 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
+    1.5     2009-10-05   Fix: delimitMate should work correctly for files
+                         passed as arguments to Vim. Thanks to Ben Beuchler
+                         for helping to nail this bug.
+
+|---------|------------|-----------------------------------------------------|
     1.4     2009-09-27   Fix: delimitMate is now enabled on new buffers even
                          if they don't have set the file type option or were
                          opened directly from the terminal.
+
 |---------|------------|-----------------------------------------------------|
     1.3     2009-09-24   Now local options can be used along with autocmd
                          for specific file type configurations.
@@ -395,12 +401,15 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                          the cursor would jump to the right.
                          - New buffer inside the current window wouldn't
                          have the mappings set.
+
 |---------|------------|-----------------------------------------------------|
     1.1     2009-08-25   Fixed an error that ocurred when mapleader wasn't
                          set and added support for GetLatestScripts
                          auto-detection.
+
 |---------|------------|-----------------------------------------------------|
     1.0     2009-08-23   Initial upload.
+
 |---------|------------|-----------------------------------------------------|
 
 vim:tw=78:ts=8:ft=help:norl:
