@@ -1,13 +1,13 @@
-*delimitMate.txt* Trying to keep those beasts at bay! v.1.5
+*delimitMate.txt* Trying to keep those beasts at bay! v.1.6
 
 
-                              REFERENCE MANUAL *
+                              REFERENCE MANUAL *delimitMate*
 
 
 ==============================================================================
  0.- CONTENTS                                           *delimitMate-contents*
 
-    1. Introduction____________________________|delimitMate|
+    1. Introduction____________________________|delimitMateIntro|
     2. Functionality___________________________|delimitMateFunctionality|
         2.1 Automatic closing & exiting________|delimitMateAutoClose|
         2.2 Expansion of space and CR__________|delimitMateExpansion|
@@ -16,14 +16,14 @@
     3. Customization___________________________|delimitMateOptions|
         3.1 Option summary_____________________|delimitMateOptionSummary|
         3.2 Options details____________________|delimitMateOptionDetails|
-    4. Public commands_________________________|delimitMatePublicCommands|
+    4. Commands________________________________|delimitMateCommands|
     5. TODO list_______________________________|delimitMateTodo|
     6. Maintainer______________________________|delimitMateMaintainer|
     7. Credits_________________________________|delimitMateCredits|
     8. History_________________________________|delimitMateHistory|
 
 ==============================================================================
- 1.- INTRODUCTION                                                *delimitMate*
+ 1.- INTRODUCTION                                           *delimitMateIntro*
 
 The delimitMate plugin tries to provide some not so dumb help in the work with
 delimiters (brackets, quotes, etc.), with some optional auto-completions and
@@ -41,7 +41,7 @@ expanded to follow your coding style, you just need to define a couple of
 options with the desired mappings for them.
 
 ==============================================================================
- 2. FUNCTIONALITY PROVIDED                          *delimitMateFunctionality*
+ 2. FUNCTIONALITY                                   *delimitMateFunctionality*
 
 ------------------------------------------------------------------------------
    2.1 AUTOMATIC CLOSING AND EXITING                    *delimitMateAutoClose*
@@ -56,7 +56,7 @@ closing delimiter, the cursor is placed outside the pair to the right of the
 closing delimiter.
 
 Unless |'b:delimitMate_matchpairs'| and |'b:delimitMate_quotes'|is set, this
-script uses the values in '&matchpirs' to identify the pairs, and "\" ' ` "
+script uses the values in '&matchpairs' to identify the pairs, and ", ' and `
 for quotes respectively.
 
 The following table shows the behaviour, this applies to quotes too (the final
@@ -122,7 +122,7 @@ will be welcome.
 
 e.g. (selection represented between square brackets): >
 
-             Selected text       |  After q"
+             Selected text       |  After \"
            =============================================
             An [absurd] example! | An "absurd" example!
 <
@@ -155,12 +155,16 @@ specific file types, see |delimitMateOptionDetails| for examples.
 |'delimitMate_expand_space'|    Sets the expansion for <Space> inside an
                                 empty pair of matching delimiters or quotes.
 
-|'delimitMate_excluded_ft'|    Turns off the script for the given file types.
+|'delimitMate_excluded_ft'|     Turns off the script for the given file types.
+
+|'delimitMate_apostrophes'|     Tells delimitMate how it should "fix"
+                                balancing of single quotes when used as
+                                apostrophes.
 
 ------------------------------------------------------------------------------
    3.2 OPTIONS DETAILS                              *delimitMateOptionDetails*
 
-Add the shown lines to your vimrc files in order to set the below options.
+Add the shown lines to your vimrc file in order to set the below options.
 Local options take precedence over global ones and can be used along with
 autocmd to modify delimitMate's behavior for specific file types.
 
@@ -241,20 +245,34 @@ The value of this option will be used to expand the space character when typed
 inside an empty delimiter pair. Read |delimitMateExpansion| for details.
 e.g.: >
         let delimitMate_expand_space = "\<Space>\<Space>\<Left>"
-        au filetype tcl let b:delimitMate_expand_space = "\<Space>"
+        au FileType tcl let b:delimitMate_expand_space = "\<Space>"
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_excluded_ft'*
 Values: A string of file type names separated by single commas.              ~
-Defaul: Empty.                                                               ~
+Default: Empty.                                                              ~
 
 This options turns delimitMate off for the listed file types, use this option
 only if don't want any of the features it provides.
 e.g.: >
         let delimitMate_excluded_ft = "mail,txt"
 <
+------------------------------------------------------------------------------
+                                                   *'delimitMate_apostrophes'*
+Values: Strings separated by ":".                                            ~
+Default: "n't:'s:'re:'d:'ll:'ve:s'"                                          ~
+
+If auto-close is enabled, this option tells delimitMate how to try to fix the
+balancing of single quotes when used as apostrophes. The values of this option
+are strings of text where a single quote would be used as an apostrophe (e.g.:
+the "n't" of wouldn't or can't) separated by ":". Set it to an empty string to
+disable this feature.
+e.g.: >
+        let delimitMate_apostrophes = ""
+        au FileType tcl let delimitMate_apostrophes = ""
+<
 ==============================================================================
- 4. PUBLIC COMMANDS                                *delimitMatePublicCommands*
+ 4. COMMANDS                                             *delimitMateCommands*
 
 ------------------------------------------------------------------------------
 :DelimitMateReload                                        *:DelimitMateReload*
@@ -373,6 +391,13 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
+    1.6     2009-10-10   Now delimitMate tries to fix the balancing of single
+                         quotes when used as apostrophes. You can read
+                         |delimitMate_apostrophes| for details.
+                         Fixed an error when |b:delimitMate_expand_space|
+                         wasn't set but |delimitMate_expand_space| wasn't.
+
+|---------|------------|-----------------------------------------------------|
     1.5     2009-10-05   Fix: delimitMate should work correctly for files
                          passed as arguments to Vim. Thanks to Ben Beuchler
                          for helping to nail this bug.
@@ -412,4 +437,4 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
 |---------|------------|-----------------------------------------------------|
 
-vim:tw=78:ts=8:ft=help:norl:
+vim:tw=78:ts=8:ft=help:norl:formatoptions+=tcroqn:autoindent:
