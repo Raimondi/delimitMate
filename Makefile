@@ -6,8 +6,8 @@ install:
 	vim -u NONE -c 'helptags ~/.vim/doc' -c 'q'
 
 zip:
-	zip -r pickacolor.zip doc plugin
-	zip pickacolor.zip -d \*.sw\?
+	zip -r ${PLUGIN}.zip doc plugin
+	zip ${PLUGIN}.zip -d \*.sw\?
 
 vimball: install
 	echo doc/${PLUGIN}.txt > vimball.txt
