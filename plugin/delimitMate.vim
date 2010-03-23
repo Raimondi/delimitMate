@@ -147,7 +147,8 @@ function! s:Init() "{{{1
 	endif " }}}
 
 	if !exists("b:delimitMate_apostrophes") && !exists("g:delimitMate_apostrophes") " {{{
-		let s:apostrophes = split("n't:'s:'re:'m:'d:'ll:'ve:s'",':')
+		"let s:apostrophes = split("n't:'s:'re:'m:'d:'ll:'ve:s'",':')
+		let s:apostrophes = []
 
 	elseif exists("b:delimitMate_apostrophes")
 		let s:apostrophes = split(b:delimitMate_apostrophes)
@@ -170,7 +171,7 @@ function! s:Init() "{{{1
 	call s:ExtraMappings()
 	let b:loaded_delimitMate = 1
 
-endfunction "}}}1
+endfunction "}}}1 Init()
 
 function! s:ValidMatchpairs(str) "{{{1
 	if a:str !~ '^.:.\(,.:.\)*$'
@@ -228,6 +229,13 @@ function! s:QuoteDelim(char) "{{{1
 	let col = col('.')
 	if line[col - 2] == "\\"
 		" Seems like a escaped character, insert a single quotation mark.
+		return a:char
+	elseif line[col - 2] == a:char && line[col - 1 ] != a:char
+		" Seems like we have an unbalanced quote, insert a single
+		" quotation mark.
+		return a:char."\<Left>"
+	elseif a:char == "'" && line[col -2 ] =~ '[a-zA-Z0-9]'
+		" Seems like we follow a word, insert an apostrophe.
 		return a:char
 	elseif line[col - 1] == a:char
 		" Get out of the string.
