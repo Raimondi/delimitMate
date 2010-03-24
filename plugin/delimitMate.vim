@@ -156,6 +156,15 @@ function! s:Init() "{{{1
 		let s:apostrophes = split(g:delimitMate_apostrophes)
 	endif " }}}
 
+	if !exists("b:delimitMate_tab2exit") && !exists("g:delimitMate_tab2exit") " {{{
+		let s:tab2exit = 1
+
+	elseif exists("b:delimitMate_tab2exit")
+		let s:tab2exit = split(b:delimitMate_tab2exit)
+	else
+		let s:tab2exit = split(g:delimitMate_tab2exit)
+	endif " }}}
+
 	let s:matchpairs = split(s:matchpairs_temp, ',')
 	let s:left_delims = split(s:matchpairs_temp, ':.,\=')
 	let s:right_delims = split(s:matchpairs_temp, ',\=.:')
@@ -183,6 +192,23 @@ function! s:ValidMatchpairs(str) "{{{1
 		endif
 	endfor
 	return 1
+endfunction "}}}1
+
+function! DelimitMate_ShouldJump() "{{{1
+	let char = getline('.')[col('.') - 1]
+	for pair in s:matchpairs
+		if  char == split( pair, ':' )[1]
+			" Same character on the rigth, jump over it.
+			return 1
+		endif
+	endfor
+	for quote in s:quotes
+		if char == quote
+			" Same character on the rigth, jump over it.
+			return 1
+		endif
+	endfor
+	return 0
 endfunction "}}}1
 
 function! s:IsEmptyPair(str) "{{{1
@@ -383,6 +409,11 @@ function! s:ExtraMappings() "{{{1
 	" Expand space if inside an empty pair:
 	if exists("b:delimitMate_expand_space") || exists("g:delimitMate_expand_space")
 		inoremap <buffer> <Space> <C-R>=<SID>ExpandSpace()<CR>
+	endif
+
+	" Jump out ot any empty pair:
+	if s:tab2exit
+		inoremap <buffer> <expr> <S-Tab> DelimitMate_ShouldJump() ? "\<Right>" : "\<S-Tab>"
 	endif
 endfunction "}}}1
 
