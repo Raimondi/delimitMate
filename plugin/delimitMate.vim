@@ -228,18 +228,17 @@ function! s:QuoteDelim(char) "{{{1
 	let line = getline('.')
 	let col = col('.')
 	if line[col - 2] == "\\"
-		" Seems like a escaped character, insert a single quotation mark.
-		return a:char
-	elseif line[col - 2] == a:char && line[col - 1 ] != a:char
-		" Seems like we have an unbalanced quote, insert a single
-		" quotation mark.
-		return a:char."\<Left>"
-	elseif a:char == "'" && line[col -2 ] =~ '[a-zA-Z0-9]'
-		" Seems like we follow a word, insert an apostrophe.
+		" Seems like a escaped character, insert one quotation mark.
 		return a:char
 	elseif line[col - 1] == a:char
 		" Get out of the string.
 		return "\<Right>"
+	elseif line[col - 2] == a:char && line[col - 1 ] != a:char
+		" Seems like we have an unbalanced quote, insert one quotation mark.
+		return a:char."\<Left>"
+	elseif a:char == "'" && line[col -2 ] =~ '[a-zA-Z0-9]'
+		" Seems like we follow a word, insert an apostrophe.
+		return a:char
 	else
 		" Insert a pair and jump to the middle.
 		return a:char.a:char."\<Left>"
@@ -299,7 +298,7 @@ function! s:AutoClose() "{{{1
 		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>ClosePair("\' . delim . '")<CR>'
 	endfor
 
-	" Try to fix the use of apostrophes:
+	" Try to fix the use of apostrophes (de-activated by default):
 	" inoremap <buffer> n't n't
 	for map in s:apostrophes
 		exec "inoremap <buffer> " . map . " " . map
@@ -372,6 +371,9 @@ endfunction "}}}1
 function! s:ExtraMappings() "{{{1
 	" If pair is empty, delete both delimiters:
 	inoremap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
+
+	" If pair is empty, delete closing delimiter:
+	inoremap <buffer> <expr> <S-BS> <SID>WithinEmptyPair() ? "\<Del>" : "\<S-BS>"
 
 	" Expand return if inside an empty pair:
 	if exists("b:delimitMate_expand_cr") || exists("g:delimitMate_expand_cr")

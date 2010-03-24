@@ -13,3 +13,7 @@ vimball: install
 	echo doc/${PLUGIN}.txt > vimball.txt
 	echo plugin/${PLUGIN}.vim >> vimball.txt
 	vim  -c 'e vimball.txt' -c '%MkVimball! ${PLUGIN}' -c 'q'
+
+gzip: vimball
+	gzip -f ${PLUGIN}.vba
+
