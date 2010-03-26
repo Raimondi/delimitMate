@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        delimitMate.vim
-" Version:     1.6
+" Version:     1.7
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -113,37 +113,19 @@ function! s:Init() "{{{1
 	endif " }}}
 
 	if !exists("b:delimitMate_expand_space") && !exists("g:delimitMate_expand_space") " {{{
-		let s:expand_space = "\<Space>"
+		let s:expand_space = 0
 	elseif exists("b:delimitMate_expand_space")
-		if b:delimitMate_expand_space == ""
-			let s:expand_space = "\<Space>"
-		else
-			let s:expand_space = b:delimitMate_expand_space
-		endif
+		let s:expand_space = b:delimitMate_expand_space
 	else
-		if g:delimitMate_expand_space == ""
-			let s:expand_space = "\<Space>"
-		else
-			let s:expand_space = g:delimitMate_expand_space
-		endif
-
+		let s:expand_space = g:delimitMate_expand_space
 	endif " }}}
 
 	if !exists("b:delimitMate_expand_cr") && !exists("g:delimitMate_expand_cr") " {{{
-		let s:expand_return = "\<CR>"
+		let s:expand_cr = 0
 	elseif exists("b:delimitMate_expand_cr")
-		if b:delimitMate_expand_cr == ""
-			let s:expand_return = "\<CR>"
-		else
-			let s:expand_return = b:delimitMate_expand_cr
-		endif
+		let s:expand_cr = b:delimitMate_expand_cr
 	else
-		if g:delimitMate_expand_cr == ""
-			let s:expand_return = "\<CR>"
-		else
-			let s:expand_return = g:delimitMate_expand_cr
-		endif
-
+		let s:expand_cr = g:delimitMate_expand_cr
 	endif " }}}
 
 	if !exists("b:delimitMate_apostrophes") && !exists("g:delimitMate_apostrophes") " {{{
@@ -170,7 +152,7 @@ function! s:Init() "{{{1
 	let s:right_delims = split(s:matchpairs_temp, ',\=.:')
 	let s:VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
 
-	call s:UnMap()
+	"call s:UnMap()
 	if s:autoclose
 		call s:AutoClose()
 	else
@@ -211,6 +193,51 @@ function! DelimitMate_ShouldJump() "{{{1
 	return 0
 endfunction "}}}1
 
+function! s:JumpIn(char) " {{{
+  let line = getline('.')
+  let col = col('.')-2
+  if (col) < 0
+    call setline('.',a:char.line)
+  else
+    echom string(col).':'.line[:(col)].'|'.line[(col+1):]
+    call setline('.',line[:(col)].a:char.line[(col+1):])
+  endif
+  return ''
+endfunction " }}}
+
+function! s:JumpOut(char) "{{{
+	let line = getline('.')
+	let col = col('.')-2
+	if line[col+1] == a:char
+		call setline('.',line[:(col)].line[(col+2):])
+	endif
+	return a:char
+endfunction " }}}
+
+function! s:WriteBefore(str) "{{{
+	let len = len(a:str)
+	let line = getline('.')
+	let col = col('.')-2
+	if col < 0
+		call setline('.',line[(col+len+1):])
+	else
+		call setline('.',line[:(col)].line[(col+len+1):])
+	endif
+	return a:str
+endfunction " }}}
+
+function! s:WriteAfter(str) "{{{
+	let len = len(a:str)
+	let line = getline('.')
+	let col = col('.')-2
+	if (col) < 0
+		call setline('.',a:str.line)
+	else
+		call setline('.',line[:(col)].a:str.line[(col+len):])
+	endif
+	return ''
+endfunction " }}}
+
 function! s:IsEmptyPair(str) "{{{1
 	for pair in s:matchpairs
 		if a:str == join( split( pair, ':' ),'' )
@@ -225,7 +252,7 @@ function! s:IsEmptyPair(str) "{{{1
 	return 0
 endfunction "}}}1
 
-function! s:WithinEmptyPair() "{{{1
+function! DelimitMate_WithinEmptyPair() "{{{1
 	let cur = strpart( getline('.'), col('.')-2, 2 )
 	return s:IsEmptyPair( cur )
 endfunction "}}}1
@@ -237,13 +264,13 @@ function! s:SkipDelim(char) "{{{1
 		return a:char
 	elseif cur[1] == a:char
 		" Exit pair
-		return "\<Right>"
-	elseif cur[1] == ' ' && cur[2] == a:char
-		" I'm leaving this in case someone likes it. Jump an space and delimiter.
-		return "\<Right>\<Right>"
+		return s:WriteBefore(a:char)
+	"elseif cur[1] == ' ' && cur[2] == a:char
+		"" I'm leaving this in case someone likes it. Jump an space and delimiter.
+		"return "\<Right>\<Right>"
 	elseif s:IsEmptyPair( cur[0] . a:char )
 		" Add closing delimiter and jump back to the middle.
-		return a:char . "\<Left>"
+		return s:WriteAfter(a:char)
 	else
 		" Nothing special here, return the same character.
 		return a:char
@@ -252,33 +279,41 @@ endfunction "}}}1
 
 function! s:QuoteDelim(char) "{{{1
 	let line = getline('.')
-	let col = col('.')
-	if line[col - 2] == "\\"
+	let col = col('.') - 2
+	if line[col] == "\\"
 		" Seems like a escaped character, insert one quotation mark.
 		return a:char
-	elseif line[col - 1] == a:char
+	elseif line[col + 1] == a:char
 		" Get out of the string.
-		return "\<Right>"
-	elseif line[col - 2] == a:char && line[col - 1 ] != a:char
+		return s:WriteBefore(a:char)
+	elseif line[col] == a:char && line[col + 1 ] != a:char
 		" Seems like we have an unbalanced quote, insert one quotation mark.
-		return a:char."\<Left>"
-	elseif a:char == "'" && line[col -2 ] =~ '[a-zA-Z0-9]'
-		" Seems like we follow a word, insert an apostrophe.
+		return s:WriteAfter(a:char)
+	elseif line[col] =~ '[a-zA-Z0-9]'
+		" Seems like we closing quotes, insert a single quote.
 		return a:char
 	else
 		" Insert a pair and jump to the middle.
-		return a:char.a:char."\<Left>"
+		"call setline('.',line[:(col)].a:char.line[(col+3):])
+		call s:WriteAfter(a:char)
+		return a:char
 	endif
 endfunction "}}}1
 
 function! s:ClosePair(char) "{{{1
-	if getline('.')[col('.') - 1] == a:char
-		" Same character on the rigth, jump it.
-		return "\<Right>"
-	else
-		" Insert character.
-		return a:char
-	endif
+	"if getline('.')[col('.') - 1] == a:char
+		"" Same character on the rigth, jump it.
+		""return "\<Right>"
+	"else
+		"" Insert character.
+		"return a:char
+	"endif
+  let line = getline('.')
+  let col = col('.')-2
+  if line[col+1] == a:char
+    call setline('.',line[:(col)].line[(col+2):])
+  endif
+  return a:char
 endfunction "}}}1
 
 function! s:ResetMappings() "{{{1
@@ -296,19 +331,20 @@ function! s:MapMsg(msg) "{{{1
 	return ""
 endfunction "}}}1
 
-function! s:NoAutoClose() "{{{1
+function! s:NoAutoClose() "{{{
 	" inoremap <buffer> ) <C-R>=<SID>SkipDelim('\)')<CR>
 	for delim in s:right_delims + s:quotes
 		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>SkipDelim("' . escape(delim,'"') . '")<CR>'
 	endfor
-endfunction "}}}1
+endfunction "}}}
 
-function! s:AutoClose() "{{{1
+function! s:AutoClose() "{{{
 	" Add matching pair and jump to the midle:
 	" inoremap <buffer> ( ()<Left>
 	let s:i = 0
 	while s:i < len(s:matchpairs)
-		exec 'inoremap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+		"exec 'inoremap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+		exec 'inoremap <buffer> ' . s:left_delims[s:i] . ' ' . s:left_delims[s:i] . '<C-R>=<SID>JumpIn("' . s:right_delims[s:i] . '")<CR>'
 		let s:i += 1
 	endwhile
 
@@ -321,7 +357,7 @@ function! s:AutoClose() "{{{1
 	" Exit from inside the matching pair:
 	" inoremap <buffer> ) <C-R>=<SID>ClosePair(')')<CR>
 	for delim in s:right_delims
-		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>ClosePair("\' . delim . '")<CR>'
+		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>JumpOut("\' . delim . '")<CR>'
 	endfor
 
 	" Try to fix the use of apostrophes (de-activated by default):
@@ -330,9 +366,9 @@ function! s:AutoClose() "{{{1
 		exec "inoremap <buffer> " . map . " " . map
 	endfor
 
-endfunction "}}}1
+endfunction "}}}
 
-function! s:VisualMaps() " {{{1
+function! s:VisualMaps() " {{{
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	let s:i = 0
 	while s:i < len(s:matchpairs)
@@ -351,9 +387,9 @@ function! s:VisualMaps() " {{{1
 		" vnoremap <buffer> <expr> \' <SID>IsBlockVisual() ? <SID>MapMsg("Message") : "s'\<C-R>\"'\<Esc>:call <SID>RestoreRegister()<CR>"
 		exec 'vnoremap <buffer> <expr> ' . s:visual_leader . quote . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 	endfor
-endfunction "}}}1
+endfunction "}}}
 
-function! s:IsBlockVisual() " {{{1
+function! s:IsBlockVisual() " {{{
 	if visualmode() == "<C-V>"
 		return 1
 	endif
@@ -366,28 +402,28 @@ function! s:IsBlockVisual() " {{{1
 		let @" = "\n"
 	endif
 	return 0
-endfunction " }}}1
+endfunction " }}}
 
-function! s:RestoreRegister() " {{{1
+function! s:RestoreRegister() " {{{
 	" Restore unnamed register values store in s:IsBlockVisual().
 	call setreg('"', s:save_reg, s:save_reg_mode)
 	echo ""
-endfunction " }}}1
+endfunction " }}}
 
-function! s:ExpandReturn() "{{{1
-	if s:WithinEmptyPair()
+function! s:ExpandReturn() "{{{
+	if DelimitMate_WithinEmptyPair()
 		" Expand:
-		return s:expand_return
+		return "\<esc>a\<CR>x\<CR>\<esc>k$\"_xa"
 	else
 		" Don't
 		return "\<CR>"
 	endif
-endfunction "}}}1
+endfunction "}}}
 
-function! s:ExpandSpace() "{{{1
-	if s:WithinEmptyPair()
+function! s:ExpandSpace() "{{{
+	if DelimitMate_WithinEmptyPair()
 		" Expand:
-		return s:expand_space
+		return s:WriteAfter(' ')."\<Space>"
 	else
 		" Don't
 		return "\<Space>"
@@ -396,18 +432,18 @@ endfunction "}}}1
 
 function! s:ExtraMappings() "{{{1
 	" If pair is empty, delete both delimiters:
-	inoremap <buffer> <expr> <BS> <SID>WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
+	inoremap <buffer> <expr> <BS> DelimitMate_WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
 
 	" If pair is empty, delete closing delimiter:
-	inoremap <buffer> <expr> <S-BS> <SID>WithinEmptyPair() ? "\<Del>" : "\<S-BS>"
+	inoremap <buffer> <expr> <S-BS> DelimitMate_WithinEmptyPair() ? "\<Del>" : "\<S-BS>"
 
 	" Expand return if inside an empty pair:
-	if exists("b:delimitMate_expand_cr") || exists("g:delimitMate_expand_cr")
+	if s:expand_cr != 0
 		inoremap <buffer> <CR> <C-R>=<SID>ExpandReturn()<CR>
 	endif
 
 	" Expand space if inside an empty pair:
-	if exists("b:delimitMate_expand_space") || exists("g:delimitMate_expand_space")
+	if s:expand_space != 0
 		inoremap <buffer> <Space> <C-R>=<SID>ExpandSpace()<CR>
 	endif
 
@@ -474,7 +510,7 @@ endfunction "}}}1
 function! s:UnMap() " {{{
 	" No Autoclose Mappings:
 	for char in s:right_delims + s:quotes
-		if maparg(char,"i") =~? 'SkipDelim'
+		if maparg('<buffer> '.char,"i") =~? 'SkipDelim'
 			exec 'iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
@@ -483,7 +519,7 @@ function! s:UnMap() " {{{
 	" Autoclose Mappings:
 	let s:i = 0
 	while s:i < len(s:matchpairs)
-		if maparg(s:left_delims[s:i],"i") =~? s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
+		if maparg('<buffer> '.s:left_delims[s:i],"i") =~? s:left_delims[s:i] . s:right_delims[s:i] . '<Left>'
 			exec 'iunmap <buffer> ' . s:left_delims[s:i]
 			"echomsg 'iunmap <buffer> ' . s:left_delims[s:i]
 		endif
@@ -551,7 +587,7 @@ function! s:DelimitMateDo() "{{{1
 					return 1
 				endif
 				"echomsg "excluded"
-				call s:UnMap()
+				"call s:UnMap()
 				return 1
 			endif
 		endfor

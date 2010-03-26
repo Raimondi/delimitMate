@@ -3,6 +3,8 @@ PLUGIN=delimitMate
 install:
 	cp -f doc/* ~/.vim/doc/${PLUGIN}.txt
 	cp -f plugin/* ~/.vim/plugin/${PLUGIN}.vim
+
+doc_update: install
 	vim -u NONE -c 'helptags ~/.vim/doc' -c 'q'
 
 zip:
