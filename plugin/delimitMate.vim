@@ -41,6 +41,8 @@ let s:loaded_delimitMate = 1 " }}}
 
 function! s:Init() "{{{
 
+	let b:loaded_delimitMate = 1
+
 	" delimitMate_autoclose {{{
 	if !exists("b:delimitMate_autoclose") && !exists("g:delimitMate_autoclose")
 		let b:delimitMate_autoclose = 1
@@ -103,8 +105,7 @@ function! s:Init() "{{{
 	else
 		let s:quotes = split("\" ' `")
 	endif
-	if exists('b:delimitMate_quotes') | unlet b:delimitMate_quotes | endif
-	let b:delimitMate_quotes = s:quotes " }}}
+	let b:delimitMate_quotes_list = s:quotes " }}}
 
 	" delimitMate_visual_leader {{{
 	if !exists("b:delimitMate_visual_leader") && !exists("g:delimitMate_visual_leader")
@@ -146,14 +147,13 @@ function! s:Init() "{{{
 	" delimitMate_apostrophes {{{
 	if !exists("b:delimitMate_apostrophes") && !exists("g:delimitMate_apostrophes")
 		"let s:apostrophes = split("n't:'s:'re:'m:'d:'ll:'ve:s'",':')
-		let b:delimitMate_apostrophes = []
+		let s:apostrophes = []
 	elseif !exists("b:delimitMate_apostrophes") && exists("g:delimitMate_apostrophes")
-		let b:delimitMate_apostrophes = split(g:delimitMate_apostrophes)
+		let s:apostrophes = split(g:delimitMate_apostrophes)
 	else
 		let s:apostrophes = split(b:delimitMate_apostrophes)
-		unlet b:delimitMate_apostrophes
-		let b:delimitMate_apostrophes = s:apostrophes
-	endif " }}}
+	endif
+		let b:delimitMate_apostrophes_list = s:apostrophes " }}}
 
 	" delimitMate_tab2exit {{{
 	if !exists("b:delimitMate_tab2exit") && !exists("g:delimitMate_tab2exit")
@@ -164,7 +164,7 @@ function! s:Init() "{{{
 		" Nothing to do.
 	endif " }}}
 
-	let b:delimitMate_matchpairs = split(s:matchpairs_temp, ',')
+	let b:delimitMate_matchpairs_list = split(s:matchpairs_temp, ',')
 	let b:delimitMate_left_delims = split(s:matchpairs_temp, ':.,\=')
 	let b:delimitMate_right_delims = split(s:matchpairs_temp, ',\=.:')
 	let s:VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
@@ -177,7 +177,6 @@ function! s:Init() "{{{
 	endif
 	call s:VisualMaps()
 	call s:ExtraMappings()
-	let b:loaded_delimitMate = 1
 
 endfunction "}}} Init()
 "}}}
@@ -197,13 +196,13 @@ endfunction "}}}
 
 function! DelimitMate_ShouldJump() "{{{
 	let char = getline('.')[col('.') - 1]
-	for pair in b:delimitMate_matchpairs
+	for pair in b:delimitMate_matchpairs_list
 		if  char == split( pair, ':' )[1]
 			" Same character on the rigth, jump over it.
 			return 1
 		endif
 	endfor
-	for quote in b:delimitMate_quotes
+	for quote in b:delimitMate_quotes_list
 		if char == quote
 			" Same character on the rigth, jump over it.
 			return 1
@@ -228,12 +227,12 @@ function! s:IsBlockVisual() " {{{
 endfunction " }}}
 
 function! s:IsEmptyPair(str) "{{{
-	for pair in b:delimitMate_matchpairs
+	for pair in b:delimitMate_matchpairs_list
 		if a:str == join( split( pair, ':' ),'' )
 			return 1
 		endif
 	endfor
-	for quote in b:delimitMate_quotes
+	for quote in b:delimitMate_quotes_list
 		if a:str == quote . quote
 			return 1
 		endif
@@ -284,7 +283,7 @@ function! s:JumpIn(char) " {{{
   if (col) < 0
     call setline('.',a:char.line)
   else
-    echom string(col).':'.line[:(col)].'|'.line[(col+1):]
+    "echom string(col).':'.line[:(col)].'|'.line[(col+1):]
     call setline('.',line[:(col)].a:char.line[(col+1):])
   endif
   return ''
@@ -354,7 +353,7 @@ endfunction "}}}
 " Mappings: {{{
 function! s:NoAutoClose() "{{{
 	" inoremap <buffer> ) <C-R>=<SID>SkipDelim('\)')<CR>
-	for delim in b:delimitMate_right_delims + b:delimitMate_quotes
+	for delim in b:delimitMate_right_delims + b:delimitMate_quotes_list
 		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>SkipDelim("' . escape(delim,'"') . '")<CR>'
 	endfor
 endfunction "}}}
@@ -363,14 +362,16 @@ function! s:AutoClose() "{{{
 	" Add matching pair and jump to the midle:
 	" inoremap <buffer> ( ()<Left>
 	let i = 0
-	while i < len(b:delimitMate_matchpairs)
-		exec 'inoremap <buffer> ' . b:delimitMate_left_delims[i] . ' ' . b:delimitMate_left_delims[i] . '<C-R>=<SID>JumpIn("' . b:delimitMate_right_delims[i] . '")<CR>'
+	while i < len(b:delimitMate_matchpairs_list)
+		let ld = b:delimitMate_left_delims[i]
+		let rd = b:delimitMate_right_delims[i]
+		exec 'inoremap <buffer> ' . ld . ' ' . ld . '<C-R>=<SID>JumpIn("' . rd . '")<CR>'
 		let i += 1
 	endwhile
 
 	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
 	" inoremap <buffer> " <C-R>=<SID>QuoteDelim("\"")<CR>
-	for delim in b:delimitMate_quotes
+	for delim in b:delimitMate_quotes_list
 		exec 'inoremap <buffer> ' . delim . ' <C-R>=<SID>QuoteDelim("\' . delim . '")<CR>'
 	endfor
 
@@ -381,30 +382,31 @@ function! s:AutoClose() "{{{
 
 	" Try to fix the use of apostrophes (de-activated by default):
 	" inoremap <buffer> n't n't
-	for map in b:delimitMate_apostrophes
+	for map in b:delimitMate_apostrophes_list
 		exec "inoremap <buffer> " . map . " " . map
 	endfor
 
 endfunction "}}}
 
 function! s:VisualMaps() " {{{
+	let vleader = b:delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	let i = 0
-	while i < len(b:delimitMate_matchpairs)
+	while i < len(b:delimitMate_matchpairs_list)
 		" Map left delimiter:
-		" vnoremap <buffer> <expr> \( <SID>IsBlockVisual() ? <SID>MapMsg("Message") : "s(\<C-R>\")\<Esc>:call <SID>RestoreRegister()<CR>"
-		exec 'vnoremap <buffer> <expr> ' . b:delimitMate_visual_leader . b:delimitMate_left_delims[i] . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . b:delimitMate_left_delims[i] . '\<C-R>\"' . b:delimitMate_right_delims[i] . '\<Esc>:call <SID>RestoreRegister()<CR>"'
+		let ld = b:delimitMate_left_delims[i]
+		let rd = b:delimitMate_right_delims[i]
+		exec 'vnoremap <buffer> <expr> ' . vleader . ld . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 
 		" Map right delimiter:
-		" vnoremap <buffer> <expr> \) <SID>IsBlockVisual() ? <SID>MapMsg("Message") : "s(\<C-R>\")\<Esc>:call <SID>RestoreRegister()<CR>"
-		exec 'vnoremap <buffer> <expr> ' . b:delimitMate_visual_leader . b:delimitMate_right_delims[i] . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . b:delimitMate_left_delims[i] . '\<C-R>\"' . b:delimitMate_right_delims[i] . '\<Esc>:call <SID>RestoreRegister()<CR>"'
+		exec 'vnoremap <buffer> <expr> ' . vleader . rd . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 		let i += 1
 	endwhile
 
 	" Wrap the selection with matching quotes, but do nothing if blockwise visual mode is active:
-	for quote in b:delimitMate_quotes
+	for quote in b:delimitMate_quotes_list
 		" vnoremap <buffer> <expr> \' <SID>IsBlockVisual() ? <SID>MapMsg("Message") : "s'\<C-R>\"'\<Esc>:call <SID>RestoreRegister()<CR>"
-		exec 'vnoremap <buffer> <expr> ' . b:delimitMate_visual_leader . quote . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call <SID>RestoreRegister()<CR>"'
+		exec 'vnoremap <buffer> <expr> ' . vleader . quote . ' <SID>IsBlockVisual() ? <SID>MapMsg("' . s:VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call <SID>RestoreRegister()<CR>"'
 	endfor
 endfunction "}}}
 
@@ -465,15 +467,15 @@ function! s:TestMappings() "{{{
 			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_right_delims[i]
 			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
 		endfor
-		for i in range(len(b:delimitMate_quotes))
-			exec "normal GGAOpen & close: " . b:delimitMate_quotes[i]	. "|"
+		for i in range(len(b:delimitMate_quotes_list))
+			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. "|"
 			exec "normal A\<CR>Delete: "
-			exec "normal A". b:delimitMate_quotes[i]
+			exec "normal A". b:delimitMate_quotes_list[i]
 			exec "normal a\<BS>|"
-			exec "normal A\<CR>Exit: " . b:delimitMate_quotes[i] . b:delimitMate_quotes[i] . "|"
-			exec "normal A\<CR>Space: " . b:delimitMate_quotes[i] . " |"
-			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_quotes[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
+			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . " |"
+			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes_list[i]
+			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 	else
 		exec "normal i* NO AUTOCLOSE:\<CR>"
@@ -486,13 +488,13 @@ function! s:TestMappings() "{{{
 			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_right_delims[i]
 			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
 		endfor
-		for i in range(len(b:delimitMate_quotes))
-			exec "normal GGAOpen & close: " . b:delimitMate_quotes[i]	. b:delimitMate_quotes[i] . "|"
-			exec "normal A\<CR>Delete: " . b:delimitMate_quotes[i] . b:delimitMate_quotes[i] . "\<BS>|"
-			exec "normal A\<CR>Exit: " . b:delimitMate_quotes[i] . b:delimitMate_quotes[i] . b:delimitMate_quotes[i] . "|"
-			exec "normal A\<CR>Space: " . b:delimitMate_quotes[i] . b:delimitMate_quotes[i] . " |"
-			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_quotes[i] . b:delimitMate_quotes[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
+		for i in range(len(b:delimitMate_quotes_list))
+			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. b:delimitMate_quotes_list[i] . "|"
+			exec "normal A\<CR>Delete: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<BS>|"
+			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
+			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " |"
+			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes_list[i]
+			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 	endif
 	exec "normal \<Esc>i"
@@ -511,7 +513,7 @@ endfunction "}}}
 
 function! s:UnMap() " {{{
 	" No Autoclose Mappings:
-	for char in b:delimitMate_right_delims + b:delimitMate_quotes
+	for char in b:delimitMate_right_delims + b:delimitMate_quotes_list
 		if maparg(char,"i") =~? 'SkipDelim'
 			exec 'silent! iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
@@ -520,7 +522,7 @@ function! s:UnMap() " {{{
 
 	" Autoclose Mappings:
 	let i = 0
-	let l = len(b:delimitMate_matchpairs)
+	let l = len(b:delimitMate_matchpairs_list)
 	while i < l
 		if maparg(b:delimitMate_left_delims[i],"i") =~? 'JumpIn'
 			exec 'silent! iunmap <buffer> ' . b:delimitMate_left_delims[i]
@@ -528,7 +530,7 @@ function! s:UnMap() " {{{
 		endif
 		let i += 1
 	endwhile
-	for char in b:delimitMate_quotes
+	for char in b:delimitMate_quotes_list
 		if maparg(char, "i") =~? 'QuoteDelim'
 			exec 'silent! iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
@@ -540,12 +542,12 @@ function! s:UnMap() " {{{
 			"echomsg 'iunmap <buffer> ' . char
 		endif
 	endfor
-	for map in b:delimitMate_apostrophes
+	for map in b:delimitMate_apostrophes_list
 		exec "silent! iunmap <buffer> " . map
 	endfor
 
 	" Visual Mappings:
-	for char in b:delimitMate_right_delims + b:delimitMate_left_delims + b:delimitMate_quotes
+	for char in b:delimitMate_right_delims + b:delimitMate_left_delims + b:delimitMate_quotes_list
 		if maparg(b:delimitMate_visual_leader . char,"v") =~? 'IsBlock'
 			exec 'silent! vunmap <buffer> ' . b:delimitMate_visual_leader . char
 			"echomsg 'vunmap <buffer> ' . b:delimitMate_visual_leader . char
@@ -594,7 +596,7 @@ function! s:DelimitMateDo() "{{{
 		" Check if this file type is excluded:
 		for ft in split(g:delimitMate_excluded_ft,',')
 			if ft ==? &filetype
-				if !exists("b:delimitMate_quotes")
+				if !exists("b:delimitMate_quotes_list")
 					return 1
 				endif
 				"echomsg "excluded"
