@@ -410,7 +410,7 @@ function! s:VisualMaps() " {{{
 	endfor
 endfunction "}}}
 
-function! s:ExpandReturn() "{{{
+function! DelimitMate_ExpandReturn() "{{{
 	if DelimitMate_WithinEmptyPair()
 		" Expand:
 		return "\<esc>a\<CR>x\<CR>\<esc>k$\"_xa"
@@ -420,7 +420,7 @@ function! s:ExpandReturn() "{{{
 	endif
 endfunction "}}}
 
-function! s:ExpandSpace() "{{{
+function! DelimitMate_ExpandSpace() "{{{
 	if DelimitMate_WithinEmptyPair()
 		" Expand:
 		return s:WriteAfter(' ')."\<Space>"
@@ -439,12 +439,12 @@ function! s:ExtraMappings() "{{{
 
 	" Expand return if inside an empty pair:
 	if b:delimitMate_expand_cr != 0
-		inoremap <buffer> <CR> <C-R>=<SID>ExpandReturn()<CR>
+		inoremap <buffer> <CR> <C-R>=DelimitMate_ExpandReturn()<CR>
 	endif
 
 	" Expand space if inside an empty pair:
 	if b:delimitMate_expand_space != 0
-		inoremap <buffer> <Space> <C-R>=<SID>ExpandSpace()<CR>
+		inoremap <buffer> <Space> <C-R>=DelimitMate_ExpandSpace()<CR>
 	endif
 
 	" Jump out ot any empty pair:
@@ -563,11 +563,11 @@ function! s:UnMap() " {{{
 		silent! iunmap <buffer> <BS>
 		"echomsg "silent! iunmap <buffer> <BS>"
 	endif
-	if maparg('<CR>',"i") =~? 'ExpandReturn'
+	if maparg('<CR>',"i") =~? 'DelimitMate_ExpandReturn'
 		silent! iunmap <buffer> <CR>
 		"echomsg "silent! iunmap <buffer> <CR>"
 	endif
-	if maparg('<Space>',"i") =~? 'ExpandSpace'
+	if maparg('<Space>',"i") =~? 'DelimitMate_ExpandSpace'
 		silent! iunmap <buffer> <Space>
 		"echomsg "silent! iunmap <buffer> <Space>"
 	endif
