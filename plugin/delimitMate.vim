@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        delimitMate.vim
-" Version:     1.7
+" Version:     2.0
 " Description: This plugin tries to emulate the auto-completion of delimiters
 "              that TextMate provides.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -38,6 +38,7 @@ if v:version < 700
 endif
 
 let s:loaded_delimitMate = 1 " }}}
+let delimitMate_version = '2.0'
 
 function! s:Init() "{{{
 
@@ -109,8 +110,8 @@ function! s:Init() "{{{
 
 	" delimitMate_visual_leader {{{
 	if !exists("b:delimitMate_visual_leader") && !exists("g:delimitMate_visual_leader")
-		let b:delimitMate_visual_leader = exists('g:maplocalleader') ? g:maplocalleader :
-					\ exists('mapleader') ? g:mapleader : "\\"
+		let b:delimitMate_visual_leader = exists('b:maplocalleader') ? b:maplocalleader :
+					\ exists('g:mapleader') ? g:mapleader : "\\"
 	elseif !exists("b:delimitMate_visual_leader") && exists("g:delimitMate_visual_leader")
 		let b:delimitMate_visual_leader = g:delimitMate_visual_leader
 	else
@@ -327,15 +328,13 @@ function! s:QuoteDelim(char) "{{{
 	elseif line[col + 1] == a:char
 		" Get out of the string.
 		return s:WriteBefore(a:char)
-	elseif ((line[col] == a:char && line[col + 1 ] != a:char)
-		\ || line[col] =~ '[a-zA-Z0-9]')
-		\ && b:delimitMate_smart_quotes
-		" Seems like we have an unbalanced quote or a closing quote,
-		" insert one quotation mark and jump to tthe middle.
-		return s:WriteAfter(a:char)
-	elseif line[col] =~ '[a-zA-Z0-9]' && a:char == "'"
-		" Seems like an apostrophe, insert a single quote.
+	elseif (line[col] =~ '[a-zA-Z0-9]' && a:char == "'") ||
+				\(line[col] =~ '[a-zA-Z0-9]' && b:delimitMate_smart_quotes)
+		" Seems like an apostrophe or a closing, insert a single quote.
 		return a:char
+	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:delimitMate_smart_quotes
+		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
+		return s:WriteAfter(a:char)
 	else
 		" Insert a pair and jump to the middle.
 		call s:WriteAfter(a:char)

@@ -1,4 +1,4 @@
-*delimitMate.txt* Trying to keep those beasts at bay! v.1.6
+*delimitMate.txt* Trying to keep those beasts at bay! v.2.0
 
 
                               REFERENCE MANUAL *delimitMate*
@@ -11,8 +11,9 @@
     2. Functionality___________________________|delimitMateFunctionality|
         2.1 Automatic closing & exiting________|delimitMateAutoClose|
         2.2 Expansion of space and CR__________|delimitMateExpansion|
-        2.3 Deletion of empty pairs____________|delimitMateBackspace|
+        2.3 Backspace__________________________|delimitMateBackspace|
         2.4 Visual wrapping____________________|delimitMateVisualWrapping|
+        2.5 Smart Quotes_______________________|delimitMateSmartQuotes|
     3. Customization___________________________|delimitMateOptions|
         3.1 Option summary_____________________|delimitMateOptionSummary|
         3.2 Options details____________________|delimitMateOptionDetails|
@@ -33,12 +34,15 @@ When automatic closing is enabled, if an opening delimiter is inserted
 delimitMate inserts the closing pair and places the cursor between them. When
 automatic closing is disabled, no closing delimiters is inserted by
 delimitMate, but if a pair of delimiters is typed, the cursor is placed in the
-middle. Also, to get out of a pair of delimiters just type the right delimiter
-and the cursor will jump to the right.
+middle. Also, to get out of a pair of delimiters just type shift+tab or the
+right delimiter and the cursor will jump to the right.
 
-If the cursor is inside an empty pair of delimiters <Space> and <CR> can be
-expanded to follow your coding style, you just need to define a couple of
-options with the desired mappings for them.
+If the cursor is inside an empty pair of delimiters, typing <Space> will
+insert two spaces and the cursor will be placed in the middle; typing <CR>
+will insert to car retunrs and place the cursor in the middle line, between
+the delimiters.
+
+All of the operations are undo/redo-wise safe.
 
 ==============================================================================
  2. FUNCTIONALITY                                   *delimitMateFunctionality*
@@ -55,7 +59,7 @@ When the cursor is inside an empty pair or located next to the left of a
 closing delimiter, the cursor is placed outside the pair to the right of the
 closing delimiter.
 
-Unless |'b:delimitMate_matchpairs'| and |'b:delimitMate_quotes'|is set, this
+Unless |'delimitMate_matchpairs'| or |'delimitMate_quotes'|are set, this
 script uses the values in '&matchpairs' to identify the pairs, and ", ' and `
 for quotes respectively.
 
@@ -68,47 +72,55 @@ With auto-close: >
                            (     |    (|)
                         –––––––––|––––––––––
                            ()    |    ()|
+                        –––––––––|––––––––––
+                        (<S-Tab> |    ()|
 <
 Without auto-close: >
 
-                          Type   |  You get
-                        ====================
-                           ()    |    (|)
-                        –––––––––|––––––––––
-                           ())   |    ()|
+                          Type    |  You get
+                        =====================
+                           ()     |    (|)
+                        –––––––––-|––––––––––
+                           ())    |    ()|
+                        –––––––––-|––––––––––
+                        ()<S-Tab> |    ()|
 <
 ------------------------------------------------------------------------------
    2.2 EXPANSION OF SPACE AND CAR RETURN                *delimitMateExpansion*
 
 When the cursor is inside an empty pair of delimiters, <Space> and <CR> can be
-expanded to follow your coding style with |'b:delimitMate_expand_space'| and
-|'b:delimitMate_expand_cr'|. e.g. (cursor represented by a "|"):
+expanded, see |'delimitMate_expand_space'| and
+|'delimitMate_expand_cr'|:
 
 Expand <Space> to: >
 
-                  <Space><Space><Left>  |  You get
-                ====================================
-                            (|)         |    ( | )
+                    <Space><Space><Left>  |  You get
+                  ====================================
+                              (|)         |    ( | )
 <
 Expand <CR> to: >
 
-                    <CR><CR><Up>  |  You get
-                  ============================
-                         (|)      |    (
-                                  |    |
-                                  |    )
+                      <CR><CR><Up>  |  You get
+                    ============================
+                           (|)      |    (
+                                    |    |
+                                    |    )
 <
 
 ------------------------------------------------------------------------------
-   2.3 DELETION OF EMPTY PAIR                           *delimitMateBackspace*
+   2.3 BACKSPACE                                        *delimitMateBackspace*
 
-If you press backspace inside an empty pair, both delimiters are deleted.
+If you press backspace inside an empty pair, both delimiters are deleted. If
+you type shift + backspace instead, only the closing delimiter will be
+deleted.
 
-e.g.: >
+e.g. typing at the "|": >
 
-                 Before           |  After
-               ====================================
-                 call expand(|)   |  call expand|
+                  What  |      Before      |      After
+               ==============================================
+                  <BS>  |  call expand(|)  |  call expand|
+               ---------|------------------|-----------------
+                 <S-BS> |  call expand(|)  |  call expand(|
 <
 
 ------------------------------------------------------------------------------
@@ -122,9 +134,26 @@ will be welcome.
 
 e.g. (selection represented between square brackets): >
 
-             Selected text       |  After \"
-           =============================================
-            An [absurd] example! | An "absurd" example!
+                      Selected text    |       After \"
+                 =============================================
+                  An [absurd] example! | An "absurd" example!
+<
+
+------------------------------------------------------------------------------
+   2.5 SMART QUOTES                                   *delimitMateSmartQuotes*
+
+Only one quote will be inserted following a quote, a "\" or an alphanumeric
+character. This should cover closing quotes, escaped quotes and apostrophes.
+Except for apostrophes, this feature can be disabled setting the option
+|'delimitMate_smart_quotes'| to 0.
+
+e.g. typing at the "|": >
+
+                     What |    Before    |     After
+                  =======================================
+                      "   |  "String|    |  "String"|
+                      "   |  let i = "|  |  let i = "|"
+                      '   |  I|          |  I'|
 <
 ==============================================================================
  3. CUSTOMIZATION                                         *delimitMateOptions*
@@ -149,17 +178,18 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_visual_leader'|   Sets the leader to be used in visual mode.
 
-|'delimitMate_expand_cr'|       Sets the expansion for <CR> inside an empty
-                                pair of matching delimiters or quotes.
+|'delimitMate_expand_cr'|       Turns on/off the expansion of <CR>.
 
-|'delimitMate_expand_space'|    Sets the expansion for <Space> inside an
-                                empty pair of matching delimiters or quotes.
+|'delimitMate_expand_space'|    Turns on/off the expansion of <Space>.
 
 |'delimitMate_excluded_ft'|     Turns off the script for the given file types.
 
 |'delimitMate_apostrophes'|     Tells delimitMate how it should "fix"
                                 balancing of single quotes when used as
-                                apostrophes.
+                                apostrophes. NOTE: Not needed any more, kept
+                                for compatibility with older versions.
+
+|'delimitMate_smart_quotes'|    Turns on/off the "smart quotes" feature.
 
 ------------------------------------------------------------------------------
    3.2 OPTIONS DETAILS                              *delimitMateOptionDetails*
@@ -168,8 +198,9 @@ Add the shown lines to your vimrc file in order to set the below options.
 Local options take precedence over global ones and can be used along with
 autocmd to modify delimitMate's behavior for specific file types.
 
-                                                     *'loaded_delimitMate'*
-                                                   *'b:loaded_delimitMate'*
+------------------------------------------------------------------------------
+                                                        *'loaded_delimitMate'*
+                                                      *'b:loaded_delimitMate'*
 This option prevents delimitMate from loading.
 e.g.: >
         let loaded_delimitMate = 1
@@ -226,14 +257,14 @@ e.g: >
 ------------------------------------------------------------------------------
                                                      *'delimitMate_expand_cr'*
                                                    *'b:delimitMate_expand_cr'*
-Values: A key mapping.                                                       ~
-Default: "\<CR>"                                                             ~
+Values: 1 or 0                                                               ~
+Default: 0                                                                   ~
 
-The value of this option will be used to expand the car return character when
-typed inside an empty delimiter pair. Read |delimitMateExpansion| for details.
+This option turns on/off the expansion of <CR>. Read |delimitMateExpansion|
+for details.
 e.g.: >
         let b:delimitMate_expand_cr = "\<CR>\<CR>\<Up>"
-        au FileType mail let b:delimitMate_expand_cr = "\<CR>
+        au FileType mail let b:delimitMate_expand_cr = "\<CR>"
 <
 ------------------------------------------------------------------------------
                                                   *'delimitMate_expand_space'*
@@ -241,8 +272,8 @@ e.g.: >
 Values: A key mapping.                                                       ~
 Default: "\<Space>"                                                          ~
 
-The value of this option will be used to expand the space character when typed
-inside an empty delimiter pair. Read |delimitMateExpansion| for details.
+This option turns on/off the expansion of <Space>. Read |delimitMateExpansion|
+for details.
 e.g.: >
         let delimitMate_expand_space = "\<Space>\<Space>\<Left>"
         au FileType tcl let b:delimitMate_expand_space = "\<Space>"
@@ -253,15 +284,17 @@ Values: A string of file type names separated by single commas.              ~
 Default: Empty.                                                              ~
 
 This options turns delimitMate off for the listed file types, use this option
-only if don't want any of the features it provides.
+only if you don't want any of the features it provides on those file types.
 e.g.: >
         let delimitMate_excluded_ft = "mail,txt"
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_apostrophes'*
 Values: Strings separated by ":".                                            ~
-Default: "n't:'s:'re:'d:'ll:'ve:s'"                                          ~
+Default: No longer used.                                                     ~
 
+NOTE: This feature is turned off by default, it's been kept for compatibility
+with older version, read |delimitMateSmartQuotes| for details.
 If auto-close is enabled, this option tells delimitMate how to try to fix the
 balancing of single quotes when used as apostrophes. The values of this option
 are strings of text where a single quote would be used as an apostrophe (e.g.:
@@ -390,6 +423,24 @@ This script was inspired by the auto-completion of delimiters of TextMate.
  8. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
+|---------|------------|-----------------------------------------------------|
+    2.0     2010-04-01   New:
+                         - All features are redo/undo-wise safe.
+                         - A single quote typed after an alphanumeric
+                           character is considered an apostrophe and one
+                           single quote is inserted.
+                         - A quote typed after another quote inserts a single
+                           quote and the cursor jumps to the middle.
+                         - <S-Tab> jumps out of any empty pair.
+                         - <CR> and <Space> expansions are fixed, but the
+                           functions used for it are global and can be used in
+                           custom mappings. The previous system is still
+                           active if you have any of the expansion options
+                           set.
+                         - <S-Backspace> deletes the closing delimiter.
+                         Fixed:
+                         - s:vars were being used to store buffer options.
+
 |---------|------------|-----------------------------------------------------|
     1.6     2009-10-10   Now delimitMate tries to fix the balancing of single
                          quotes when used as apostrophes. You can read
