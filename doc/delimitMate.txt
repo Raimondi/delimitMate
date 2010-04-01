@@ -1,8 +1,18 @@
-*delimitMate.txt* Trying to keep those beasts at bay! v.2.0
+*delimitMate*    Trying to keep those beasts at bay! v.2.0   *delimitMate.txt*
 
+  =========================================================================  ~
+  ====  =========  ==========================  =====  =====================  ~
+  ====  =========  ==========================   ===   =====================  ~
+  ====  =========  =====================  ===  =   =  ==========  =========  ~
+  ====  ===   ===  ==  ==  =  = ===  ==    ==  == ==  ===   ===    ===   ==  ~
+  ==    ==  =  ==  ======        =======  ===  =====  ==  =  ===  ===  =  =  ~
+  =  =  ==     ==  ==  ==  =  =  ==  ===  ===  =====  =====  ===  ===     =  ~
+  =  =  ==  =====  ==  ==  =  =  ==  ===  ===  =====  ===    ===  ===  ====  ~
+  =  =  ==  =  ==  ==  ==  =  =  ==  ===  ===  =====  ==  =  ===  ===  =  =  ~
+  ==    ===   ===  ==  ==  =  =  ==  ===   ==  =====  ===    ===   ===   ==  ~
+  =========================================================================  ~
 
-                              REFERENCE MANUAL *delimitMate*
-
+                              REFERENCE MANUAL                               *
 
 ==============================================================================
  0.- CONTENTS                                           *delimitMate-contents*
@@ -18,10 +28,11 @@
         3.1 Option summary_____________________|delimitMateOptionSummary|
         3.2 Options details____________________|delimitMateOptionDetails|
     4. Commands________________________________|delimitMateCommands|
-    5. TODO list_______________________________|delimitMateTodo|
-    6. Maintainer______________________________|delimitMateMaintainer|
-    7. Credits_________________________________|delimitMateCredits|
-    8. History_________________________________|delimitMateHistory|
+    5. Functions_______________________________|delimitMateFunctions|
+    6. TODO list_______________________________|delimitMateTodo|
+    7. Maintainer______________________________|delimitMateMaintainer|
+    8. Credits_________________________________|delimitMateCredits|
+    9. History_________________________________|delimitMateHistory|
 
 ==============================================================================
  1.- INTRODUCTION                                           *delimitMateIntro*
@@ -107,6 +118,10 @@ Expand <CR> to: >
                                     |    )
 <
 
+Since <Space> and <CR> are used everywhere, I have made the functions involved
+in expansions global, so they can be used to make custom mappings. Read
+|delimitMateFunctions| for more details.
+
 ------------------------------------------------------------------------------
    2.3 BACKSPACE                                        *delimitMateBackspace*
 
@@ -157,6 +172,9 @@ e.g. typing at the "|": >
 <
 ==============================================================================
  3. CUSTOMIZATION                                         *delimitMateOptions*
+
+You can create your own mappings for some features using the global functions.
+Read |DelimitMateFunctions| for more info.
 
 ------------------------------------------------------------------------------
    3.1 OPTIONS SUMMARY                              *delimitMateOptionSummary*
@@ -385,14 +403,59 @@ represented by an "|": >
 <
 
 ==============================================================================
- 5. TODO LIST                                                *delimitMateTodo*
+ 5. FUNCTIONS                                           *delimitMateFunctions*
+
+------------------------------------------------------------------------------
+delimitMate_WithinEmptyPair()                    *delimitMate_WithinEmptyPair*
+
+Returns 1 if the cursor is inside an empty pair, 0 otherwise.
+
+------------------------------------------------------------------------------
+DelimitMate_ExpandReturn()                        *DelimitMate_ExpandReturn()*
+
+Returns the expansion for <CR>.
+
+e.g.: This mapping could be used to select an item on a pop-up menu or expand
+<CR> inside an empty pair: >
+
+        inoremap <expr> <CR> pumvisible() ? "\<c-y>" :
+                 \ DelimitMate_WithinEmptyPair ?
+                 \ DelimitMate_ExpandReturn() : "\<CR>"
+<
+------------------------------------------------------------------------------
+DelimitMate_ExpandSpace()                          *DelimitMate_ExpandSpace()*
+
+Returns the expansion for <Space>.
+e.g.: >
+
+	inoremap <expr> <Space> DelimitMate_WithinEmptyPair() ?
+		\ DelimitMate_ExpandSpace() : "\<Space>"
+<
+------------------------------------------------------------------------------
+DelimitMate_ShouldJump()                            *DelimitMate_ShouldJump()*
+
+Returns 1 if there is a closing delimiter or a quote to the right of the
+cursor, 0 otherwise.
+
+------------------------------------------------------------------------------
+DelimitMate_JumpAny()                                  *DelimitMate_JumpAny()*
+
+This function returns a mapping that will make the cursor jump to the right.
+e.g.: You can use this to create your own mapping to jump over any delimiter.
+>
+           inoremap <expr> <C-Tab> DelimitMate_ShouldJump() ?
+                           \ DelimitMate_JumpAny() : "\<C-Tab>"
+<
+
+==============================================================================
+ 6. TODO LIST                                                *delimitMateTodo*
 
 - Automatic set-up by file type.
 - Make visual wrapping work on blockwise visual mode.
 - Limit behaviour by region.
 
 ==============================================================================
- 6. MAINTAINER                                         *delimitMateMaintainer*
+ 7. MAINTAINER                                         *delimitMateMaintainer*
 
 Hi there! My name is Israel Chauca F. and I can be reached at:
     mailto:israelchauca@gmail.com
@@ -401,7 +464,7 @@ Feel free to send me any suggestions and/or comments about this plugin, I'll
 be very pleased to read them.
 
 ==============================================================================
- 7. CREDITS                                               *delimitMateCredits*
+ 8. CREDITS                                               *delimitMateCredits*
 
 Some of the code that make this script is modified or just shamelessly copied
 from the following sources:
@@ -420,11 +483,11 @@ from the following sources:
 This script was inspired by the auto-completion of delimiters of TextMate.
 
 ==============================================================================
- 8. HISTORY                                               *delimitMateHistory*
+ 9. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.0     2010-04-01   New:
+    2.0     2010-04-01   * New features:
                          - All features are redo/undo-wise safe.
                          - A single quote typed after an alphanumeric
                            character is considered an apostrophe and one
@@ -438,7 +501,8 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                            active if you have any of the expansion options
                            set.
                          - <S-Backspace> deletes the closing delimiter.
-                         Fixed:
+
+                         * Fixed bug:
                          - s:vars were being used to store buffer options.
 
 |---------|------------|-----------------------------------------------------|
@@ -487,5 +551,11 @@ This script was inspired by the auto-completion of delimiters of TextMate.
     1.0     2009-08-23   Initial upload.
 
 |---------|------------|-----------------------------------------------------|
+
+
+           ...           |"|         _     _       .      .         ___      ~
+      o,*,(o o)         _|_|_      o' \,=./ `o   .  .:::.          /_\ `*    ~
+     8(o o)(_)Ooo       (o o)         (o o)        :(o o):  .     (o o)      ~
+---ooO-(_)---Ooo----ooO--(_)--Ooo-ooO--(_)--Ooo-ooO--(_)--Ooo-ooO--(_)--Ooo- ~
 
 vim:tw=78:ts=8:ft=help:norl:formatoptions+=tcroqn:autoindent:

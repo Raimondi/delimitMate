@@ -299,6 +299,11 @@ function! s:JumpOut(char) "{{{
 	return a:char
 endfunction " }}}
 
+function! DelimitMate_JumpAny() " {{{
+	let nchar = getline('.')[col('.')-1]
+	return nchar . "\<Del>"
+endfunction " DelimitMate_JumpAny() }}}
+
 function! s:SkipDelim(char) "{{{
 	let cur = strpart( getline('.'), col('.')-2, 3 )
 	if cur[0] == "\\"
@@ -410,23 +415,13 @@ function! s:VisualMaps() " {{{
 endfunction "}}}
 
 function! DelimitMate_ExpandReturn() "{{{
-	if DelimitMate_WithinEmptyPair()
-		" Expand:
-		return "\<esc>a\<CR>x\<CR>\<esc>k$\"_xa"
-	else
-		" Don't
-		return "\<CR>"
-	endif
+	" Expand:
+	return "\<Esc>a\<CR>x\<CR>\<Esc>k$\"_xa"
 endfunction "}}}
 
 function! DelimitMate_ExpandSpace() "{{{
-	if DelimitMate_WithinEmptyPair()
-		" Expand:
-		return s:WriteAfter(' ')."\<Space>"
-	else
-		" Don't
-		return "\<Space>"
-	endif
+	" Expand:
+	return s:WriteAfter(' ') . "\<Space>"
 endfunction "}}}
 
 function! s:ExtraMappings() "{{{
@@ -438,17 +433,19 @@ function! s:ExtraMappings() "{{{
 
 	" Expand return if inside an empty pair:
 	if b:delimitMate_expand_cr != 0
-		inoremap <buffer> <CR> <C-R>=DelimitMate_ExpandReturn()<CR>
+		inoremap <buffer> <expr> <CR> DelimitMate_WithinEmptyPair() ?
+					\ DelimitMate_ExpandReturn() : "\<CR>"
 	endif
 
 	" Expand space if inside an empty pair:
 	if b:delimitMate_expand_space != 0
-		inoremap <buffer> <Space> <C-R>=DelimitMate_ExpandSpace()<CR>
+		inoremap <buffer> <expr> <Space> DelimitMate_WithinEmptyPair() ?
+					\ DelimitMate_ExpandSpace() : "\<Space>"
 	endif
 
 	" Jump out ot any empty pair:
 	if b:delimitMate_tab2exit
-		inoremap <buffer> <expr> <S-Tab> DelimitMate_ShouldJump() ? "\<Right>" : "\<S-Tab>"
+		inoremap <buffer> <expr> <S-Tab> DelimitMate_ShouldJump() ? DelimitMate_JumpAny() : "\<S-Tab>"
 	endif
 endfunction "}}}
 "}}}
