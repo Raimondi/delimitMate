@@ -121,7 +121,7 @@ function! s:Init() "{{{
 	" delimitMate_expand_space {{{
 	if !exists("b:delimitMate_expand_space") && !exists("g:delimitMate_expand_space")
 		let b:delimitMate_expand_space = 0
-	elseif !exists("b:delimitMate_expand_space") && !exists("g:delimitMate_expand_space")
+	elseif !exists("b:delimitMate_expand_space") && exists("g:delimitMate_expand_space")
 		let b:delimitMate_expand_space = g:delimitMate_expand_space
 	else
 		" Nothing to do.
@@ -196,16 +196,43 @@ function! s:ValidMatchpairs(str) "{{{
 endfunction "}}}
 
 function! DelimitMate_ShouldJump() "{{{
-	let char = getline('.')[col('.') - 1]
+	let col = col('.')
+	let lcol = col('$')
+	let char = getline('.')[col - 1]
+	let nchar = getline('.')[col]
+	let uchar = getline(line('.') + 1)[0]
 	for pair in b:delimitMate_matchpairs_list
 		if  char == split( pair, ':' )[1]
-			" Same character on the rigth, jump over it.
+			" Closing delimiter on the rigth, jump over it.
+			return 1
+		elseif b:delimitMate_expand_space &&
+					\ char == " " &&
+					\ nchar == split( pair, ':' )[1]
+			" Closing delimiter on the right after an space and space expansion
+			" enabled.
+			return 1
+		elseif b:delimitMate_expand_cr &&
+					\ col == lcol &&
+					\ uchar == split( pair, ':' )[1]
+			" Closing delimiter starting the next line, at the end of the
+			" current line and expand CR enabled.
 			return 1
 		endif
+
 	endfor
 	for quote in b:delimitMate_quotes_list
 		if char == quote
-			" Same character on the rigth, jump over it.
+			" Closing delimiter on the rigth, jump over it.
+			return 1
+		elseif b:delimitMate_expand_space && char == " " && nchar == quote
+			" Closing delimiter on the right after an space and expand space
+			" enabled.
+			return 1
+		elseif b:delimitMate_expand_cr &&
+					\ col == lcol &&
+					\ uchar == quote
+			" Closing delimiter starting the next line, at the end of the
+			" current line and expand CR enabled.
 			return 1
 		endif
 	endfor
@@ -240,6 +267,46 @@ function! s:IsEmptyPair(str) "{{{
 	endfor
 	return 0
 endfunction "}}}
+
+function! s:IsCRExpansion() " {{{
+	let nchar = getline(line('.')-1)[-1:]
+	let schar = getline(line('.')+1)[-1:]
+	let isEmpty = getline('.') == ""
+	if index(b:delimitMate_left_delims, nchar) > -1 &&
+				\ index(b:delimitMate_left_delims, nchar) == index(b:delimitMate_right_delims, schar) &&
+				\ isEmpty
+		return 1
+	elseif index(b:delimitMate_quotes_list, nchar) > -1 &&
+				\ index(b:delimitMate_quotes_list, nchar) == index(b:delimitMate_quotes_list, schar) &&
+				\ isEmpty
+		return 1
+	else
+		return 0
+	endif
+endfunction " }}} s:IsCRExpansion()
+
+function! s:IsSpaceExpansion() " {{{
+	let line = getline('.')
+	let col = col('.')-2
+	if col > 0
+		let pchar = line[col - 1]
+		let nchar = line[col + 2]
+		let isSpaces = (line[col] == line[col+1] && line[col] == " ")
+
+		if index(b:delimitMate_left_delims, pchar) > -1 &&
+				\ index(b:delimitMate_left_delims, pchar) == index(b:delimitMate_right_delims, nchar) &&
+				\ isSpaces
+			return 1
+		elseif index(b:delimitMate_quotes_list, pchar) > -1 &&
+				\ index(b:delimitMate_quotes_list, pchar) == index(b:delimitMate_quotes_list, nchar) &&
+				\ isSpaces
+			return 1
+		else
+			return 0
+		endif
+	endif
+	return 0
+endfunction " }}} IsSpaceExpansion()
 
 function! DelimitMate_WithinEmptyPair() "{{{
 	let cur = strpart( getline('.'), col('.')-2, 2 )
@@ -300,8 +367,16 @@ function! s:JumpOut(char) "{{{
 endfunction " }}}
 
 function! DelimitMate_JumpAny() " {{{
-	let nchar = getline('.')[col('.')-1]
-	return nchar . "\<Del>"
+	" Let's get the character on the right.
+	let char = getline('.')[col('.')-1]
+	if char == " "
+		" Space expansion.
+		let char = char . getline('.')[col('.')] . "\<Del>"
+	elseif char == ""
+		" CR expansion.
+		let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
+	endif
+	return char . "\<Del>"
 endfunction " DelimitMate_JumpAny() }}}
 
 function! s:SkipDelim(char) "{{{
@@ -426,7 +501,9 @@ endfunction "}}}
 
 function! s:ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
-	inoremap <buffer> <expr> <BS> DelimitMate_WithinEmptyPair() ? "\<Right>\<BS>\<BS>" : "\<BS>"
+	inoremap <buffer> <expr> <BS> DelimitMate_WithinEmptyPair() ? "\<Right>\<BS>\<BS>" :
+				\ <SID>IsCRExpansion() && b:delimitMate_expand_cr != 0 ? "\<BS>\<Del>" :
+				\ <SID>IsSpaceExpansion() && b:delimitMate_expand_space != 0 ? "\<BS>\<Del>" : "\<BS>"
 
 	" If pair is empty, delete closing delimiter:
 	inoremap <buffer> <expr> <S-BS> DelimitMate_WithinEmptyPair() ? "\<Del>" : "\<S-BS>"
@@ -440,7 +517,7 @@ function! s:ExtraMappings() "{{{
 	" Expand space if inside an empty pair:
 	if b:delimitMate_expand_space != 0
 		inoremap <buffer> <expr> <Space> DelimitMate_WithinEmptyPair() ?
-					\ DelimitMate_ExpandSpace() : "\<Space>"
+					\ "\<C-R>=<SID>WriteAfter(' ')\<CR>\<Space>" : "\<Space>"
 	endif
 
 	" Jump out ot any empty pair:
