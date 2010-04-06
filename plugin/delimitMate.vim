@@ -201,41 +201,32 @@ function! DelimitMate_ShouldJump() "{{{
 	let char = getline('.')[col - 1]
 	let nchar = getline('.')[col]
 	let uchar = getline(line('.') + 1)[0]
-	for pair in b:delimitMate_matchpairs_list
-		if  char == split( pair, ':' )[1]
-			" Closing delimiter on the rigth, jump over it.
-			return 1
-		elseif b:delimitMate_expand_space &&
-					\ char == " " &&
-					\ nchar == split( pair, ':' )[1]
-			" Closing delimiter on the right after an space and space expansion
-			" enabled.
-			return 1
-		elseif b:delimitMate_expand_cr &&
-					\ col == lcol &&
-					\ uchar == split( pair, ':' )[1]
-			" Closing delimiter starting the next line, at the end of the
-			" current line and expand CR enabled.
-			return 1
-		endif
 
-	endfor
-	for quote in b:delimitMate_quotes_list
-		if char == quote
-			" Closing delimiter on the rigth, jump over it.
-			return 1
-		elseif b:delimitMate_expand_space && char == " " && nchar == quote
-			" Closing delimiter on the right after an space and expand space
-			" enabled.
-			return 1
-		elseif b:delimitMate_expand_cr &&
-					\ col == lcol &&
-					\ uchar == quote
-			" Closing delimiter starting the next line, at the end of the
-			" current line and expand CR enabled.
+	for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
+		if char == cdel
+			" Closing delimiter on the right.
 			return 1
 		endif
 	endfor
+
+	if b:delimitMate_expand_space && char == " "
+		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
+			if nchar == cdel
+				" Closing delimiter with space expansion.
+				return 1
+			endif
+		endfor
+	endif
+
+	if b:delimitMate_expand_cr && char == ""
+		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
+			if uchar == cdel
+				" Closing delimiter with CR expansion.
+				return 1
+			endif
+		endfor
+	endif
+
 	return 0
 endfunction "}}}
 
