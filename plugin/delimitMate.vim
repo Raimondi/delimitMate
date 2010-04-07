@@ -527,9 +527,11 @@ function! s:TestMappings() "{{{
 			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . "\<BS>|"
 			exec "normal A\<CR>Exit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_left_delims[i] . " |"
+			exec "normal A\<CR>Delete space: " . b:delimitMate_left_delims[i] . " \<BS>|"
 			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_left_delims[i]
 			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_right_delims[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . "\<CR>|"
+			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 		for i in range(len(b:delimitMate_quotes_list))
 			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. "|"
@@ -538,8 +540,10 @@ function! s:TestMappings() "{{{
 			exec "normal a\<BS>|"
 			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . " |"
+			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . " \<BS>|"
 			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes_list[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . "\<CR>|"
+			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 	else
 		exec "normal i* NO AUTOCLOSE:\<CR>"
@@ -548,29 +552,33 @@ function! s:TestMappings() "{{{
 			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<BS>|"
 			exec "normal A\<CR>Exit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . b:delimitMate_right_delims[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " |"
+			exec "normal A\<CR>Delete space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " \<BS>|"
 			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_left_delims[i]
 			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_right_delims[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>|"
+			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 		for i in range(len(b:delimitMate_quotes_list))
 			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. b:delimitMate_quotes_list[i] . "|"
 			exec "normal A\<CR>Delete: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<BS>|"
 			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " |"
+			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " \<BS>|"
 			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes_list[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>|"
+			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 	endif
 	exec "normal \<Esc>i"
 endfunction "}}}
 
 function! s:SwitchAutoclose() "{{{
-	if !exists("g:delimitMate_autoclose")
-		let g:delimitMate_autoclose = 1
-	elseif g:delimitMate_autoclose == 1
-		let g:delimitMate_autoclose = 0
+	if !exists("b:delimitMate_autoclose")
+		let b:delimitMate_autoclose = 1
+	elseif b:delimitMate_autoclose == 1
+		let b:delimitMate_autoclose = 0
 	else
-		let g:delimitMate_autoclose = 1
+		let b:delimitMate_autoclose = 1
 	endif
 	DelimitMateReload
 endfunction "}}}
@@ -647,11 +655,21 @@ function! s:TestMappingsDo() "{{{
 		"call s:DelimitMateDo()
 		call s:TestMappings()
 	else
-		call s:SwitchAutoclose()
-		call s:TestMappings()
-		exec "normal i\<CR>"
-		call s:SwitchAutoclose()
-		call s:TestMappings()
+		let temp_varsDM = [b:delimitMate_expand_space, b:delimitMate_expand_cr]
+		for i in [0,1]
+			let delimitMate_expand_space = i
+			let delimitMate_expand_cr = i
+			call s:SwitchAutoclose()
+			call s:TestMappings()
+			echom b:delimitMate_autoclose
+			exec "normal i\<CR>"
+			call s:SwitchAutoclose()
+			echom b:delimitMate_autoclose
+			call s:TestMappings()
+		endfor
+		let b:delimitMate_expand_space = temp_varsDM[0]
+		let b:delimitMate_expand_cr = temp_varsDM[1]
+		unlet temp_varsDM
 	endif
 endfunction "}}}
 
