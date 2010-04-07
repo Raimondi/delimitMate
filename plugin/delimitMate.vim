@@ -521,7 +521,6 @@ endfunction "}}}
 " Tools: {{{
 function! s:TestMappings() "{{{
 	if b:delimitMate_autoclose
-		 exec "normal i* AUTOCLOSE:\<CR>"
 		for i in range(len(b:delimitMate_left_delims))
 			exec "normal GGAOpen & close: " . b:delimitMate_left_delims[i]. "|"
 			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . "\<BS>|"
@@ -546,7 +545,6 @@ function! s:TestMappings() "{{{
 			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
 	else
-		exec "normal i* NO AUTOCLOSE:\<CR>"
 		for i in range(len(b:delimitMate_left_delims))
 			exec "normal GGAOpen & close: " . b:delimitMate_left_delims[i]	. b:delimitMate_right_delims[i] . "|"
 			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<BS>|"
@@ -570,17 +568,6 @@ function! s:TestMappings() "{{{
 		endfor
 	endif
 	exec "normal \<Esc>i"
-endfunction "}}}
-
-function! s:SwitchAutoclose() "{{{
-	if !exists("b:delimitMate_autoclose")
-		let b:delimitMate_autoclose = 1
-	elseif b:delimitMate_autoclose == 1
-		let b:delimitMate_autoclose = 0
-	else
-		let b:delimitMate_autoclose = 1
-	endif
-	DelimitMateReload
 endfunction "}}}
 
 function! s:UnMap() " {{{
@@ -655,21 +642,25 @@ function! s:TestMappingsDo() "{{{
 		"call s:DelimitMateDo()
 		call s:TestMappings()
 	else
-		let temp_varsDM = [b:delimitMate_expand_space, b:delimitMate_expand_cr]
+		let temp_varsDM = [b:delimitMate_expand_space, b:delimitMate_expand_cr, b:delimitMate_autoclose]
 		for i in [0,1]
-			let delimitMate_expand_space = i
-			let delimitMate_expand_cr = i
-			call s:SwitchAutoclose()
-			call s:TestMappings()
-			echom b:delimitMate_autoclose
-			exec "normal i\<CR>"
-			call s:SwitchAutoclose()
-			echom b:delimitMate_autoclose
-			call s:TestMappings()
+			let b:delimitMate_expand_space = i
+			let b:delimitMate_expand_cr = i
+			for a in [0,1]
+				let b:delimitMate_autoclose = a
+				call s:Init()
+				exec "normal i b:delimitMate_autoclose: " . b:delimitMate_autoclose . "\<CR>"
+				exec "normal i b:delimitMate_expand_space: " . b:delimitMate_expand_space . "\<CR>"
+				exec "normal i b:delimitMate_expand_cr: " . b:delimitMate_expand_cr . "\<CR>\<CR>"
+				call s:TestMappings()
+				exec "normal i\<CR>"
+			endfor
 		endfor
 		let b:delimitMate_expand_space = temp_varsDM[0]
 		let b:delimitMate_expand_cr = temp_varsDM[1]
+		let b:delimitMate_autoclose = temp_varsDM[2]
 		unlet temp_varsDM
+		normal gg
 	endif
 endfunction "}}}
 
