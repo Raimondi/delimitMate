@@ -744,10 +744,13 @@ function! s:DelimitMateDo() "{{{
 	try
 		"echomsg "included"
 		let save_cpo = &cpo
+		let save_keymap = &keymap
+		set keymap=
 		set cpo&vim
 		call s:Init()
 	finally
 		let &cpo = save_cpo
+		let &keymap = save_keymap
 	endtry
 endfunction "}}}
 "}}}
