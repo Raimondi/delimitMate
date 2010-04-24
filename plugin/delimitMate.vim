@@ -747,6 +747,8 @@ function! s:DelimitMateDo() "{{{
 		let save_keymap = &keymap
 		set keymap=
 		set cpo&vim
+       let save_keymap = &keymap
+       set keymap=
 		call s:Init()
 	finally
 		let &cpo = save_cpo
