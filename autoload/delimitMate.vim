@@ -305,7 +305,6 @@ function! delimitMate#Del() " {{{
 		let line = getline('.')
 		let col = col('.') - 2
 		call delimitMate#RmBuffer(1)
-		echom line[:col-1] . "|" . line[col+1:]
 		call setline('.', line[:col] . line[col+2:])
 		return ''
 	else
