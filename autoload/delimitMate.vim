@@ -193,10 +193,14 @@ function! delimitMate#JumpOut(char) "{{{
 	let line = getline('.')
 	let col = col('.')-2
 	if line[col+1] == a:char
-		call setline('.',line[:(col)].line[(col+2):])
-		call delimitMate#RmBuffer(1)
+		if len(b:delimitMate_buffer) == 0
+			return "\<Right>"
+		else
+			call setline('.',line[:(col)].line[(col+2):])
+			call delimitMate#RmBuffer(1)
+			return a:char
+		endif
 	endif
-	return a:char
 endfunction " }}}
 
 function! delimitMate#JumpAny() " {{{
@@ -204,15 +208,18 @@ function! delimitMate#JumpAny() " {{{
 	let char = getline('.')[col('.')-1]
 	if char == " "
 		" Space expansion.
-		let char = char . getline('.')[col('.')] . "\<Del>"
-		call delimitMate#RmBuffer(2)
+		"let char = char . getline('.')[col('.')] . delimitMate#Del()
+		return char . getline('.')[col('.')] . delimitMate#Del() . delimitMate#Del()
+		"call delimitMate#RmBuffer(1)
 	elseif char == ""
 		" CR expansion.
-		let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
+		"let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
 		let b:delimitMate_buffer = []
+		return "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
+	else
+		"call delimitMate#RmBuffer(1)
+		return char . delimitMate#Del()
 	endif
-	call delimitMate#RmBuffer(1)
-	return char . "\<Del>"
 endfunction " delimitMate#JumpAny() }}}
 
 function! delimitMate#SkipDelim(char) "{{{
@@ -222,12 +229,18 @@ function! delimitMate#SkipDelim(char) "{{{
 		return a:char
 	elseif cur[1] == a:char
 		" Exit pair
-		return delimitMate#WriteBefore(a:char)
+		"return delimitMate#WriteBefore(a:char)
+		if delimitMate#Del() == ''
+			return "\<Right>"
+		else
+			return a:char
+		endif
 	"elseif cur[1] == ' ' && cur[2] == a:char
 		"" I'm leaving this in case someone likes it. Jump an space and delimiter.
 		"return "\<Right>\<Right>"
 	elseif delimitMate#IsEmptyPair( cur[0] . a:char )
 		" Add closing delimiter and jump back to the middle.
+		call insert(b:delimitMate_buffer, a:char)
 		return delimitMate#WriteAfter(a:char)
 	else
 		" Nothing special here, return the same character.
@@ -423,7 +436,7 @@ function! delimitMate#ExtraMappings() "{{{
 
 	" Jump out ot any empty pair:
 	if b:delimitMate_tab2exit
-		inoremap <buffer> <expr> <S-Tab> delimitMate#ShouldJump() ? delimitMate#JumpAny() : "\<S-Tab>"
+		inoremap <buffer> <expr> <S-Tab> delimitMate#ShouldJump() ? "\<C-R>=delimitMate#JumpAny()\<CR>" : "\<S-Tab>"
 	endif
 
 	" Fix the re-do feature:
