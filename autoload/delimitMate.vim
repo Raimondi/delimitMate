@@ -300,6 +300,19 @@ function! delimitMate#BS() " {{{
 	endif
 endfunction " }}} delimitMate#BS()
 
+function! delimitMate#Del() " {{{
+	if len(b:delimitMate_buffer) > 0
+		let line = getline('.')
+		let col = col('.') - 2
+		call delimitMate#RmBuffer(1)
+		echom line[:col-1] . "|" . line[col+1:]
+		call setline('.', line[:col] . line[col+2:])
+		return ''
+	else
+		return "\<Del>"
+	endif
+endfunction " }}}
+
 function! delimitMate#Finish() " {{{
 	let len = len(b:delimitMate_buffer)
 	if len > 0
@@ -423,6 +436,8 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <buffer> <Right> <C-R>=delimitMate#FlushBuffer()<CR><Right>
 	inoremap <buffer> <Up> <C-R>=delimitMate#FlushBuffer()<CR><Up>
 	inoremap <buffer> <Down> <C-R>=delimitMate#FlushBuffer()<CR><Down>
+
+	inoremap <buffer> <Del> <C-R>=delimitMate#Del()<CR>
 
 endfunction "}}}
 "}}}
