@@ -144,21 +144,21 @@ function! delimitMate#RestoreRegister() " {{{
 endfunction " }}}
 
 function! delimitMate#GetCurrentSyntaxRegion() "{{{
-    return synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')
+	return synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')
 endfunction " }}}
 
 function! delimitMate#GetCurrentSyntaxRegionIf(char) "{{{
 	let col = col('.')
-    let origin_line = getline('.')
-    let changed_line = strpart(origin_line, 0, col - 1) . a:char . strpart(origin_line, col - 1)
-    call setline('.', changed_line)
-    let region = synIDattr(synIDtrans(synID(line('.'), col, 1)), 'name')
-    call setline('.', origin_line)
-    return region
+	let origin_line = getline('.')
+	let changed_line = strpart(origin_line, 0, col - 1) . a:char . strpart(origin_line, col - 1)
+	call setline('.', changed_line)
+	let region = synIDattr(synIDtrans(synID(line('.'), col, 1)), 'name')
+	call setline('.', origin_line)
+	return region
 endfunction "}}}
 
 function! delimitMate#IsForbidden(char) "{{{
-    let result = index(b:delimitMate_excluded_regions_list, delimitMate#GetCurrentSyntaxRegion()) >= 0
+	let result = index(b:delimitMate_excluded_regions_list, delimitMate#GetCurrentSyntaxRegion()) >= 0
 	if result
 		return result
 	endif
@@ -167,19 +167,26 @@ function! delimitMate#IsForbidden(char) "{{{
 	"return result || region == 'Comment'
 	return result
 endfunction "}}}
+
+function! delimitMate#FlushBuffer() " {{{
+	let b:delimitMate_buffer = []
+	return ''
+endfunction " }}}
 " }}}
 
 " Doers {{{
 function! delimitMate#JumpIn(char) " {{{
-  let line = getline('.')
-  let col = col('.')-2
-  if (col) < 0
-    call setline('.',a:char.line)
-  else
-    "echom string(col).':'.line[:(col)].'|'.line[(col+1):]
-    call setline('.',line[:(col)].a:char.line[(col+1):])
-  endif
-  return ''
+	let line = getline('.')
+	let col = col('.')-2
+	if (col) < 0
+		call setline('.',a:char.line)
+		call insert(b:delimitMate_buffer, a:char)
+	else
+		"echom string(col).':'.line[:(col)].'|'.line[(col+1):]
+		call setline('.',line[:(col)].a:char.line[(col+1):])
+		call insert(b:delimitMate_buffer, a:char)
+	endif
+	return ''
 endfunction " }}}
 
 function! delimitMate#JumpOut(char) "{{{
@@ -187,6 +194,7 @@ function! delimitMate#JumpOut(char) "{{{
 	let col = col('.')-2
 	if line[col+1] == a:char
 		call setline('.',line[:(col)].line[(col+2):])
+		call delimitMate#RmBuffer(1)
 	endif
 	return a:char
 endfunction " }}}
@@ -197,10 +205,13 @@ function! delimitMate#JumpAny() " {{{
 	if char == " "
 		" Space expansion.
 		let char = char . getline('.')[col('.')] . "\<Del>"
+		call delimitMate#RmBuffer(2)
 	elseif char == ""
 		" CR expansion.
 		let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
+		let b:delimitMate_buffer = []
 	endif
+	call delimitMate#RmBuffer(1)
 	return char . "\<Del>"
 endfunction " delimitMate#JumpAny() }}}
 
@@ -257,6 +268,7 @@ function! delimitMate#ExpandReturn() "{{{
 	if delimitMate#WithinEmptyPair() &&
 				\ b:delimitMate_expand_cr
 		" Expand:
+		call delimitMate#FlushBuffer()
 		return "\<Esc>a\<CR>x\<CR>\<Esc>k$\"_xa"
 	else
 		return "\<CR>"
@@ -267,6 +279,7 @@ function! delimitMate#ExpandSpace() "{{{
 	if delimitMate#WithinEmptyPair() &&
 				\ b:delimitMate_expand_space
 		" Expand:
+		call insert(b:delimitMate_buffer, 's')
 		return delimitMate#WriteAfter(' ') . "\<Space>"
 	else
 		return "\<Space>"
@@ -275,14 +288,43 @@ endfunction "}}}
 
 function! delimitMate#BS() " {{{
 	if delimitMate#WithinEmptyPair()
-		return "\<Right>\<BS>\<BS>" 
+		call delimitMate#RmBuffer(1)
+		return "\<BS>\<Del>"
+"        return "\<Right>\<BS>\<BS>"
 	elseif b:delimitMate_expand_cr &&
 				\ (delimitMate#IsCRExpansion() != 0 || delimitMate#IsSpaceExpansion())
-	   return "\<BS>\<Del>"
-   else
-	   return "\<BS>"
-   endif
+		call delimitMate#RmBuffer(1)
+		return "\<BS>\<Del>"
+	else
+		return "\<BS>"
+	endif
 endfunction " }}} delimitMate#BS()
+
+function! delimitMate#Finish() " {{{
+	let len = len(b:delimitMate_buffer)
+	if len > 0
+		let buffer = join(b:delimitMate_buffer, '')
+		let line = getline('.')
+		let col = col('.') -2
+		echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
+		call setline('.', line[:col] . line[col+len+1:])
+		let i = 1
+		let lefts = ''
+		while i < len
+			let lefts = lefts . "\<Left>"
+			let i += 1
+		endwhile
+		return substitute(buffer, "s", "\<Space>", 'g') . lefts
+	endif
+	return ''
+endfunction " }}}
+
+function! delimitMate#RmBuffer(num) " {{{
+	if len(b:delimitMate_buffer) > 0
+	   call remove(b:delimitMate_buffer, 0, (a:num-1))
+	endif
+	return ""
+endfunction " }}}
 
 " }}}
 
@@ -302,7 +344,7 @@ function! delimitMate#AutoClose() "{{{
 		let ld = b:delimitMate_left_delims[i]
 		let rd = b:delimitMate_right_delims[i]
 		exec 'inoremap <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#JumpIn("' . rd . '")<CR>'
-		"exec 'inoremap <buffer> ' . ld . ' ' '<C-R>=delimitMate#JumpIn("' . ld . '")<CR>'
+		"exec 'inoremap <buffer> ' . ld . ' <C-R>=delimitMate#JumpIn("' . ld . '")<CR>'
 		let i += 1
 	endwhile
 
@@ -368,6 +410,20 @@ function! delimitMate#ExtraMappings() "{{{
 	if b:delimitMate_tab2exit
 		inoremap <buffer> <expr> <S-Tab> delimitMate#ShouldJump() ? delimitMate#JumpAny() : "\<S-Tab>"
 	endif
+
+	" Fix the re-do feature:
+	inoremap <buffer> <Esc> <C-R>=delimitMate#Finish()<CR><Esc>
+
+	" Flush the char buffer on mouse click:
+	inoremap <buffer> <LeftMouse> <C-R>=delimitMate#FlushBuffer()<CR><LeftMouse>
+	inoremap <buffer> <RightMouse> <C-R>=delimitMate#FlushBuffer()<CR><RightMouse>
+
+	" Flush the char buffer on key movements:
+	inoremap <buffer> <Left> <C-R>=delimitMate#FlushBuffer()<CR><Left>
+	inoremap <buffer> <Right> <C-R>=delimitMate#FlushBuffer()<CR><Right>
+	inoremap <buffer> <Up> <C-R>=delimitMate#FlushBuffer()<CR><Up>
+	inoremap <buffer> <Down> <C-R>=delimitMate#FlushBuffer()<CR><Down>
+
 endfunction "}}}
 "}}}
 
@@ -423,6 +479,9 @@ function! delimitMate#TestMappings() "{{{
 	exec "normal \<Esc>i"
 endfunction "}}}
 
+function! delimitMate#Tests() " {{{
+
+endfunction " }}}
 "}}}
 
 " vim:foldmethod=marker:foldcolumn=4

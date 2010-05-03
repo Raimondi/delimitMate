@@ -1,22 +1,9 @@
 " ============================================================================
-" File:        delimitMate.vim
-" Version:     2.0
-" Description: This plugin tries to emulate the auto-completion of delimiters
-"              that TextMate provides.
+" File:        plugin/delimitMate.vim
+" Version:     2.1
+" Description: This plugin provides auto-completion for quotes, parens, etc.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
 " Manual:      Read ":help delimitMate".
-" Credits:     Some of the code is modified or just copied from the following:
-"
-"              - Ian McCracken
-"           	 Post titled: Vim, Part II: Matching Pairs:
-"           	 http://concisionandconcinnity.blogspot.com/
-"
-"              - Aristotle Pagaltzis
-"           	 From the comments on the previous blog post and from:
-"           	 http://gist.github.com/144619
-"
-"              - Vim Scripts:
-"           	 http://www.vim.org/scripts/
 
 " Initialization: {{{
 if exists("g:loaded_delimitMate") "{{{
@@ -269,8 +256,8 @@ function! s:DelimitMateDo() "{{{
 		let save_keymap = &keymap
 		set keymap=
 		set cpo&vim
-       let save_keymap = &keymap
-       set keymap=
+		let save_keymap = &keymap
+		set keymap=
 		call s:Init()
 	finally
 		let &cpo = save_cpo
@@ -294,6 +281,12 @@ autocmd FileType * call <SID>DelimitMateDo()
 
 " Run on new buffers.
 autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
+
+" Flush the char buffer:
+autocmd InsertEnter * call delimitMate#FlushBuffer()
+autocmd BufEnter * if mode() == 'i' | call delimitMate#FlushBuffer() | endif
+
+"function! s:GetSynRegion () | echo synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') | endfunction
 
 "}}}
 

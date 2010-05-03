@@ -1,6 +1,10 @@
 PLUGIN=delimitMate
 
 install:
+	install -m 755 -d ~/.vim
+	install -m 755 -d ~/.vim/plugin/
+	install -m 755 -d ~/.vim/autoload/
+	install -m 755 -d ~/.vim/doc/
 	cp -f doc/${PLUGIN}.txt      ~/.vim/doc/${PLUGIN}.txt
 	cp -f plugin/${PLUGIN}.vim   ~/.vim/plugin/${PLUGIN}.vim
 	cp -f autoload/${PLUGIN}.vim ~/.vim/autoload/${PLUGIN}.vim
