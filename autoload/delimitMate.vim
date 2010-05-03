@@ -243,16 +243,19 @@ function! delimitMate#QuoteDelim(char) "{{{
 		return a:char
 	elseif line[col + 1] == a:char
 		" Get out of the string.
-		return delimitMate#WriteBefore(a:char)
+		"return delimitMate#WriteBefore(a:char)
+		return a:char . delimitMate#Del()
 	elseif (line[col] =~ '[a-zA-Z0-9]' && a:char == "'") ||
 				\(line[col] =~ '[a-zA-Z0-9]' && b:delimitMate_smart_quotes)
 		" Seems like an apostrophe or a closing, insert a single quote.
 		return a:char
 	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
+		call insert(b:delimitMate_buffer, a:char)
 		return delimitMate#WriteAfter(a:char)
 	else
 		" Insert a pair and jump to the middle.
+		call insert(b:delimitMate_buffer, a:char)
 		call delimitMate#WriteAfter(a:char)
 		return a:char
 	endif

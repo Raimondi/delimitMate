@@ -25,7 +25,7 @@ if v:version < 700
 endif
 
 let s:loaded_delimitMate = 1 " }}}
-let delimitMate_version = '2.0'
+let delimitMate_version = '2.1_DEV'
 
 function! s:Init() "{{{
 
