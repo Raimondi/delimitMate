@@ -130,6 +130,8 @@ function! s:Init() "{{{
 	let b:delimitMate_left_delims = split(s:matchpairs_temp, ':.,\=')
 	let b:delimitMate_right_delims = split(s:matchpairs_temp, ',\=.:')
 
+	let b:delimitMate_buffer = []
+
 	call s:UnMap()
 	if b:delimitMate_autoclose
 		call delimitMate#AutoClose()

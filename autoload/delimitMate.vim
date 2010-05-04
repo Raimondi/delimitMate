@@ -510,7 +510,80 @@ function! delimitMate#TestMappings() "{{{
 endfunction "}}}
 
 function! delimitMate#Tests() " {{{
+	if !exists("g:delimitMate_testing")
+		echoerr "delimitMate#Tests(): You shouldn't use this function!"
+		return
+	endif
+	let b:test_results = {}
+	function! SetOptions(list) " {{{
+		let b:delimitMate_autoclose = 1
+		let b:delimitMate_matchpairs = &matchpairs
+		let b:delimitMate_quotes = "\" ' `"
+		let b:delimitMate_excluded_regions = ["Comment"]
+		silent! unlet b:delimitMate_visual_leader
+		let b:delimitMate_expand_space = 0
+		let b:delimitMate_expand_cr = 0
+		let b:delimitMate_smart_quotes = 1
+		let b:delimitMate_apostrophes = ""
+		let b:delimitMate_tab2exit = 1
+		" Set current test options:
+		for str in a:list
+			let pair = split(str, ':')
+			exec "let b:delimitMate_" . pair[0] . " = " . pair[1]
+		endfor
+		DelimitMateReload
+	endfunction " }}}
 
+	function! Test(name, input, output, options) " {{{
+		" Set default options:
+		call SetOptions(a:options)
+		normal ggVG"_d
+		exec "normal i" . a:input . "|"
+		call setpos('.', [0, 1, 1, 0])
+		for line in a:output
+			if getline('.') == line
+				exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed'"
+			else
+				exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Failed: ' . getline('.')"
+			endif
+			call setpos('.', [0, line('.') + 1, 1, 0])
+		endfor
+	endfunction " }}}
+	
+	" Test's test
+	"call Test("Test", "(\<Space>", ["( | )"], ["expand_space:1"])
+
+	" Auto-closing parens
+	call Test("Autoclose parens", "(", ["(|)"], [])
+
+	" Auto-closing quotes
+	call Test("Autoclose quotes", '"', ['"|"'], [])
+
+	" Deleting parens
+	call Test("Delete empty parens", "(\<BS>", ["|"], [])
+
+	" Deleting quotes
+	call Test("Delete emtpy quotes", "\"\<BS>", ['|'], [])
+
+	" Manual closing parens
+	call Test("Manual closing parens", "()", ["(|)"], ["autoclose:0"])
+
+	" Manual closing quotes
+	call Test("Manual closing quotes", "\"\"", ['"|"'], ["autoclose:0"])
+
+	" Jump over paren
+	call Test("Jump over paren", "()", ['()|'], [])
+
+	" Jump over quote
+	call Test("Jump over quote", "\"\"", ['""|'], [])
+
+
+	" Show results:
+	normal ggVG"_d
+	call append(0, split(string(b:test_results)[1:-2], ', '))
+	normal "_ddgg
+	nmap <ESC> :q!<CR>
+	let @/ = "Failed:"
 endfunction " }}}
 "}}}
 
