@@ -304,13 +304,13 @@ endfunction "}}}
 
 function! delimitMate#BS() " {{{
 	if delimitMate#WithinEmptyPair()
-		call delimitMate#RmBuffer(1)
-		return "\<BS>\<Del>"
+		"call delimitMate#RmBuffer(1)
+		return "\<BS>" . delimitMate#Del()
 "        return "\<Right>\<BS>\<BS>"
 	elseif b:delimitMate_expand_cr &&
 				\ (delimitMate#IsCRExpansion() != 0 || delimitMate#IsSpaceExpansion())
-		call delimitMate#RmBuffer(1)
-		return "\<BS>\<Del>"
+		"call delimitMate#RmBuffer(1)
+		return "\<BS>" . delimitMate#Del
 	else
 		return "\<BS>"
 	endif
@@ -534,56 +534,120 @@ function! delimitMate#Tests() " {{{
 		DelimitMateReload
 	endfunction " }}}
 
-	function! Test(name, input, output, options) " {{{
+	function! Type(name, input, output, options) " {{{
 		" Set default options:
 		call SetOptions(a:options)
 		normal ggVG"_d
-		exec "normal i" . a:input . "|"
+		exec "normal i" . a:input . "|\<Esc>"
 		call setpos('.', [0, 1, 1, 0])
+		let result = len(a:output) != line('$')
 		for line in a:output
-			if getline('.') == line
-				exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed'"
-			else
-				exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Failed: ' . getline('.')"
+			if getline('.') != line || result == 1
+				let result = 1
+				break
 			endif
 			call setpos('.', [0, line('.') + 1, 1, 0])
 		endfor
+		let text = getline('.')
+		let i = 2
+		while i <= line('$')
+			let text = text . "<cr>" . getline(i)
+			let i += 1
+		endwhile
+		if result == 0
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
+		else
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Failed: ' . text . ' != ' . join(a:output, '<cr>')"
+		endif
 	endfunction " }}}
-	
+
+	function! RepeatLast(name, output) " {{{
+		normal gg.
+		call setpos('.', [0, 1, 1, 0])
+		let result = len(a:output) != line('$')
+		for line in a:output
+			echom line . " vs " . getline('.')
+			if getline('.') != line || result == 1
+				let result = 1
+				break
+			endif
+			call setpos('.', [0, line('.') + 1, 1, 0])
+		endfor
+		let text = getline('1')
+		let i = 2
+		while i <= line('$')
+			let text = text . "<cr>" . getline(i)
+			let i += 1
+		endwhile
+		if result == 0
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
+		else
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Failed: ' . text . ' != ' . join(a:output, '<cr>')"
+		endif
+	endfunction " }}}
+
 	" Test's test
-	"call Test("Test", "(\<Space>", ["( | )"], ["expand_space:1"])
+	call Type("Test 1", "123", ["123|"], [])
+	call RepeatLast("Test 1", ["123|123|"])
+
 
 	" Auto-closing parens
-	call Test("Autoclose parens", "(", ["(|)"], [])
+	call Type("Autoclose parens", "(", ["(|)"], [])
+	call RepeatLast("Autoclose_parens", ["(|)(|)"])
 
 	" Auto-closing quotes
-	call Test("Autoclose quotes", '"', ['"|"'], [])
+	call Type("Autoclose quotes", '"', ['"|"'], [])
+	call RepeatLast("Autoclose_quotes", ['"|""|"'])
 
 	" Deleting parens
-	call Test("Delete empty parens", "(\<BS>", ["|"], [])
+	call Type("Delete empty parens", "(\<BS>", ["|"], [])
+	call RepeatLast("Delete empty parens", ["||"])
 
 	" Deleting quotes
-	call Test("Delete emtpy quotes", "\"\<BS>", ['|'], [])
+	call Type("Delete emtpy quotes", "\"\<BS>", ['|'], [])
+	call RepeatLast("Delete empty quotes", ["||"])
 
 	" Manual closing parens
-	call Test("Manual closing parens", "()", ["(|)"], ["autoclose:0"])
+	call Type("Manual closing parens", "()", ["(|)"], ["autoclose:0"])
+	call RepeatLast("Manual closing parens", ["(|)(|)"])
 
 	" Manual closing quotes
-	call Test("Manual closing quotes", "\"\"", ['"|"'], ["autoclose:0"])
+	call Type("Manual closing quotes", "\"\"", ['"|"'], ["autoclose:0"])
+	call RepeatLast("Manual closing quotes", ['"|""|"'])
 
 	" Jump over paren
-	call Test("Jump over paren", "()", ['()|'], [])
+	call Type("Jump over paren", "()", ['()|'], [])
+	call RepeatLast("Jump over paren", ['()|()|'])
 
 	" Jump over quote
-	call Test("Jump over quote", "\"\"", ['""|'], [])
+	call Type("Jump over quote", "\"\"", ['""|'], [])
+	call RepeatLast("Jump over quote", ['""|""|'])
 
+	" Apostrophe
+	call Type("Apostrophe", "test'", ["test'|"], [])
+	call RepeatLast("Apostrophe", ["test'|test'|"])
+
+	" Close quote
+	call Type("Close quote", "'\<Del>\<Esc>a'", ["'|'"], [])
+
+	" <S-Tab>
+	call Type("S Tab", "(\<S-Tab>", ["()|"], [])
+	call RepeatLast("S Tab", ["()|()|"])
+
+	" Space expansion
+	call Type("Space expansion", "(\<Space>)", ['( | )'], ['expand_space:1'])
+	call RepeatLast("Space expansion", ['( | )( | )'])
+
+	" Car return expansion
+	call Type("CR expansion", "(\<CR>", ['(', '|', ')'], ['expand_cr:1'])
+	call RepeatLast("CR expansion", ['(', '|', ')(', '|', ')'])
 
 	" Show results:
 	normal ggVG"_d
 	call append(0, split(string(b:test_results)[1:-2], ', '))
 	normal "_ddgg
-	nmap <ESC> :q!<CR>
-	let @/ = "Failed:"
+	nmap <F1> :q!<CR>
+	let @/ = "Failed:.*!="
 endfunction " }}}
 "}}}
 
