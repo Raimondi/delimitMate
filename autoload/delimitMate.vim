@@ -450,6 +450,38 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <buffer> <Del> <C-R>=delimitMate#Del()<CR>
 
 endfunction "}}}
+
+function! delimitMate#UnMap() " {{{
+	let imaps =
+				\ b:delimitMate_right_delims +
+				\ b:delimitMate_left_delims +
+				\ b:delimitMate_quotes_list +
+				\ b:delimitMate_apostrophes_list +
+				\ ['<BS>', '<S-BS>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
+				\ ['<Del>', '<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>']
+	let vmaps = b:delimitMate_right_delims +
+				\ b:delimitMate_left_delims +
+				\ b:delimitMate_quotes_list
+
+	for map in imaps
+		if maparg(map, "i") =~? 'delimitMate'
+			exec 'silent! iunmap <buffer> ' . map
+		endif
+	endfor
+
+	if !exists("b:delimitMate_visual_leader")
+		let vleader = ""
+	else
+		let vleader = b:delimitMate_visual_leader
+	endif
+	for map in vmaps
+		exec 'let result = maparg("' . escape(vleader . map, '"') . '", "v") =~? "delimitMate" ? 1 : 0'
+		if result == 1
+			exec 'silent! vunmap <buffer> ' . vleader . map
+		endif
+	endfor
+endfunction " }}} delimitMate#UnMap()
+
 "}}}
 
 " Tools: {{{
