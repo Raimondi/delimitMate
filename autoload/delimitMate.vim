@@ -42,7 +42,7 @@ function! delimitMate#ShouldJump() "{{{
 endfunction "}}}
 
 function! delimitMate#IsBlockVisual() " {{{
-	if visualmode() == "<C-V>"
+	if mode() == "\<C-V>"
 		return 1
 	endif
 	" Store unnamed register values for later use in delimitMate#RestoreRegister().
@@ -193,13 +193,9 @@ function! delimitMate#JumpOut(char) "{{{
 	let line = getline('.')
 	let col = col('.')-2
 	if line[col+1] == a:char
-		if len(b:delimitMate_buffer) == 0
-			return "\<Right>"
-		else
-			call setline('.',line[:(col)].line[(col+2):])
-			call delimitMate#RmBuffer(1)
-			return a:char
-		endif
+		return a:char . delimitMate#Del()
+	else
+		return a:char
 	endif
 endfunction " }}}
 
@@ -230,11 +226,7 @@ function! delimitMate#SkipDelim(char) "{{{
 	elseif cur[1] == a:char
 		" Exit pair
 		"return delimitMate#WriteBefore(a:char)
-		if delimitMate#Del() == ''
-			return "\<Right>"
-		else
-			return a:char
-		endif
+		return a:char . delimitMate#Del()
 	"elseif cur[1] == ' ' && cur[2] == a:char
 		"" I'm leaving this in case someone likes it. Jump an space and delimiter.
 		"return "\<Right>\<Right>"
@@ -307,10 +299,13 @@ function! delimitMate#BS() " {{{
 		"call delimitMate#RmBuffer(1)
 		return "\<BS>" . delimitMate#Del()
 "        return "\<Right>\<BS>\<BS>"
-	elseif b:delimitMate_expand_cr &&
-				\ (delimitMate#IsCRExpansion() != 0 || delimitMate#IsSpaceExpansion())
+	elseif b:delimitMate_expand_space &&
+				\ delimitMate#IsSpaceExpansion()
 		"call delimitMate#RmBuffer(1)
-		return "\<BS>" . delimitMate#Del
+		return "\<BS>" . delimitMate#Del()
+	elseif b:delimitMate_expand_cr &&
+				\ delimitMate#IsCRExpansion()
+		return "\<BS>\<Del>"
 	else
 		return "\<BS>"
 	endif
@@ -403,17 +398,17 @@ function! delimitMate#VisualMaps() " {{{
 		" Map left delimiter:
 		let ld = b:delimitMate_left_delims[i]
 		let rd = b:delimitMate_right_delims[i]
-		exec 'vnoremap <buffer> <expr> ' . vleader . ld . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
+		exec 'vnoremap <buffer> <expr> ' . vleader . ld . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : mode() ==# "V" ? "s' . ld . '\<C-R>\"\<BS>' . rd . '\<Esc>:call delimitMate#RestoreRegister()\<CR>" : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call delimitMate#RestoreRegister()\<CR>"'
 
 		" Map right delimiter:
-		exec 'vnoremap <buffer> <expr> ' . vleader . rd . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
+		exec 'vnoremap <buffer> <expr> ' . vleader . rd . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : mode() ==# "V" ? "s' . ld . '\<C-R>\"\<BS>' . rd . '\<Esc>:call delimitMate#RestoreRegister()<CR>" : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
 		let i += 1
 	endwhile
 
 	" Wrap the selection with matching quotes, but do nothing if blockwise visual mode is active:
 	for quote in b:delimitMate_quotes_list
 		" vnoremap <buffer> <expr> \' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("Message") : "s'\<C-R>\"'\<Esc>:call delimitMate#RestoreRegister()<CR>"
-		exec 'vnoremap <buffer> <expr> ' . vleader . quote . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
+		exec 'vnoremap <buffer> <expr> ' . vleader . quote . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : mode() ==# "V" ? "s' . escape(quote,'"') .'\<C-R>\"\<BS>' . escape(quote,'"') . '\<Esc>:call delimitMate#RestoreRegister()<CR>" : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
 	endfor
 endfunction "}}}
 
@@ -554,6 +549,7 @@ function! delimitMate#Tests() " {{{
 			let text = text . "<cr>" . getline(i)
 			let i += 1
 		endwhile
+		echom "text: " . text
 		if result == 0
 			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
 		else
@@ -589,7 +585,6 @@ function! delimitMate#Tests() " {{{
 	" Test's test
 	call Type("Test 1", "123", ["123|"], [])
 	call RepeatLast("Test 1", ["123|123|"])
-
 
 	" Auto-closing parens
 	call Type("Autoclose parens", "(", ["(|)"], [])
@@ -630,24 +625,100 @@ function! delimitMate#Tests() " {{{
 	" Close quote
 	call Type("Close quote", "'\<Del>\<Esc>a'", ["'|'"], [])
 
+	" Closing paren
+	call Type("Closing paren", "abcd)", ["abcd)|"], [])
+
 	" <S-Tab>
 	call Type("S Tab", "(\<S-Tab>", ["()|"], [])
 	call RepeatLast("S Tab", ["()|()|"])
 
 	" Space expansion
-	call Type("Space expansion", "(\<Space>)", ['( | )'], ['expand_space:1'])
+	call Type("Space expansion", "(\<Space>", ['( | )'], ['expand_space:1'])
 	call RepeatLast("Space expansion", ['( | )( | )'])
 
 	" Car return expansion
 	call Type("CR expansion", "(\<CR>", ['(', '|', ')'], ['expand_cr:1'])
 	call RepeatLast("CR expansion", ['(', '|', ')(', '|', ')'])
 
-	" Show results:
+	" Visual wrapping
+	call Type("Visual wrapping left paren", "1234\<Esc>v,(", ['123(4)'], ['visual_leader:","'])
+	cal RepeatLast("Visual wrapping left paren", ['(1)23(4)'])
+
+	" Visual line wrapping
+	call Type("Visual line wrapping left paren", "1234\<Esc>V,(", ['(1234)'], ['visual_leader:","'])
+	cal RepeatLast("Visual line wrapping left paren", ['((1234))'])
+
+	" Visual wrapping
+	call Type("Visual wrapping right paren", "1234\<Esc>v,)", ['123(4)'], ['visual_leader:","'])
+	cal RepeatLast("Visual wrapping right paren", ['(1)23(4)'])
+
+	" Visual line wrapping
+	call Type("Visual line wrapping right paren", "1234\<Esc>V,)", ['(1234)'], ['visual_leader:","'])
+	cal RepeatLast("Visual line wrapping right paren", ['((1234))'])
+
+	" Visual wrapping
+	call Type("Visual wrapping quote", "1234\<Esc>v,\"", ['123"4"'], ['visual_leader:","'])
+	cal RepeatLast("Visual wrapping quote", ['"1"23"4"'])
+
+	" Visual line wrapping
+	call Type("Visual line wrapping quote", "1234\<Esc>V,\"", ['"1234"'], ['visual_leader:","'])
+	cal RepeatLast("Visual line wrapping quote", ['""1234""'])
+
+	" Visual line wrapping empty line
+	call Type("Visual line wrapping paren empty line", "\<Esc>V,(", ['()'], ['visual_leader:","'])
+
+	" Visual line wrapping empty line
+	call Type("Visual line wrapping quote empty line", "\<Esc>V,\"", ['""'], ['visual_leader:","'])
+
+	" Smart quotes
+	call Type("Smart quote alphanumeric", "alpha\"numeric", ['alpha"numeric|'], [])
+	call RepeatLast("Smart quote alphanumeric", ['alpha"numeric|alpha"numeric|'])
+
+	" Smart quotes
+	call Type("Smart quote escaped", "esc\\\"", ['esc\"|'], [])
+	call RepeatLast("Smart quote escaped", ['esc\"|esc\"|'])
+
+	" Smart quotes
+	call Type("Smart quote apostrophe", "I'm", ["I'm|"], ['smart_quotes:0'])
+	call RepeatLast("Smart quote escaped", ["I'm|I'm|"])
+
+	" Backspace inside space expansion
+	call Type("Backspace inside space expansion", "(\<Space>\<BS>", ['(|)'], ['expand_space:1'])
+	call RepeatLast("Backspace inside space expansion", ['(|)(|)'])
+
+	" Backspace inside CR expansion
+	call Type("Backspace inside CR expansion", "(\<CR>\<BS>", ['(|)'], ['expand_cr:1'])
+	call RepeatLast("Backspace inside CR expansion", ['(|)(|)'])
+
+	" FileType event
+	let g:delimitMate_excluded_ft = "vim"
+	set ft=vim
+	call Type("FileType Autoclose parens", "(", ["(|"], [])
+	unlet g:delimitMate_excluded_ft
+	set ft=
+
+
+	" Show results: {{{
 	normal ggVG"_d
 	call append(0, split(string(b:test_results)[1:-2], ', '))
 	normal "_ddgg
 	nmap <F1> :q!<CR>
-	let @/ = "Failed:.*!="
+	let @/ = ".\\+Failed:.*!="
+	set nohlsearch
+	"syntax match failedLine "^.*Failed.*$" contains=ALL
+	"syn match passedLine ".*Passed.*"
+	syn match labelPassed "'\@<=.\+\(': 'Passed\)\@="
+	syn match labelFailed "'\@<=.\+\(': 'Failed\)\@="
+	syn match resultPassed "\('Passed: \)\@<=.\+\('$\)\@="
+	syn match resultFailed "\('Failed: \)\@<=.\+\('$\)\@=" contains=resultInequal
+	syn match resultInequal "!="
+
+	hi def link labelPassed Comment
+	hi def link labelFailed Special
+	hi def link resultPassed Ignore
+	hi def link resultFailed Boolean
+	hi def link resultInequal Error
+	" }}}
 endfunction " }}}
 "}}}
 

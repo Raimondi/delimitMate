@@ -148,7 +148,7 @@ endfunction "}}} Init()
 function! s:UnMap() " {{{
 	" No Autoclose Mappings:
 	for char in b:delimitMate_right_delims + b:delimitMate_quotes_list
-		if maparg(char,"i") =~? 'SkipDelim'
+		if maparg(char,"i") =~? 'delimitMate'
 			exec 'silent! iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
@@ -158,57 +158,71 @@ function! s:UnMap() " {{{
 	let i = 0
 	let l = len(b:delimitMate_matchpairs_list)
 	while i < l
-		if maparg(b:delimitMate_left_delims[i],"i") =~? 'JumpIn'
+		if maparg(b:delimitMate_left_delims[i],"i") =~? 'delimitMate'
 			exec 'silent! iunmap <buffer> ' . b:delimitMate_left_delims[i]
 			"echomsg 'iunmap <buffer> ' . b:delimitMate_left_delims[i]
 		endif
 		let i += 1
 	endwhile
 	for char in b:delimitMate_quotes_list
-		if maparg(char, "i") =~? 'QuoteDelim'
+		if maparg(char, "i") =~? 'delimitMate'
 			exec 'silent! iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
 	endfor
 	for char in b:delimitMate_right_delims
-		if maparg(char, "i") =~? 'JumpOut'
+		if maparg(char, "i") =~? 'delimitMate'
 			exec 'silent! iunmap <buffer> ' . char
 			"echomsg 'iunmap <buffer> ' . char
 		endif
 	endfor
-	for map in b:delimitMate_apostrophes_list
-		exec "silent! iunmap <buffer> " . map
-	endfor
-
-	" Visual Mappings:
-	for char in b:delimitMate_right_delims + b:delimitMate_left_delims + b:delimitMate_quotes_list
-		if maparg(b:delimitMate_visual_leader . char,"v") =~? 'IsBlock'
-			exec 'silent! vunmap <buffer> ' . b:delimitMate_visual_leader . char
-			"echomsg 'vunmap <buffer> ' . b:delimitMate_visual_leader . char
+	for char in b:delimitMate_apostrophes_list
+		if maparg(char, "i") =~? 'delimitMate'
+			exec "silent! iunmap <buffer> " . char
 		endif
 	endfor
 
 	" Expansion Mappings:
-	if maparg('<BS>', "i") =~? 'WithinEmptyPair'
+	if maparg('<BS>', "i") =~? 'delimitMate'
 		silent! iunmap <buffer> <BS>
 		"echomsg "silent! iunmap <buffer> <BS>"
 	endif
-	if maparg('<S-BS>', "i") =~? 'WithinEmptyPair'
+	if maparg('<S-BS>', "i") =~? 'delimitMate'
 		silent! iunmap <buffer> <BS>
 		"echomsg "silent! iunmap <buffer> <BS>"
 	endif
-	if maparg('<CR>',"i") =~? 'DelimitMate_ExpandReturn'
+	if maparg('<CR>',"i") =~? 'delimitMate'
 		silent! iunmap <buffer> <CR>
 		"echomsg "silent! iunmap <buffer> <CR>"
 	endif
-	if maparg('<Space>',"i") =~? 'DelimitMate_ExpandSpace'
+	if maparg('<Space>',"i") =~? 'delimitMate'
 		silent! iunmap <buffer> <Space>
 		"echomsg "silent! iunmap <buffer> <Space>"
 	endif
-	if maparg('<S-Tab>', "i") =~? 'ShouldJump'
+	if maparg('<S-Tab>', "i") =~? 'delimitMate'
 		silent! iunmap <buffer> <S-Tab>
 		"echomsg "silent! iunmap <buffer> <S-Tab>"
 	endif
+	if maparg('<Esc>', "i") =~? 'delimitMate'
+		silent! iunmap <buffer> <Esc>
+		"echomsg "silent! iunmap <buffer> <S-Tab>"
+	endif
+
+	" Visual Mappings:
+	if !exists("b:delimitMate_visual_leader")
+		let vleader = ""
+	else
+		let vleader = b:delimitMate_visual_leader
+	endif
+	for char in b:delimitMate_right_delims + b:delimitMate_left_delims + b:delimitMate_quotes_list
+		"echom "maparg(" . vleader . char .", \"v\")"
+		exec 'let result = maparg("' . escape(vleader . char, '"') . '", "v") =~? "delimitMate" ? 1 : 0'
+		if result == 1
+			exec 'silent! vunmap <buffer> ' . vleader . char
+			"echomsg 'vunmap <buffer> ' . b:delimitMate_visual_leader . char
+		endif
+	endfor
+
 endfunction " }}} s:ExtraMappings()
 
 function! s:TestMappingsDo() "{{{
@@ -243,9 +257,6 @@ function! s:DelimitMateDo() "{{{
 		" Check if this file type is excluded:
 		for ft in split(g:delimitMate_excluded_ft,',')
 			if ft ==? &filetype
-				if !exists("b:delimitMate_quotes_list")
-					return 1
-				endif
 				"echomsg "excluded"
 				call s:UnMap()
 				return 1
