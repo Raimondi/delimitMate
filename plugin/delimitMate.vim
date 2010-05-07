@@ -68,9 +68,10 @@ function! s:Init() "{{{
 	elseif exists("g:delimitMate_excluded_regions")
 		let s:excluded_regions = g:delimitMate_excluded_regions
 	else
-		let s:excluded_regions = split("Comment")
+		let s:excluded_regions = "Comment"
 	endif
-	let b:delimitMate_excluded_regions_list = s:excluded_regions " }}}
+	let b:delimitMate_excluded_regions_list = split(s:excluded_regions) " }}}
+	let b:delimitMate_excluded_regions_enabled = len(b:delimitMate_excluded_regions_list)
 
 	" delimitMate_visual_leader {{{
 	if !exists("b:delimitMate_visual_leader") && !exists("g:delimitMate_visual_leader")

@@ -8,6 +8,7 @@ install:
 	cp -f doc/${PLUGIN}.txt      ~/.vim/doc/${PLUGIN}.txt
 	cp -f plugin/${PLUGIN}.vim   ~/.vim/plugin/${PLUGIN}.vim
 	cp -f autoload/${PLUGIN}.vim ~/.vim/autoload/${PLUGIN}.vim
+	cp -f autoload/${PLUGIN}Tests.vim ~/.vim/autoload/${PLUGIN}Tests.vim
 
 doc_update: install
 	/usr/bin/vim -u NONE -c ':helptags ~/.vim/doc' -c ':q'
