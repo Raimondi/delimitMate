@@ -56,6 +56,49 @@ function! delimitMate#IsBlockVisual() " {{{
 	return 0
 endfunction " }}}
 
+function! delimitMate#Visual(del) " {{{
+	let mode = mode()
+	if mode == "\<C-V>"
+		redraw
+		echom "delimitMate: delimitMate is disabled on blockwise visual mode."
+		return ""
+	endif
+	" Store unnamed register values for later use in delimitMate#RestoreRegister().
+	let b:save_reg = getreg('"')
+	let b:save_reg_mode = getregtype('"')
+
+	if len(getline('.')) == 0
+		" This for proper wrap of empty lines.
+		let @" = "\n"
+	endif
+
+	if mode ==# "V"
+		let dchar = "\<BS>"
+	else
+		let dchar = ""
+	endif
+
+	let index = index(b:delimitMate_left_delims, a:del)
+	if index >= 0
+		let ld = a:del
+		let rd = b:delimitMate_right_delims[index]
+	endif
+
+	let index = index(b:delimitMate_right_delims, a:del)
+	if index >= 0
+		let ld = b:delimitMate_left_delims[index]
+		let rd = a:del
+	endif
+
+	let index = index(b:delimitMate_quotes_list, a:del)
+	if index >= 0
+		let ld = a:del
+		let rd = ld
+	endif
+
+	return "s" . ld . "\<C-R>\"" . dchar . rd . "\<Esc>:call delimitMate#RestoreRegister()\<CR>"
+endfunction " }}}
+
 function! delimitMate#IsEmptyPair(str) "{{{
 	for pair in b:delimitMate_matchpairs_list
 		if a:str == join( split( pair, ':' ),'' )
@@ -158,14 +201,17 @@ function! delimitMate#GetCurrentSyntaxRegionIf(char) "{{{
 endfunction "}}}
 
 function! delimitMate#IsForbidden(char) "{{{
+	if b:delimitMate_excluded_regions_enabled = 0
+		return 0
+	endif
 	let result = index(b:delimitMate_excluded_regions_list, delimitMate#GetCurrentSyntaxRegion()) >= 0
-	if result
-		return result
+	if result >= 0
+		return result + 1
 	endif
 	let region = delimitMate#GetCurrentSyntaxRegionIf(a:char)
 	let result = index(b:delimitMate_excluded_regions_list, region) >= 0
 	"return result || region == 'Comment'
-	return result
+	return result + 1
 endfunction "}}}
 
 function! delimitMate#FlushBuffer() " {{{
@@ -367,7 +413,6 @@ function! delimitMate#AutoClose() "{{{
 		let ld = b:delimitMate_left_delims[i]
 		let rd = b:delimitMate_right_delims[i]
 		exec 'inoremap <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#JumpIn("' . rd . '")<CR>'
-		"exec 'inoremap <buffer> ' . ld . ' <C-R>=delimitMate#JumpIn("' . ld . '")<CR>'
 		let i += 1
 	endwhile
 
@@ -393,22 +438,8 @@ function! delimitMate#VisualMaps() " {{{
 	let VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
 	let vleader = b:delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
-	let i = 0
-	while i < len(b:delimitMate_matchpairs_list)
-		" Map left delimiter:
-		let ld = b:delimitMate_left_delims[i]
-		let rd = b:delimitMate_right_delims[i]
-		exec 'vnoremap <buffer> <expr> ' . vleader . ld . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : mode() ==# "V" ? "s' . ld . '\<C-R>\"\<BS>' . rd . '\<Esc>:call delimitMate#RestoreRegister()\<CR>" : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call delimitMate#RestoreRegister()\<CR>"'
-
-		" Map right delimiter:
-		exec 'vnoremap <buffer> <expr> ' . vleader . rd . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : mode() ==# "V" ? "s' . ld . '\<C-R>\"\<BS>' . rd . '\<Esc>:call delimitMate#RestoreRegister()<CR>" : "s' . ld . '\<C-R>\"' . rd . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
-		let i += 1
-	endwhile
-
-	" Wrap the selection with matching quotes, but do nothing if blockwise visual mode is active:
-	for quote in b:delimitMate_quotes_list
-		" vnoremap <buffer> <expr> \' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("Message") : "s'\<C-R>\"'\<Esc>:call delimitMate#RestoreRegister()<CR>"
-		exec 'vnoremap <buffer> <expr> ' . vleader . quote . ' delimitMate#IsBlockVisual() ? delimitMate#MapMsg("' . VMapMsg . '") : mode() ==# "V" ? "s' . escape(quote,'"') .'\<C-R>\"\<BS>' . escape(quote,'"') . '\<Esc>:call delimitMate#RestoreRegister()<CR>" : "s' . escape(quote,'"') .'\<C-R>\"' . escape(quote,'"') . '\<Esc>:call delimitMate#RestoreRegister()<CR>"'
+	for del in b:delimitMate_right_delims + b:delimitMate_left_delims + b:delimitMate_quotes_list
+		exec "vnoremap <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '"') . '")'
 	endfor
 endfunction "}}}
 
@@ -457,9 +488,11 @@ function! delimitMate#UnMap() " {{{
 				\ b:delimitMate_left_delims +
 				\ b:delimitMate_quotes_list +
 				\ b:delimitMate_apostrophes_list +
-				\ ['<BS>', '<S-BS>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
-				\ ['<Del>', '<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>']
-	let vmaps = b:delimitMate_right_delims +
+				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
+				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>']
+
+	let vmaps =
+				\ b:delimitMate_right_delims +
 				\ b:delimitMate_left_delims +
 				\ b:delimitMate_quotes_list
 
@@ -475,8 +508,7 @@ function! delimitMate#UnMap() " {{{
 		let vleader = b:delimitMate_visual_leader
 	endif
 	for map in vmaps
-		exec 'let result = maparg("' . escape(vleader . map, '"') . '", "v") =~? "delimitMate" ? 1 : 0'
-		if result == 1
+		if maparg(vleader . map, "v") =~? "delimitMate"
 			exec 'silent! vunmap <buffer> ' . vleader . map
 		endif
 	endfor

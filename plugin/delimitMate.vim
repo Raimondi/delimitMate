@@ -27,6 +27,9 @@ endif
 let s:loaded_delimitMate = 1 " }}}
 let delimitMate_version = '2.1_DEV'
 
+"}}}
+
+" Tools: {{{
 function! s:Init() "{{{
 
 	let b:loaded_delimitMate = 1
@@ -142,9 +145,7 @@ function! s:Init() "{{{
 	call delimitMate#ExtraMappings()
 
 endfunction "}}} Init()
-"}}}
 
-" Tools: {{{
 function! s:TestMappingsDo() "{{{
 	if !exists("g:delimitMate_testing")
 		call delimitMate#TestMappings()
@@ -171,7 +172,6 @@ function! s:TestMappingsDo() "{{{
 	endif
 endfunction "}}}
 
-
 function! s:DelimitMateDo() "{{{
 	if exists("g:delimitMate_excluded_ft")
 		" Check if this file type is excluded:
@@ -189,8 +189,6 @@ function! s:DelimitMateDo() "{{{
 		let save_keymap = &keymap
 		set keymap=
 		set cpo&vim
-		let save_keymap = &keymap
-		set keymap=
 		call s:Init()
 	finally
 		let &cpo = save_cpo
