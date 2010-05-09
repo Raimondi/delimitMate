@@ -25,7 +25,7 @@ if v:version < 700
 endif
 
 let s:loaded_delimitMate = 1 " }}}
-let delimitMate_version = '2.1_DEV'
+let delimitMate_version = '2.1'
 
 "}}}
 
@@ -70,8 +70,8 @@ function! s:Init() "{{{
 	else
 		let s:excluded_regions = "Comment"
 	endif
-	let b:delimitMate_excluded_regions_list = split(s:excluded_regions) " }}}
-	let b:delimitMate_excluded_regions_enabled = len(b:delimitMate_excluded_regions_list)
+	let b:delimitMate_excluded_regions_list = split(s:excluded_regions, ',\s*')
+	let b:delimitMate_excluded_regions_enabled = len(b:delimitMate_excluded_regions_list) " }}}
 
 	" delimitMate_visual_leader {{{
 	if !exists("b:delimitMate_visual_leader") && !exists("g:delimitMate_visual_leader")
@@ -207,6 +207,7 @@ command! DelimitMateReload call s:DelimitMateDo()
 " Quick test:
 command! DelimitMateTest call s:TestMappingsDo()
 
+"command! DelimitMateRegions echo s:excluded_regions
 " Turn
 
 " Run on file type events.

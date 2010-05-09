@@ -16,6 +16,7 @@ doc_update: install
 zip:
 	zip -r ${PLUGIN}.zip doc plugin autoload
 	zip ${PLUGIN}.zip -d \*.sw\?
+	zip ${PLUGIN}.zip -d autoload/${PLUGIN}Tests.vim
 
 vimball: install
 	echo doc/${PLUGIN}.txt > vimball.txt

@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v.2.0   *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v.2.1   *delimitMate.txt*
 
   =========================================================================  ~
   ====  =========  ==========================  =====  =====================  ~
@@ -37,23 +37,13 @@
 ==============================================================================
  1.- INTRODUCTION                                           *delimitMateIntro*
 
-The delimitMate plugin tries to provide some not so dumb help in the work with
-delimiters (brackets, quotes, etc.), with some optional auto-completions and
-expansions.
+This plug-in provides automatic closing of quotes, parenthesis, brackets,
+etc., besides some other related features that should make your time in insert
+mode a little bit easier.
 
-When automatic closing is enabled, if an opening delimiter is inserted
-delimitMate inserts the closing pair and places the cursor between them. When
-automatic closing is disabled, no closing delimiters is inserted by
-delimitMate, but if a pair of delimiters is typed, the cursor is placed in the
-middle. Also, to get out of a pair of delimiters just type shift+tab or the
-right delimiter and the cursor will jump to the right.
-
-If the cursor is inside an empty pair of delimiters, typing <Space> will
-insert two spaces and the cursor will be placed in the middle; typing <CR>
-will insert to car retunrs and place the cursor in the middle line, between
-the delimiters.
-
-All of the operations are undo/redo-wise safe.
+Most of the features can be modified or disabled permanently, using global
+variables, or on a FileType basis, using autocommands. With a couple of
+exceptions and limitations, this features don't brake undo, redo or history.
 
 ==============================================================================
  2. FUNCTIONALITY                                   *delimitMateFunctionality*
@@ -118,6 +108,8 @@ Expand <CR> to: >
                                     |    )
 <
 
+NOTE that the expansion of <CR> will brake the redo command.
+
 Since <Space> and <CR> are used everywhere, I have made the functions involved
 in expansions global, so they can be used to make custom mappings. Read
 |delimitMateFunctions| for more details.
@@ -125,17 +117,26 @@ in expansions global, so they can be used to make custom mappings. Read
 ------------------------------------------------------------------------------
    2.3 BACKSPACE                                        *delimitMateBackspace*
 
-If you press backspace inside an empty pair, both delimiters are deleted. If
-you type shift + backspace instead, only the closing delimiter will be
+If you press backspace inside an empty pair, both delimiters are deleted. When
+expansions are enabled, <BS> will also delete the expansions. NOTE that
+deleting <CR> expansions will brake the redo command.
+
+If you type shift + backspace instead, only the closing delimiter will be
 deleted.
 
 e.g. typing at the "|": >
 
-                  What  |      Before      |      After
+                  What  |      Before       |      After
                ==============================================
-                  <BS>  |  call expand(|)  |  call expand|
-               ---------|------------------|-----------------
-                 <S-BS> |  call expand(|)  |  call expand(|
+                  <BS>  |  call expand(|)   |  call expand|
+               ---------|-------------------|-----------------
+                  <BS>  |  call expand( | ) |  call expand(|)
+               ---------|-------------------|-----------------
+                  <BS>  |  call expand(     |  call expand(|)
+                        |  |                |
+                        |  )                |
+               ---------|-------------------|-----------------
+                 <S-BS> |  call expand(|)   |  call expand(|
 <
 
 ------------------------------------------------------------------------------
@@ -144,8 +145,8 @@ e.g. typing at the "|": >
 When visual mode is active this script allows for the selection to be enclosed
 with delimiters. But, since brackets have special meaning in visual mode, a
 leader (the value of 'mapleader' by default) should precede the delimiter.
-This feature doesn't currently work on blockwise visual mode, any suggestions
-will be welcome.
+NOTE that this feature brakes the redo command and doesn't currently work on
+blockwise visual mode, any suggestions will be welcome.
 
 e.g. (selection represented between square brackets): >
 
@@ -487,7 +488,12 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.0     2010-04-01   * New features:
+    2.1     2010-05-10   - Most of the functions have been moved to an
+                           autoload script to avoid loading unnecessary ones.
+                         - Fixed a problem with the redo command.
+                         - Many small fixes.
+|---------|------------|-----------------------------------------------------|
+    2.0     2010-04-01   New features:
                          - All features are redo/undo-wise safe.
                          - A single quote typed after an alphanumeric
                            character is considered an apostrophe and one

@@ -115,7 +115,7 @@ endfunction "}}}
 
 function! delimitMate#IsCRExpansion() " {{{
 	let nchar = getline(line('.')-1)[-1:]
-	let schar = getline(line('.')+1)[-1:]
+	let schar = getline(line('.')+1)[:0]
 	let isEmpty = getline('.') == ""
 	if index(b:delimitMate_left_delims, nchar) > -1 &&
 				\ index(b:delimitMate_left_delims, nchar) == index(b:delimitMate_right_delims, schar) &&
@@ -375,7 +375,7 @@ function! delimitMate#Finish() " {{{
 		let buffer = join(b:delimitMate_buffer, '')
 		let line = getline('.')
 		let col = col('.') -2
-		echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
+		"echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
 		call setline('.', line[:col] . line[col+len+1:])
 		let i = 1
 		let lefts = ''
@@ -469,14 +469,14 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <buffer> <Esc> <C-R>=delimitMate#Finish()<CR><Esc>
 
 	" Flush the char buffer on mouse click:
-	inoremap <buffer> <LeftMouse> <C-R>=delimitMate#FlushBuffer()<CR><LeftMouse>
-	inoremap <buffer> <RightMouse> <C-R>=delimitMate#FlushBuffer()<CR><RightMouse>
+	inoremap <buffer> <LeftMouse> <C-R>=delimitMate#Finish()<CR><LeftMouse>
+	inoremap <buffer> <RightMouse> <C-R>=delimitMate#Finish()<CR><RightMouse>
 
 	" Flush the char buffer on key movements:
-	inoremap <buffer> <Left> <C-R>=delimitMate#FlushBuffer()<CR><Left>
-	inoremap <buffer> <Right> <C-R>=delimitMate#FlushBuffer()<CR><Right>
-	inoremap <buffer> <Up> <C-R>=delimitMate#FlushBuffer()<CR><Up>
-	inoremap <buffer> <Down> <C-R>=delimitMate#FlushBuffer()<CR><Down>
+	inoremap <buffer> <Left> <C-R>=delimitMate#Finish()<CR><Left>
+	inoremap <buffer> <Right> <C-R>=delimitMate#Finish()<CR><Right>
+	inoremap <buffer> <Up> <C-R>=delimitMate#Finish()<CR><Up>
+	inoremap <buffer> <Down> <C-R>=delimitMate#Finish()<CR><Down>
 
 	inoremap <buffer> <Del> <C-R>=delimitMate#Del()<CR>
 

@@ -1,6 +1,6 @@
 function! delimitMateTests#Main() " {{{
 	if !exists("g:delimitMate_testing")
-		echoerr "delimitMateTests#Main(): You shouldn't use this function!"
+		echoerr "delimitMateTests#Main(): If you really want to use me, you must set delimitMate_testing to any value."
 		return
 	endif
 	nmap <F1> :qall!<CR>
@@ -10,7 +10,7 @@ function! delimitMateTests#Main() " {{{
 		let b:delimitMate_autoclose = 1
 		let b:delimitMate_matchpairs = &matchpairs
 		let b:delimitMate_quotes = "\" ' `"
-		let b:delimitMate_excluded_regions = ["Comment"]
+		let b:delimitMate_excluded_regions = "Comment"
 		silent! unlet b:delimitMate_visual_leader
 		let b:delimitMate_expand_space = 0
 		let b:delimitMate_expand_cr = 0
@@ -45,7 +45,6 @@ function! delimitMateTests#Main() " {{{
 			let text = text . "<cr>" . getline(i)
 			let i += 1
 		endwhile
-		echom "text: " . text
 		if result == 0
 			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
 		else
@@ -58,7 +57,6 @@ function! delimitMateTests#Main() " {{{
 		call setpos('.', [0, 1, 1, 0])
 		let result = len(a:output) != line('$')
 		for line in a:output
-			echom line . " vs " . getline('.')
 			if getline('.') != line || result == 1
 				let result = 1
 				break
@@ -129,12 +127,20 @@ function! delimitMateTests#Main() " {{{
 	call RepeatLast("S Tab", ["()|()|"])
 
 	" Space expansion
-	call Type("Space expansion", "(\<Space>", ['( | )'], ['expand_space:1'])
+	call Type("Space expansion", "(\<Space>\<BS>", ['(|)'], ['expand_space:1'])
+	call RepeatLast("BS with space expansion", ['(|)(|)'])
+
+	" BS with space expansion
+	call Type("BS with space expansion", "(\<Space>", ['( | )'], ['expand_space:1'])
 	call RepeatLast("Space expansion", ['( | )( | )'])
 
 	" Car return expansion
 	call Type("CR expansion", "(\<CR>", ['(', '|', ')'], ['expand_cr:1'])
 	call RepeatLast("CR expansion", ['(', '|', ')(', '|', ')'])
+
+	" BS with car return expansion
+	call Type("BS with CR expansion", "(\<CR>\<BS>", ['(|)'], ['expand_cr:1'])
+	call RepeatLast("BS with CR expansion", ['(|)(|)'])
 
 	" Visual wrapping
 	call Type("Visual wrapping left paren", "1234\<Esc>v,(", ['123(4)'], ['visual_leader:","'])
@@ -216,8 +222,4 @@ function! delimitMateTests#Main() " {{{
 	hi def link resultInequal Error
 	" }}}
 endfunction " }}}
-
-function! delimitMateTests#Go()
-	call system("gvim -c 'call delimitMateTests\#Main()'")
-endfunction
 " vim:foldmethod=marker:foldcolumn=4
