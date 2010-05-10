@@ -149,7 +149,7 @@ endfunction "}}} Init()
 
 function! s:TestMappingsDo() "{{{
 	if !exists("g:delimitMate_testing")
-		call delimitMate#TestMappings()
+		silent call delimitMate#TestMappings()
 	else
 		let temp_varsDM = [b:delimitMate_expand_space, b:delimitMate_expand_cr, b:delimitMate_autoclose]
 		for i in [0,1]
@@ -158,9 +158,6 @@ function! s:TestMappingsDo() "{{{
 			for a in [0,1]
 				let b:delimitMate_autoclose = a
 				call s:Init()
-				exec "normal i b:delimitMate_autoclose: " . b:delimitMate_autoclose . "\<CR>"
-				exec "normal i b:delimitMate_expand_space: " . b:delimitMate_expand_space . "\<CR>"
-				exec "normal i b:delimitMate_expand_cr: " . b:delimitMate_expand_cr . "\<CR>\<CR>"
 				call delimitMate#TestMappings()
 				exec "normal i\<CR>"
 			endfor
@@ -169,8 +166,8 @@ function! s:TestMappingsDo() "{{{
 		let b:delimitMate_expand_cr = temp_varsDM[1]
 		let b:delimitMate_autoclose = temp_varsDM[2]
 		unlet temp_varsDM
-		normal gg
 	endif
+	normal gg
 endfunction "}}}
 
 function! s:DelimitMateDo() "{{{

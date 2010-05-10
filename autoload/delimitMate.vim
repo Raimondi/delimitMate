@@ -518,6 +518,10 @@ endfunction " }}} delimitMate#UnMap()
 
 " Tools: {{{
 function! delimitMate#TestMappings() "{{{
+	exec "normal i*b:delimitMate_autoclose = " . b:delimitMate_autoclose . "\<CR>"
+	exec "normal i*b:delimitMate_expand_space = " . b:delimitMate_expand_space . "\<CR>"
+	exec "normal i*b:delimitMate_expand_cr = " . b:delimitMate_expand_cr . "\<CR>\<CR>"
+
 	if b:delimitMate_autoclose
 		for i in range(len(b:delimitMate_left_delims))
 			exec "normal GGAOpen & close: " . b:delimitMate_left_delims[i]. "|"
