@@ -333,6 +333,11 @@ Re-sets all the mappings used for this script, use it if any option has been
 changed or if the filetype option hasn't been set yet.
 
 ------------------------------------------------------------------------------
+:DelimitMateSwitch                                        *:DelimitMateSwitch*
+
+Switches the plug-in on and off.
+
+------------------------------------------------------------------------------
 :DelimitMateTest                                            *:DelimitMateTest*
 
 This command tests every mapping set-up for this script, useful for testing
@@ -487,6 +492,8 @@ This script was inspired by the auto-completion of delimiters of TextMate.
  9. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
+|---------|------------|-----------------------------------------------------|
+    2.2     2010-05-XX * - Added command to switch the plug-in on and off.
 |---------|------------|-----------------------------------------------------|
     2.1     2010-05-10 * - Most of the functions have been moved to an
                            autoload script to avoid loading unnecessary ones.

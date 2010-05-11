@@ -77,13 +77,14 @@ function! s:DelimitMateDo() "{{{
 	endtry
 endfunction "}}}
 
-function! s:DelimitMateSwitch()
+function! s:DelimitMateSwitch() "{{{
 	if b:delimitMate_enabled
 		call delimitMate#UnMap()
 	else
 		call delimitMate#Init()
 	endif
-endfunction
+endfunction "}}}
+
 "}}}
 
 " Commands: {{{
