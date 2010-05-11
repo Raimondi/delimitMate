@@ -497,7 +497,7 @@ function! delimitMate#Finish() " {{{
 		"echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
 		call setline('.', line[:col] . line[col+len+1:])
 		let i = 1
-		let lefts = ''
+		let lefts = "\<Left>"
 		while i < len
 			let lefts = lefts . "\<Left>"
 			let i += 1
