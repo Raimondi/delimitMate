@@ -490,6 +490,8 @@ function! delimitMate#Finish() " {{{
 	let len = len(b:delimitMate_buffer)
 	if len > 0
 		let buffer = join(b:delimitMate_buffer, '')
+		" Reset buffer:
+		let b:delimitMate_buffer = []
 		let line = getline('.')
 		let col = col('.') -2
 		"echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer

@@ -188,6 +188,10 @@ function! delimitMateTests#Main() " {{{
 	call Type("Backspace inside space expansion", "(\<Space>\<BS>", ['(|)'], ['expand_space:1'])
 	call RepeatLast("Backspace inside space expansion", ['(|)(|)'])
 
+	" <Right-arrow> shouldn't insert any text
+	call Type("<Right-arrow> shouldn't insert any text", "(hello\<Right>\<Space>there\<Right>\<Right>", ['(hello) there|'], [])
+	call RepeatLast("Backspace inside space expansion", ['(|)(|)'])
+
 	" Backspace inside CR expansion
 	call Type("Backspace inside CR expansion", "(\<CR>\<BS>", ['(|)'], ['expand_cr:1'])
 	call RepeatLast("Backspace inside CR expansion", ['(|)(|)'])
