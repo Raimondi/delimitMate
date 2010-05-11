@@ -488,12 +488,12 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.1     2010-05-10   - Most of the functions have been moved to an
+    2.1     2010-05-10 * - Most of the functions have been moved to an
                            autoload script to avoid loading unnecessary ones.
                          - Fixed a problem with the redo command.
                          - Many small fixes.
 |---------|------------|-----------------------------------------------------|
-    2.0     2010-04-01   New features:
+    2.0     2010-04-01 * New features:
                          - All features are redo/undo-wise safe.
                          - A single quote typed after an alphanumeric
                            character is considered an apostrophe and one
@@ -512,24 +512,24 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                          - s:vars were being used to store buffer options.
 
 |---------|------------|-----------------------------------------------------|
-    1.6     2009-10-10   Now delimitMate tries to fix the balancing of single
+    1.6     2009-10-10 * Now delimitMate tries to fix the balancing of single
                          quotes when used as apostrophes. You can read
                          |delimitMate_apostrophes| for details.
                          Fixed an error when |b:delimitMate_expand_space|
                          wasn't set but |delimitMate_expand_space| wasn't.
 
 |---------|------------|-----------------------------------------------------|
-    1.5     2009-10-05   Fix: delimitMate should work correctly for files
+    1.5     2009-10-05 * Fix: delimitMate should work correctly for files
                          passed as arguments to Vim. Thanks to Ben Beuchler
                          for helping to nail this bug.
 
 |---------|------------|-----------------------------------------------------|
-    1.4     2009-09-27   Fix: delimitMate is now enabled on new buffers even
+    1.4     2009-09-27 * Fix: delimitMate is now enabled on new buffers even
                          if they don't have set the file type option or were
                          opened directly from the terminal.
 
 |---------|------------|-----------------------------------------------------|
-    1.3     2009-09-24   Now local options can be used along with autocmd
+    1.3     2009-09-24 * Now local options can be used along with autocmd
                          for specific file type configurations.
                          Fixes:
                          - Unnamed register content is not lost on visual
@@ -538,7 +538,7 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                          - Wrapping a single empty line works as expected.
 
 |---------|------------|-----------------------------------------------------|
-    1.2	    2009-09-07   Fixes:
+    1.2     2009-09-07 * Fixes:
                          - When inside nested empty pairs, deleting the
                          innermost left delimiter would delete all right
                          contiguous delimiters.
@@ -549,12 +549,12 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                          have the mappings set.
 
 |---------|------------|-----------------------------------------------------|
-    1.1     2009-08-25   Fixed an error that ocurred when mapleader wasn't
+    1.1     2009-08-25 * Fixed an error that ocurred when mapleader wasn't
                          set and added support for GetLatestScripts
                          auto-detection.
 
 |---------|------------|-----------------------------------------------------|
-    1.0     2009-08-23   Initial upload.
+    1.0     2009-08-23 * Initial upload.
 
 |---------|------------|-----------------------------------------------------|
 
