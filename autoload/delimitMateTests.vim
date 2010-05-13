@@ -1,10 +1,11 @@
-function! delimitMateTests#Main() " {{{
+function! delimitMateTests#Main(known) " {{{
 	if !exists("g:delimitMate_testing")
 		echoerr "delimitMateTests#Main(): If you really want to use me, you must set delimitMate_testing to any value."
 		return
 	endif
 	nmap <F1> :qall!<CR>
 	let b:test_results = {}
+	let b:errors = 0
 
 	function! SetOptions(list) " {{{
 		let b:delimitMate_autoclose = 1
@@ -49,6 +50,7 @@ function! delimitMateTests#Main() " {{{
 			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
 		else
 			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Failed: ' . text . ' != ' . join(a:output, '<cr>')"
+			let b:errors += 1
 		endif
 	endfunction " }}}
 
@@ -73,6 +75,7 @@ function! delimitMateTests#Main() " {{{
 			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
 		else
 			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Failed: ' . text . ' != ' . join(a:output, '<cr>')"
+			let b:errors += 1
 		endif
 	endfunction " }}}
 
@@ -205,12 +208,26 @@ function! delimitMateTests#Main() " {{{
 
 	" Duplicated delimiter after CR
 	call Type("Duplicated delimiter after CR", "(\<CR>", ['(', '|)'], [])
+	" Deactivate on comments
+
+	set ft=vim
+	call Type("Deactivate on comments", "\"()``[]''\"\"", ["\"()``[]''\"\"|"], ["autoclose:0"])
+	set ft=
+
+	" Deactivate parens on comments
+	set ft=vim
+	call Type("Deactivate parens on comments", "\"()", ["\"()"], ["autoclose:0"])
+	set ft=
+
+	" Autoclose and beginning of line
+	call Type("Autoclose and beginning of line", "'\<Left>\<Left>\<Esc>i'", ["'|\"'"], ["autoclose:0"])
 
 	"}}}
 
 	" Show results: {{{
 	normal ggVG"_d
 	call append(0, split(string(b:test_results)[1:-2], ', '))
+	call append(0, "*NEW BROKEN TESTS: " . (b:errors - a:known))
 	normal "_ddgg
 	let @/ = ".\\+Failed:.*!="
 	set nohlsearch
@@ -221,12 +238,16 @@ function! delimitMateTests#Main() " {{{
 	syn match resultPassed "\('Passed: \)\@<=.\+\('$\)\@="
 	syn match resultFailed "\('Failed: \)\@<=.\+\('$\)\@=" contains=resultInequal
 	syn match resultInequal "!="
+	syn match resultSummary "^\*.\+" contains=resultSummaryNumber
+	syn match resultSummaryNumber "[1-9][0-9]*" contained
 
 	hi def link labelPassed Comment
 	hi def link labelFailed Special
 	hi def link resultPassed Ignore
 	hi def link resultFailed Boolean
 	hi def link resultInequal Error
+	hi def link resultSummary SpecialComment
+	hi def link resultSummaryNumber Error
 	" }}}
 endfunction " }}}
 " vim:foldmethod=marker:foldcolumn=4
