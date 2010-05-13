@@ -176,8 +176,8 @@ function! delimitMateTests#Main(known) " {{{
 	call Type("Visual line wrapping quote empty line", "\<Esc>V,\"", ['""'], ['visual_leader:","'])
 
 	" Smart quotes
-	call Type("Smart quote alphanumeric", "alpha\"numeric", ['alpha"numeric|'], [])
-	call RepeatLast("Smart quote alphanumeric", ['alpha"numeric|alpha"numeric|'])
+	call Type("Smart quote alphanumeric", "a\"4", ['a"4|'], [])
+	call RepeatLast("Smart quote alphanumeric", ['a"4|a"4|'])
 
 	" Smart quotes
 	call Type("Smart quote escaped", "esc\\\"", ['esc\"|'], [])
@@ -222,6 +222,9 @@ function! delimitMateTests#Main(known) " {{{
 	" Autoclose and beginning of line
 	call Type("Autoclose and beginning of line", "'\<Left>\<Left>\<Esc>i'", ["'|\"'"], ["autoclose:0"])
 
+	" Manual close at start of line
+	call Type("Manual close at start of line", "m)\<Left>\<Left>)", [')|m)'], ["autoclose:0"])
+
 	"}}}
 
 	" Show results: {{{
@@ -251,3 +254,4 @@ function! delimitMateTests#Main(known) " {{{
 	" }}}
 endfunction " }}}
 " vim:foldmethod=marker:foldcolumn=4
+

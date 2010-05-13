@@ -382,18 +382,23 @@ function! delimitMate#JumpAny() " {{{
 endfunction " delimitMate#JumpAny() }}}
 
 function! delimitMate#SkipDelim(char) "{{{
-	let cur = strpart( getline('.'), col('.')-2, 3 )
-	if cur[0] == "\\"
+	let col = col('.') - 1
+	let line = getline('.')
+	if col > 0
+		let cur = line[col]
+		let pre = line[col-1]
+	else
+		let cur = line[col]
+		let pre = ""
+	endif
+	if pre == "\\"
 		" Escaped character
 		return a:char
-	elseif cur[1] == a:char
+	elseif cur == a:char
 		" Exit pair
 		"return delimitMate#WriteBefore(a:char)
 		return a:char . delimitMate#Del()
-	"elseif cur[1] == ' ' && cur[2] == a:char
-		"" I'm leaving this in case someone likes it. Jump an space and delimiter.
-		"return "\<Right>\<Right>"
-	elseif delimitMate#IsEmptyPair( cur[0] . a:char )
+	elseif delimitMate#IsEmptyPair( pre . a:char )
 		" Add closing delimiter and jump back to the middle.
 		call insert(b:delimitMate_buffer, a:char)
 		return delimitMate#WriteAfter(a:char)
