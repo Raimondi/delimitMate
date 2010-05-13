@@ -47,9 +47,9 @@ function! delimitMateTests#Main(known) " {{{
 			let i += 1
 		endwhile
 		if result == 0
-			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Passed: ' . a:input . ' => ' . text . ' == ' . join(a:output, '<cr>')"
 		else
-			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Failed: ' . text . ' != ' . join(a:output, '<cr>')"
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "'] = 'Failed: ' . a:input . ' => ' . text . ' != ' . join(a:output, '<cr>')"
 			let b:errors += 1
 		endif
 	endfunction " }}}
@@ -72,9 +72,9 @@ function! delimitMateTests#Main(known) " {{{
 			let i += 1
 		endwhile
 		if result == 0
-			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Passed: ' . text . ' == ' . join(a:output, '<cr>')"
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Passed: \".\" => ' . text . ' == ' . join(a:output, '<cr>')"
 		else
-			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Failed: ' . text . ' != ' . join(a:output, '<cr>')"
+			exec "let b:test_results['" . substitute(a:name, "[^a-zA-Z0-9_]", "_", "g") . "_R'] = 'Failed: \".\" => ' . text . ' != ' . join(a:output, '<cr>')"
 			let b:errors += 1
 		endif
 	endfunction " }}}
@@ -191,8 +191,8 @@ function! delimitMateTests#Main(known) " {{{
 	call Type("Backspace inside space expansion", "(\<Space>\<BS>", ['(|)'], ['expand_space:1'])
 	call RepeatLast("Backspace inside space expansion", ['(|)(|)'])
 
-	" <Right-arrow> shouldn't insert any text
-	call Type("<Right-arrow> shouldn't insert any text", "(hello\<Right>\<Space>there\<Right>\<Right>", ['(hello) there|'], [])
+	" <Right-arrow> inserts text
+	call Type("<Right-arrow> inserts text", "(he\<Right>\<Space>th\<Right>\<Right>", ['(he) th|'], [])
 	call RepeatLast("Backspace inside space expansion", ['(|)(|)'])
 
 	" Backspace inside CR expansion
