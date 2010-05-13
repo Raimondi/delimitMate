@@ -203,6 +203,9 @@ function! delimitMateTests#Main() " {{{
 	unlet g:delimitMate_excluded_ft
 	set ft=
 
+	" Duplicated delimiter after CR
+	call Type("Duplicated delimiter after CR", "(\<CR>", ['(', '|)'], [])
+
 	"}}}
 
 	" Show results: {{{

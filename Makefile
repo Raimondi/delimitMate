@@ -1,17 +1,18 @@
 PLUGIN=delimitMate
+VIMFOLDER=~/.vim
 
 install:
-	install -m 755 -d ~/.vim
-	install -m 755 -d ~/.vim/plugin/
-	install -m 755 -d ~/.vim/autoload/
-	install -m 755 -d ~/.vim/doc/
-	cp -f doc/${PLUGIN}.txt      ~/.vim/doc/${PLUGIN}.txt
-	cp -f plugin/${PLUGIN}.vim   ~/.vim/plugin/${PLUGIN}.vim
-	cp -f autoload/${PLUGIN}.vim ~/.vim/autoload/${PLUGIN}.vim
-	cp -f autoload/${PLUGIN}Tests.vim ~/.vim/autoload/${PLUGIN}Tests.vim
+	install -m 755 -d ${VIMFOLDER}
+	install -m 755 -d ${VIMFOLDER}/plugin/
+	install -m 755 -d ${VIMFOLDER}/autoload/
+	install -m 755 -d ${VIMFOLDER}/doc/
+	cp -f doc/${PLUGIN}.txt      ${VIMFOLDER}/doc/${PLUGIN}.txt
+	cp -f plugin/${PLUGIN}.vim   ${VIMFOLDER}/plugin/${PLUGIN}.vim
+	cp -f autoload/${PLUGIN}.vim ${VIMFOLDER}/autoload/${PLUGIN}.vim
+	cp -f autoload/${PLUGIN}Tests.vim ${VIMFOLDER}/autoload/${PLUGIN}Tests.vim
 
 doc_update: install
-	/usr/bin/vim -u NONE -c ':helptags ~/.vim/doc' -c ':q'
+	/usr/bin/vim -u NONE -c ':helptags ${VIMFOLDER}/doc' -c ':q'
 
 zip:
 	zip -r ${PLUGIN}.zip doc plugin autoload
@@ -27,3 +28,8 @@ vimball: install
 gzip: vimball
 	gzip -f ${PLUGIN}.vba
 
+uninstall:
+	rm -f ${VIMFOLDER}/plugin/${PLUGIN}.vim
+	rm -f ${VIMFOLDER}/autoload/${PLUGIN}.vim
+	rm -f ${VIMFOLDER}/doc/${PLUGIN}.txt
+	rm -f ${VIMFOLDER}/autoload/${PLUGIN}Tests.txt

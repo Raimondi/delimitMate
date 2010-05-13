@@ -494,8 +494,12 @@ function! delimitMate#Finish() " {{{
 		let b:delimitMate_buffer = []
 		let line = getline('.')
 		let col = col('.') -2
-		"echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
-		call setline('.', line[:col] . line[col+len+1:])
+		echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
+		if col < 0
+			call setline('.', line[col+len+1:])
+		else
+			call setline('.', line[:col] . line[col+len+1:])
+		endif
 		let i = 1
 		let lefts = "\<Left>"
 		while i < len
