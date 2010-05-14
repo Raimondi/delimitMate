@@ -493,7 +493,10 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.2     2010-05-XX * - Added command to switch the plug-in on and off.
+    2.2     2010-05-20 * - Added command to switch the plug-in on and off.
+                         - Fix: some problems with <Left>, <Right> and <CR>.
+                         - Fix: A small problem when inserting a delimiter at
+                           the beginning of the line.
 |---------|------------|-----------------------------------------------------|
     2.1     2010-05-10 * - Most of the functions have been moved to an
                            autoload script to avoid loading unnecessary ones.
