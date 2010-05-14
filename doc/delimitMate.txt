@@ -246,7 +246,7 @@ Default: &matchpairs                                                         ~
 Use this option to tell delimitMate which characters should be considered
 matching pairs. Read |delimitMateAutoClose| for details.
 e.g: >
-        let delimitMate = "(:),[:],{:},<:>"
+        let delimitMate_matchpairs = "(:),[:],{:},<:>"
         au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:},<:>"
 <
 ------------------------------------------------------------------------------
