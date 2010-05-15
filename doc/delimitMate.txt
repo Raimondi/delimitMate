@@ -24,8 +24,9 @@
         2.3 Backspace__________________________|delimitMateBackspace|
         2.4 Visual wrapping____________________|delimitMateVisualWrapping|
         2.5 Smart Quotes_______________________|delimitMateSmartQuotes|
+        2.6 FileType based configuration_______|delimitMateFileType|
     3. Customization___________________________|delimitMateOptions|
-        3.1 Option summary_____________________|delimitMateOptionSummary|
+        3.1 Options summary____________________|delimitMateOptionSummary|
         3.2 Options details____________________|delimitMateOptionDetails|
     4. Commands________________________________|delimitMateCommands|
     5. Functions_______________________________|delimitMateFunctions|
@@ -171,6 +172,26 @@ e.g. typing at the "|": >
                       "   |  let i = "|  |  let i = "|"
                       '   |  I|          |  I'|
 <
+------------------------------------------------------------------------------
+   2.6 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
+
+delimitMate options can be set globally for all buffers using global
+("regular") variables in your |vimrc| file. But |:autocmd| can be used to set
+options for specific file types (see |'filetype'|) using buffer variables in
+the following way: >
+
+   au FileType mail,text let b:delimitMate_autoclose = 0
+         ^       ^           ^            ^            ^
+         |       |           |            |            |
+         |       |           |            |            - Option value.
+         |       |           |            - Option name.
+         |       |           - Buffer variable.
+         |       - File types for which the option will be set.
+         - Don't forget to put this event.
+<
+NOTE that if you use buffer variables (|b:vars|) to set global settings in
+your vimrc, those settings will be set for the first buffer, but they'll be
+ignored for new buffers and default values will be set.
 ==============================================================================
  3. CUSTOMIZATION                                         *delimitMateOptions*
 
