@@ -235,8 +235,13 @@ specific file types, see |delimitMateOptionDetails| for examples.
    3.2 OPTIONS DETAILS                              *delimitMateOptionDetails*
 
 Add the shown lines to your vimrc file in order to set the below options.
-Local options take precedence over global ones and can be used along with
-autocmd to modify delimitMate's behavior for specific file types.
+Buffer variables take precedence over global ones and can be used along with
+autocmd to modify delimitMate's behavior for specific file types, read more in
+|delimitMateFileType|.
+
+Note: Use buffer variables only to set options for specific file types using
+:autocmd, use global variables to set options for every buffer. Read more in
+|g:var| and |b:var|.
 
 ------------------------------------------------------------------------------
                                                         *'loaded_delimitMate'*
