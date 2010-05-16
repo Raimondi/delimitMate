@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v.2.2   *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.2    *delimitMate.txt*
 
   =========================================================================  ~
   ====  =========  ==========================  =====  =====================  ~
@@ -438,12 +438,12 @@ represented by an "|": >
  5. FUNCTIONS                                           *delimitMateFunctions*
 
 ------------------------------------------------------------------------------
-delimitMate_WithinEmptyPair()                    *delimitMate_WithinEmptyPair*
+delimitMate#WithinEmptyPair()                    *delimitMate_WithinEmptyPair*
 
 Returns 1 if the cursor is inside an empty pair, 0 otherwise.
 
 ------------------------------------------------------------------------------
-DelimitMate_ExpandReturn()                        *DelimitMate_ExpandReturn()*
+delimitMate#ExpandReturn()                        *delimitMate#ExpandReturn()*
 
 Returns the expansion for <CR>.
 
@@ -451,32 +451,32 @@ e.g.: This mapping could be used to select an item on a pop-up menu or expand
 <CR> inside an empty pair: >
 
         inoremap <expr> <CR> pumvisible() ? "\<c-y>" :
-                 \ DelimitMate_WithinEmptyPair ?
-                 \ DelimitMate_ExpandReturn() : "\<CR>"
+                 \ delimitMate#WithinEmptyPair() ?
+                 \ delimitMate#ExpandReturn() : "\<CR>"
 <
 ------------------------------------------------------------------------------
-DelimitMate_ExpandSpace()                          *DelimitMate_ExpandSpace()*
+delimitMate#ExpandSpace()                          *delimitMate#ExpandSpace()*
 
 Returns the expansion for <Space>.
 e.g.: >
 
-	inoremap <expr> <Space> DelimitMate_WithinEmptyPair() ?
-		\ DelimitMate_ExpandSpace() : "\<Space>"
+	inoremap <expr> <Space> delimitMate#WithinEmptyPair() ?
+		\ delimitMate#ExpandSpace() : "\<Space>"
 <
 ------------------------------------------------------------------------------
-DelimitMate_ShouldJump()                            *DelimitMate_ShouldJump()*
+delimitMate#ShouldJump()                            *delimitMate#ShouldJump()*
 
 Returns 1 if there is a closing delimiter or a quote to the right of the
 cursor, 0 otherwise.
 
 ------------------------------------------------------------------------------
-DelimitMate_JumpAny()                                  *DelimitMate_JumpAny()*
+delimitMate#JumpAny()                                  *delimitMate#JumpAny()*
 
 This function returns a mapping that will make the cursor jump to the right.
 e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
-           inoremap <expr> <C-Tab> DelimitMate_ShouldJump() ?
-                           \ DelimitMate_JumpAny() : "\<C-Tab>"
+           inoremap <expr> <C-Tab> delimitMate#ShouldJump() ?
+                           \ delimitMate#JumpAny() : "\<C-Tab>"
 <
 
 ==============================================================================
@@ -519,7 +519,8 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.2     2010-05-20 * - Added command to switch the plug-in on and off.
+    2.2     2010-05-20 * Current release:
+                         - Added command to switch the plug-in on and off.
                          - Fix: some problems with <Left>, <Right> and <CR>.
                          - Fix: A small problem when inserting a delimiter at
                            the beginning of the line.
