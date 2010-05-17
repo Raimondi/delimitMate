@@ -3,3 +3,4 @@
 *.zip
 *.gz
 vimball.txt
+*.orig

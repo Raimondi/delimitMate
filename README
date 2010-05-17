@@ -451,7 +451,7 @@ e.g.: This mapping could be used to select an item on a pop-up menu or expand
 <CR> inside an empty pair: >
 
         inoremap <expr> <CR> pumvisible() ? "\<c-y>" :
-                 \ delimitMate#WithinEmptyPair ?
+                 \ delimitMate#WithinEmptyPair() ?
                  \ delimitMate#ExpandReturn() : "\<CR>"
 <
 ------------------------------------------------------------------------------
