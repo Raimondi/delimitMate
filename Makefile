@@ -32,7 +32,7 @@ uninstall:
 	rm -f $(VIMFOLDER)/autoload/$(PLUGIN)Tests.txt
 
 undo:
-	for i in **/*.orig; do mv -f "$$i" "$${i%.*}"; done
+	for i in */*.orig; do mv -f "$$i" "$${i%.*}"; done
 
 README:
 	@echo README
@@ -62,7 +62,7 @@ version:
 	perl -i.orig -pne 'if (/let\sdelimitMate_version/) {s/(\d+\.\d+)/$(VERSION)/e}' $(SCRIPT)
 	perl -i.orig -pne 'if (/beasts/) {s/(v\d+\.\d+)/v.$(VERSION)/e}' $(DOC)
 	perl -i.orig -pne 'if (/^"\sModified:/) {s/(\d+-\d+-\d+)/sprintf("%s", `date "+%F"`)/e}' $(SCRIPT) $(AUTOL)
-	perl -i.orig -pne 'if (/^\s+$(VERSION)\s+\d+-\d+-\d+\s+\*/) {s/(\d+-\d+-\d+)/$(DATE)/e}' $(DOC)
+	perl -i.orig -MPOSIX -pne 'if (/^\s+$(VERSION)\s+\d+-\d+-\d+\s+\*/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/e}' $(DOC)
 	@echo Version: $(VERSION)
 
 echo:
