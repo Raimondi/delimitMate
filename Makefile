@@ -45,9 +45,11 @@ $(PLUGIN).vba:
 
 zip:
 	@echo zip
+	rm -f *.zip
 	zip -r $(PLUGIN).zip doc plugin autoload
 	zip $(PLUGIN).zip -d \*.sw\?
 	zip $(PLUGIN).zip -d autoload/$(PLUGIN)Tests.vim
+	ln -f $(PLUGIN).zip $(PLUGIN)-$(VERSION).zip
 
 gzip: vimball
 	@echo vimball
