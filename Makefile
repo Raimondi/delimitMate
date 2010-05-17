@@ -6,12 +6,16 @@ DOC=$(wildcard doc/*.txt)
 TESTS=$(wildcard autoload/*Tests.vim)
 VERSION=$(shell perl -ne 'if (/\*\sCurrent\srelease:/) {s/^\s+(\d+\.\d+).*$$/\1/;print}' $(DOC))
 VIMFOLDER=~/.vim
-DATE=`date '+%F'`
 VIM=/usr/bin/vim
 
 .PHONY: $(PLUGIN).vba README
 
-all: uninstall vimball install README
+install: vimball
+	@echo install
+	$(VIM) -N -c ':so %' -c':q!' $(PLUGIN)-$(VERSION).vba
+	cp -f autoload/$(PLUGIN)Tests.vim $(VIMFOLDER)/autoload/$(PLUGIN)Tests.vim
+
+all: uninstall vimball install README zip gzip
 
 vimball: $(PLUGIN).vba
 
@@ -20,11 +24,6 @@ clean:
 	rm -f *.vba */*.orig *.~* .VimballRecord *.zip *.gz
 
 dist-clean: clean
-
-install: vimball
-	@echo install
-	$(VIM) -N -c ':so %' -c':q!' $(PLUGIN)-$(VERSION).vba
-	cp -f autoload/$(PLUGIN)Tests.vim $(VIMFOLDER)/autoload/$(PLUGIN)Tests.vim
 
 uninstall:
 	@echo uninstall
@@ -61,7 +60,7 @@ version:
 	perl -i.orig -pne 'if (/^"\sVersion:/) {s/(\d+\.\d+)/$(VERSION)/e}' $(SCRIPT) $(AUTOL)
 	perl -i.orig -pne 'if (/let\sdelimitMate_version/) {s/(\d+\.\d+)/$(VERSION)/e}' $(SCRIPT)
 	perl -i.orig -pne 'if (/beasts/) {s/(v\d+\.\d+)/v.$(VERSION)/e}' $(DOC)
-	perl -i.orig -pne 'if (/^"\sModified:/) {s/(\d+-\d+-\d+)/sprintf("%s", `date "+%F"`)/e}' $(SCRIPT) $(AUTOL)
+	perl -i.orig -MPOSIX -pne 'if (/^"\sModified:/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/e}' $(SCRIPT) $(AUTOL)
 	perl -i.orig -MPOSIX -pne 'if (/^\s+$(VERSION)\s+\d+-\d+-\d+\s+\*/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/e}' $(DOC)
 	@echo Version: $(VERSION)
 
