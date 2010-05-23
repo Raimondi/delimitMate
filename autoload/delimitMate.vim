@@ -442,19 +442,18 @@ function! delimitMate#MapMsg(msg) "{{{
 endfunction "}}}
 
 function! delimitMate#ExpandReturn() "{{{
-	if delimitMate#WithinEmptyPair() &&
-				\ b:delimitMate_expand_cr
+	if delimitMate#WithinEmptyPair()
 		" Expand:
 		call delimitMate#FlushBuffer()
-		return "\<Esc>a\<CR>x\<CR>\<Esc>k$\"_xa"
+		"return "\<Esc>a\<CR>x\<CR>\<Esc>k$\"_xa"
+		return "\<CR>\<UP>\<Esc>o"
 	else
 		return "\<CR>"
 	endif
 endfunction "}}}
 
 function! delimitMate#ExpandSpace() "{{{
-	if delimitMate#WithinEmptyPair() &&
-				\ b:delimitMate_expand_space
+	if delimitMate#WithinEmptyPair()
 		" Expand:
 		call insert(b:delimitMate_buffer, 's')
 		return delimitMate#WriteAfter(' ') . "\<Space>"
