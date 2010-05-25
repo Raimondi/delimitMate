@@ -5,7 +5,7 @@ AUTOL=autoload/$(PLUGIN).vim
 DOC=$(wildcard doc/*.txt)
 TESTS=$(wildcard autoload/*Tests.vim)
 VERSION=$(shell perl -ne 'if (/\*\sCurrent\srelease:/) {s/^\s+(\d+\.\d+).*$$/\1/;print}' $(DOC))
-VIMFOLDER=~/.vim
+VIMFOLDER=~/.vim/
 VIM=/usr/bin/vim
 
 .PHONY: $(PLUGIN).vba README
@@ -13,7 +13,7 @@ VIM=/usr/bin/vim
 install: vimball
 	@echo install
 	$(VIM) -N -c ':so %' -c':q!' $(PLUGIN)-$(VERSION).vba
-	cp -f autoload/$(PLUGIN)Tests.vim $(VIMFOLDER)/autoload/$(PLUGIN)Tests.vim
+	cp -f $(TESTS) $(VIMFOLDER)$(TESTS)
 
 all: uninstall vimball install README zip gzip
 
@@ -28,7 +28,7 @@ dist-clean: clean
 uninstall:
 	@echo uninstall
 	$(VIM) -N -c':RmVimball' -c':q!' $(PLUGIN)-$(VERSION).vba
-	rm -f $(VIMFOLDER)/autoload/$(PLUGIN)Tests.txt
+	rm -f $(VIMFOLDER)$(TESTS)
 
 undo:
 	for i in */*.orig; do mv -f "$$i" "$${i%.*}"; done
@@ -48,7 +48,7 @@ zip:
 	rm -f *.zip
 	zip -r $(PLUGIN).zip doc plugin autoload
 	zip $(PLUGIN).zip -d \*.sw\?
-	zip $(PLUGIN).zip -d autoload/$(PLUGIN)Tests.vim
+	zip $(PLUGIN).zip -d $(TESTS)
 	ln -f $(PLUGIN).zip $(PLUGIN)-$(VERSION).zip
 
 gzip: vimball

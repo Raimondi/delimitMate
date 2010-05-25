@@ -226,7 +226,12 @@ function! delimitMateTests#Main() " {{{
 	" Deactivate parens on comments: The first call to a closing delimiter
 	" will not work here as expected, but it does in real life tests.
 	set ft=vim
-	call Type("Deactivate parens on comments", "\"()", ["\"()"], ["autoclose:0"], 1)
+	call Type("Deactivate parens on comments", "\"()[]", ["\"()[]|"], ["autoclose:0"], 1)
+	set ft=
+
+	" Deactivate quotes on comments: See previous note.
+	set ft=vim
+	call Type("Deactivate parens on comments", "\"(`", ["\"(``|"], [], 1)
 	set ft=
 
 	" Manual close at start of line

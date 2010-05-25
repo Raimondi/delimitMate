@@ -1,16 +1,16 @@
-*delimitMate*    Trying to keep those beasts at bay! v2.2    *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.3    *delimitMate.txt*
 
-  =========================================================================  ~
-  ====  =========  ==========================  =====  =====================  ~
-  ====  =========  ==========================   ===   =====================  ~
-  ====  =========  =====================  ===  =   =  ==========  =========  ~
-  ====  ===   ===  ==  ==  =  = ===  ==    ==  == ==  ===   ===    ===   ==  ~
-  ==    ==  =  ==  ======        =======  ===  =====  ==  =  ===  ===  =  =  ~
-  =  =  ==     ==  ==  ==  =  =  ==  ===  ===  =====  =====  ===  ===     =  ~
-  =  =  ==  =====  ==  ==  =  =  ==  ===  ===  =====  ===    ===  ===  ====  ~
-  =  =  ==  =  ==  ==  ==  =  =  ==  ===  ===  =====  ==  =  ===  ===  =  =  ~
-  ==    ===   ===  ==  ==  =  =  ==  ===   ==  =====  ===    ===   ===   ==  ~
-  =========================================================================  ~
+  MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+  MMMM  MMMMMMMMM  MMMMMMMMMMMMMMMMMMMMMMMMMM  MMMMM  MMMMMMMMMMMMMMMMMMMMM  ~
+  MMMM  MMMMMMMMM  MMMMMMMMMMMMMMMMMMMMMMMMMM   MMM   MMMMMMMMMMMMMMMMMMMMM
+  MMMM  MMMMMMMMM  MMMMMMMMMMMMMMMMMMMMM  MMM  M   M  MMMMMMMMMM  MMMMMMMMM  ~
+  MMMM  MMM   MMM  MM  MM  M  M MMM  MM    MM  MM MM  MMM   MMM    MMM   MM
+  MM    MM  M  MM  MMMMMM        MMMMMMM  MMM  MMMMM  MM  M  MMM  MMM  M  M  ~
+  M  M  MM     MM  MM  MM  M  M  MM  MMM  MMM  MMMMM  MMMMM  MMM  MMM     M
+  M  M  MM  MMMMM  MM  MM  M  M  MM  MMM  MMM  MMMMM  MMM    MMM  MMM  MMMM  ~
+  M  M  MM  M  MM  MM  MM  M  M  MM  MMM  MMM  MMMMM  MM  M  MMM  MMM  M  M
+  MM    MMM   MMM  MM  MM  M  M  MM  MMM   MM  MMMMM  MMM    MMM   MMM   MM  ~
+  MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 
                               REFERENCE MANUAL                               *
 
@@ -25,6 +25,7 @@
         2.4 Visual wrapping____________________|delimitMateVisualWrapping|
         2.5 Smart Quotes_______________________|delimitMateSmartQuotes|
         2.6 FileType based configuration_______|delimitMateFileType|
+        2.7 Syntax awareness___________________|delimitMateSyntax|
     3. Customization___________________________|delimitMateOptions|
         3.1 Options summary____________________|delimitMateOptionSummary|
         3.2 Options details____________________|delimitMateOptionDetails|
@@ -189,9 +190,21 @@ the following way: >
          |       - File types for which the option will be set.
          - Don't forget to put this event.
 <
-NOTE that if you use buffer variables (|b:vars|) to set global settings in
-your vimrc, those settings will be set for the first buffer, but they'll be
-ignored for new buffers and default values will be set.
+NOTE that you should use buffer variables (|b:var|) only to set options with
+|:autocmd|, for global options use regular variables (|g:var|) in your vimrc.
+
+------------------------------------------------------------------------------
+   2.7 SYNTAX AWARENESS                                    *delimitMateSyntax*
+
+The features of this plug-in might not be always helpful, comments and strings
+usualy don't need auto-completion. delimitMate monitors which region is being
+edited and if it detects that the cursor is in a comment it'll turn itself off
+until the cursor leaves the comment. The excluded regions by can be set using
+the option |'delimitMate_excluded_regions'|. Read |group-name| for a list of
+regions or syntax group names. NOTE that this feature relies on a
+proper syntax file for the current file type, if the syntax file doesn't
+define a region, delimitMate won't know about it.
+
 ==============================================================================
  3. CUSTOMIZATION                                         *delimitMateOptions*
 
@@ -223,6 +236,9 @@ specific file types, see |delimitMateOptionDetails| for examples.
 |'delimitMate_expand_space'|    Turns on/off the expansion of <Space>.
 
 |'delimitMate_excluded_ft'|     Turns off the script for the given file types.
+
+|'delimitMate_excluded_regions'|Turns off the script for the given regions or
+                                syntax group names.
 
 |'delimitMate_apostrophes'|     Tells delimitMate how it should "fix"
                                 balancing of single quotes when used as
@@ -334,6 +350,16 @@ e.g.: >
         let delimitMate_excluded_ft = "mail,txt"
 <
 ------------------------------------------------------------------------------
+                                              *'delimitMate_excluded_regions'*
+Values: A string of syntax group names names separated by single commas.     ~
+Default: Comment                                                             ~
+
+This options turns delimitMate off for the listed regions, read |group-name|
+for more info.
+e.g.: >
+        let delimitMate_excluded_regions = "Comments,String"
+<
+------------------------------------------------------------------------------
                                                    *'delimitMate_apostrophes'*
 Values: Strings separated by ":".                                            ~
 Default: No longer used.                                                     ~
@@ -437,6 +463,9 @@ represented by an "|": >
 ==============================================================================
  5. FUNCTIONS                                           *delimitMateFunctions*
 
+Functions should be used enclosed between <C-R>= and <CR>, otherwise they
+might not work as expected or at all.
+
 ------------------------------------------------------------------------------
 delimitMate#WithinEmptyPair()                    *delimitMate_WithinEmptyPair*
 
@@ -445,23 +474,23 @@ Returns 1 if the cursor is inside an empty pair, 0 otherwise.
 ------------------------------------------------------------------------------
 delimitMate#ExpandReturn()                        *delimitMate#ExpandReturn()*
 
-Returns the expansion for <CR>.
+Returns the expansion for <CR> if enabled and inside an empty pair, returns
+<CR> otherwise.
 
 e.g.: This mapping could be used to select an item on a pop-up menu or expand
 <CR> inside an empty pair: >
 
         inoremap <expr> <CR> pumvisible() ? "\<c-y>" :
-                 \ delimitMate#WithinEmptyPair() ?
-                 \ delimitMate#ExpandReturn() : "\<CR>"
+                 \ "\<C-R>=delimitMate#ExpandReturn()\<CR>"
 <
 ------------------------------------------------------------------------------
 delimitMate#ExpandSpace()                          *delimitMate#ExpandSpace()*
 
-Returns the expansion for <Space>.
+Returns the expansion for <Space> if enabled and inside an empty pair, returns
+<Space> otherwise.
 e.g.: >
 
-	inoremap <expr> <Space> delimitMate#WithinEmptyPair() ?
-		\ delimitMate#ExpandSpace() : "\<Space>"
+    inoremap <Space> <C-R>=delimitMate#ExpandSpace()<CR>
 <
 ------------------------------------------------------------------------------
 delimitMate#ShouldJump()                            *delimitMate#ShouldJump()*
@@ -470,13 +499,13 @@ Returns 1 if there is a closing delimiter or a quote to the right of the
 cursor, 0 otherwise.
 
 ------------------------------------------------------------------------------
-delimitMate#JumpAny()                                  *delimitMate#JumpAny()*
+delimitMate#JumpAny(key)                               *delimitMate#JumpAny()*
 
-This function returns a mapping that will make the cursor jump to the right.
+This function returns a mapping that will make the cursor jump to the right
+when delimitMate#ShouldJump() returns 1, returns the argument "key" otherwise.
 e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
-           inoremap <expr> <C-Tab> delimitMate#ShouldJump() ?
-                           \ delimitMate#JumpAny() : "\<C-Tab>"
+   inoremap <C-Tab> <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
 <
 
 ==============================================================================
@@ -519,8 +548,14 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.2     2010-05-16 * Current release:
-                         - Added command to switch the plug-in on and off.
+    2.3     2010-05-24 * Current release:
+                         - Syntax aware: Will turn off when editing comments
+                           or other regions.
+                         - Changed format of most mappings.
+                         - Fix: <CR> expansion doesn't brake automatic
+                           indentation adjustments anymore.
+|---------|------------|-----------------------------------------------------|
+    2.2     2010-05-16 * - Added command to switch the plug-in on and off.
                          - Fix: some problems with <Left>, <Right> and <CR>.
                          - Fix: A small problem when inserting a delimiter at
                            the beginning of the line.
@@ -596,9 +631,11 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 |---------|------------|-----------------------------------------------------|
 
 
-           ...           |"|         _     _       .      .         ___      ~
-      o,*,(o o)         _|_|_      o' \,=./ `o   .  .:::.          /_\ `*    ~
-     8(o o)(_)Ooo       (o o)         (o o)        :(o o):  .     (o o)      ~
----ooO-(_)---Ooo----ooO--(_)--Ooo-ooO--(_)--Ooo-ooO--(_)--Ooo-ooO--(_)--Ooo- ~
+  `\|||/´         MMM           \|/            www            __^__          ~
+   (o o)         (o o)          @ @           (O-O)          /(o o)\\        ~
+ooO_(_)_Ooo__ ooO_(_)_Ooo___oOO_(_)_OOo___oOO__(_)__OOo___oOO__(_)__OOo_____ ~
+_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____ ~
+__|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_ ~
+_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____ ~
 
 vim:tw=78:ts=8:ft=help:norl:formatoptions+=tcroqn:autoindent:
