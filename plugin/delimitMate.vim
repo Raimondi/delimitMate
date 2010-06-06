@@ -54,7 +54,7 @@ function! s:TestMappingsDo() "{{{
 	normal gg
 endfunction "}}}
 
-function! s:DelimitMateDo() "{{{
+function! s:DelimitMateDo(...) "{{{
 	if exists("g:delimitMate_excluded_ft")
 		" Check if this file type is excluded:
 		for ft in split(g:delimitMate_excluded_ft,',')
@@ -76,13 +76,18 @@ function! s:DelimitMateDo() "{{{
 		let &cpo = save_cpo
 		let &keymap = save_keymap
 	endtry
+	if a:0 > 0
+		echo "delimitMate has been reset."
+	endif
 endfunction "}}}
 
 function! s:DelimitMateSwitch() "{{{
 	if b:delimitMate_enabled
 		call delimitMate#UnMap()
+		echo "delimitMate has been disabled."
 	else
 		call delimitMate#Init()
+		echo "delimitMate has been enabled."
 	endif
 endfunction "}}}
 
@@ -92,7 +97,7 @@ endfunction "}}}
 call s:DelimitMateDo()
 
 " Let me refresh without re-loading the buffer:
-command! DelimitMateReload call s:DelimitMateDo()
+command! DelimitMateReload call s:DelimitMateDo(1)
 
 " Quick test:
 command! DelimitMateTest call s:TestMappingsDo()
