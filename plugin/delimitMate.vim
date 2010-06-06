@@ -26,7 +26,7 @@ if v:version < 700
 endif
 
 let s:loaded_delimitMate = 1 " }}}
-let delimitMate_version = '2.3.1'
+let delimitMate_version = "2.3.1"
 
 "}}}
 

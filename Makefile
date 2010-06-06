@@ -61,7 +61,7 @@ release: version all
 version:
 	@echo version: $(VERSION)
 	perl -i.orig -pne 'if (/^"\sVersion:/) {s/(\d+\.\S+)/$(VERSION)/}' $(SCRIPT) $(AUTOL)
-	perl -i.orig -pne 'if (/let\sdelimitMate_version/) {s/(\d+\.\S+)/$(VERSION)/}' $(SCRIPT)
+	perl -i.orig -pne 'if (/let\sdelimitMate_version/) {s/"(\d+\.\S+)"/"$(VERSION)"/}' $(SCRIPT)
 	perl -i.orig -pne 'if (/beasts/) {s/(v\d+\.\S+)/v$(VERSION)/}' $(DOC)
 	perl -i.orig -MPOSIX -pne 'if (/^"\sModified:/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/e}' $(SCRIPT) $(AUTOL)
 	perl -i.orig -MPOSIX -pne 'if (/^\s+$(VERSION)\s+\d+-\d+-\d+\s+\*/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/}' $(DOC)
