@@ -1,5 +1,7 @@
 *delimitMate*    Trying to keep those beasts at bay! v2.3    *delimitMate.txt*
 
+
+
   MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
   MMMM  MMMMMMMMM  MMMMMMMMMMMMMMMMMMMMMMMMMM  MMMMM  MMMMMMMMMMMMMMMMMMMMM  ~
   MMMM  MMMMMMMMM  MMMMMMMMMMMMMMMMMMMMMMMMMM   MMM   MMMMMMMMMMMMMMMMMMMMM
@@ -12,7 +14,7 @@
   MM    MMM   MMM  MM  MM  M  M  MM  MMM   MM  MMMMM  MMM    MMM   MMM   MM  ~
   MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 
-                              REFERENCE MANUAL                               *
+
 
 ==============================================================================
  0.- CONTENTS                                           *delimitMate-contents*
@@ -40,7 +42,7 @@
  1.- INTRODUCTION                                           *delimitMateIntro*
 
 This plug-in provides automatic closing of quotes, parenthesis, brackets,
-etc., besides some other related features that should make your time in insert
+etc.; besides some other related features that should make your time in insert
 mode a little bit easier.
 
 Most of the features can be modified or disabled permanently, using global
@@ -148,7 +150,7 @@ When visual mode is active this script allows for the selection to be enclosed
 with delimiters. But, since brackets have special meaning in visual mode, a
 leader (the value of 'mapleader' by default) should precede the delimiter.
 NOTE that this feature brakes the redo command and doesn't currently work on
-blockwise visual mode, any suggestions will be welcome.
+blockwise visual mode, any suggestions to fix this will be very welcome.
 
 e.g. (selection represented between square brackets): >
 
@@ -199,11 +201,13 @@ NOTE that you should use buffer variables (|b:var|) only to set options with
 The features of this plug-in might not be always helpful, comments and strings
 usualy don't need auto-completion. delimitMate monitors which region is being
 edited and if it detects that the cursor is in a comment it'll turn itself off
-until the cursor leaves the comment. The excluded regions by can be set using
-the option |'delimitMate_excluded_regions'|. Read |group-name| for a list of
-regions or syntax group names. NOTE that this feature relies on a
-proper syntax file for the current file type, if the syntax file doesn't
-define a region, delimitMate won't know about it.
+until the cursor leaves the comment. The excluded regions can be set using the
+option |'delimitMate_excluded_regions'|. Read |group-name| for a list of
+regions or syntax group names.
+
+NOTE that this feature relies on a proper syntax file for the current file
+type, if the appropiate syntax file doesn't define a region, delimitMate won't
+know about it.
 
 ==============================================================================
  3. CUSTOMIZATION                                         *delimitMateOptions*
@@ -355,7 +359,7 @@ Values: A string of syntax group names names separated by single commas.     ~
 Default: Comment                                                             ~
 
 This options turns delimitMate off for the listed regions, read |group-name|
-for more info.
+for more info about what is a region.
 e.g.: >
         let delimitMate_excluded_regions = "Comments,String"
 <
@@ -513,7 +517,6 @@ e.g.: You can use this to create your own mapping to jump over any delimiter.
 
 - Automatic set-up by file type.
 - Make visual wrapping work on blockwise visual mode.
-- Limit behaviour by region.
 
 ==============================================================================
  7. MAINTAINER                                         *delimitMateMaintainer*
@@ -548,12 +551,14 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.3     2010-05-24 * Current release:
+    2.3     2010-06-06 * Current release:
                          - Syntax aware: Will turn off when editing comments
-                           or other regions.
+                           or other regions, customizable.
                          - Changed format of most mappings.
                          - Fix: <CR> expansion doesn't brake automatic
                            indentation adjustments anymore.
+                         - Fix: Arrow keys would insert A, B, C or D instead
+                           of moving the cursor when using Vim on a terminal.
 |---------|------------|-----------------------------------------------------|
     2.2     2010-05-16 * - Added command to switch the plug-in on and off.
                          - Fix: some problems with <Left>, <Right> and <CR>.

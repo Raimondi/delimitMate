@@ -551,7 +551,7 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.3     2010-05-24 * Current release:
+    2.3     2010-06-06 * Current release:
                          - Syntax aware: Will turn off when editing comments
                            or other regions, customizable.
                          - Changed format of most mappings.
