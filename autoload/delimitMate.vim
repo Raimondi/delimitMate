@@ -492,8 +492,6 @@ function! delimitMate#ExpandSpace() "{{{
 	if delimitMate#WithinEmptyPair()
 		" Expand:
 		call insert(b:delimitMate_buffer, 's')
-		" Expand:
-		call insert(b:delimitMate_buffer, 's')
 		return delimitMate#WriteAfter(' ') . "\<Space>"
 	else
 		return "\<Space>"
