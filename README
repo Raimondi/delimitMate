@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v2.3    *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.3.1  *delimitMate.txt*
 
 
 
@@ -551,8 +551,11 @@ This script was inspired by the auto-completion of delimiters of TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.3     2010-06-06 * Current release:
-                         - Syntax aware: Will turn off when editing comments
+    2.3.1   2010-06-06 * Current release:
+                         - Fix: an extra <Space> is inserted after <Space>
+                           expansion.
+|---------|------------|-----------------------------------------------------|
+    2.3     2010-06-06 * - Syntax aware: Will turn off when editing comments
                            or other regions, customizable.
                          - Changed format of most mappings.
                          - Fix: <CR> expansion doesn't brake automatic
