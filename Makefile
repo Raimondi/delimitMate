@@ -48,6 +48,7 @@ zip:
 	rm -f *.zip
 	zip -r $(PLUGIN).zip doc plugin autoload
 	zip $(PLUGIN).zip -d \*.sw\?
+	zip $(PLUGIN).zip -d \*.orig
 	zip $(PLUGIN).zip -d $(TESTS)
 	ln -f $(PLUGIN).zip $(PLUGIN)-$(VERSION).zip
 

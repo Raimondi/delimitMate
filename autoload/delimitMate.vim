@@ -8,6 +8,7 @@
 
 " Utilities {{{
 function! delimitMate#Init() "{{{
+" Initialize variables:
 
 	" delimitMate_autoclose {{{
 	if !exists("b:delimitMate_autoclose") && !exists("g:delimitMate_autoclose")
@@ -125,11 +126,10 @@ function! delimitMate#Init() "{{{
 endfunction "}}} Init()
 
 function! delimitMate#ShouldJump() "{{{
+	" Returns 1 if the next character is a closing delimiter.
 	let col = col('.')
 	let lcol = col('$')
 	let char = getline('.')[col - 1]
-	let nchar = getline('.')[col]
-	let uchar = getline(line('.') + 1)[0]
 
 	for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 		if char == cdel
@@ -138,6 +138,7 @@ function! delimitMate#ShouldJump() "{{{
 		endif
 	endfor
 
+	let nchar = getline('.')[col]
 	if b:delimitMate_expand_space && char == " "
 		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 			if nchar == cdel
@@ -147,6 +148,7 @@ function! delimitMate#ShouldJump() "{{{
 		endfor
 	endif
 
+	let uchar = getline(line('.') + 1)[0]
 	if b:delimitMate_expand_cr && char == ""
 		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 			if uchar == cdel
@@ -490,6 +492,8 @@ function! delimitMate#ExpandSpace() "{{{
 	if delimitMate#WithinEmptyPair()
 		" Expand:
 		call insert(b:delimitMate_buffer, 's')
+		" Expand:
+		call insert(b:delimitMate_buffer, 's')
 		return delimitMate#WriteAfter(' ') . "\<Space>"
 	else
 		return "\<Space>"
@@ -708,8 +712,6 @@ function! delimitMate#TestMappings() "{{{
 		for i in range(len(b:delimitMate_quotes_list))
 			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. "|"
 			exec "normal A\<CR>Delete: "
-			exec "normal A". b:delimitMate_quotes_list[i]
-			exec "normal a\<BS>|"
 			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . " |"
 			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . " \<BS>|"
