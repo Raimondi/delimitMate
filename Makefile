@@ -4,7 +4,7 @@ SCRIPT=$(wildcard plugin/*.vim)
 AUTOL=autoload/$(PLUGIN).vim
 DOC=$(wildcard doc/*.txt)
 TESTS=$(wildcard autoload/*Tests.vim)
-VERSION=$(shell perl -ne 'if (/\*\sCurrent\srelease:/) {s/^\s+(\d+\.\d+).*$$/\1/;print}' $(DOC))
+VERSION=$(shell perl -ne 'if (/\*\sCurrent\srelease:/) {s/^\s+(\d+\.\S+)\s.*$$/\1/;print}' $(DOC))
 VIMFOLDER=~/.vim/
 VIM=/usr/bin/vim
 
@@ -60,11 +60,11 @@ release: version all
 
 version:
 	@echo version: $(VERSION)
-	perl -i.orig -pne 'if (/^"\sVersion:/) {s/(\d+\.\d+)/$(VERSION)/e}' $(SCRIPT) $(AUTOL)
-	perl -i.orig -pne 'if (/let\sdelimitMate_version/) {s/(\d+\.\d+)/$(VERSION)/e}' $(SCRIPT)
-	perl -i.orig -pne 'if (/beasts/) {s/(v\d+\.\d+)/v.$(VERSION)/e}' $(DOC)
+	perl -i.orig -pne 'if (/^"\sVersion:/) {s/(\d+\.\S+)/$(VERSION)/}' $(SCRIPT) $(AUTOL)
+	perl -i.orig -pne 'if (/let\sdelimitMate_version/) {s/(\d+\.\S+)/$(VERSION)/}' $(SCRIPT)
+	perl -i.orig -pne 'if (/beasts/) {s/(v\d+\.\S+)/v$(VERSION)/}' $(DOC)
 	perl -i.orig -MPOSIX -pne 'if (/^"\sModified:/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/e}' $(SCRIPT) $(AUTOL)
-	perl -i.orig -MPOSIX -pne 'if (/^\s+$(VERSION)\s+\d+-\d+-\d+\s+\*/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/e}' $(DOC)
+	perl -i.orig -MPOSIX -pne 'if (/^\s+$(VERSION)\s+\d+-\d+-\d+\s+\*/) {$$now_string = strftime "%F", localtime; s/(\d+-\d+-\d+)/$$now_string/}' $(DOC)
 	@echo Version: $(VERSION)
 
 echo:
