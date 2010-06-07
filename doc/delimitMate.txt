@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v2.3.1  *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.4DEV  *delimitMate.txt*
 
 
 
@@ -541,19 +541,32 @@ from the following sources:
      From the comments on the previous blog post and from:
      http://gist.github.com/144619
 
-   - Vim Scripts:
-     http://www.vim.org/scripts
+   - Karl Guertin
+     AutoClose:
+     http://www.vim.org/scripts/script.php?script_id=1849
 
-This script was inspired by the auto-completion of delimiters of TextMate.
+   - Thiago Alves
+     AutoClose:
+     http://www.vim.org/scripts/script.php?script_id=2009
+
+   - Edoardo Vacchi
+     ClosePairs:
+     http://www.vim.org/scripts/script.php?script_id=2373
+
+This script was inspired by the auto-completion of delimiters on TextMate.
 
 ==============================================================================
  9. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.3.1   2010-06-06 * Current release:
-                         - Fix: an extra <Space> is inserted after <Space>
+    2.4DEV     2010-06-06 * Current release:
+                         - xxx
+
+|---------|------------|-----------------------------------------------------|
+    2.3.1   2010-06-06 * - Fix: an extra <Space> is inserted after <Space>
                            expansion.
+
 |---------|------------|-----------------------------------------------------|
     2.3     2010-06-06 * - Syntax aware: Will turn off when editing comments
                            or other regions, customizable.
@@ -562,16 +575,19 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                            indentation adjustments anymore.
                          - Fix: Arrow keys would insert A, B, C or D instead
                            of moving the cursor when using Vim on a terminal.
+
 |---------|------------|-----------------------------------------------------|
     2.2     2010-05-16 * - Added command to switch the plug-in on and off.
                          - Fix: some problems with <Left>, <Right> and <CR>.
                          - Fix: A small problem when inserting a delimiter at
                            the beginning of the line.
+
 |---------|------------|-----------------------------------------------------|
     2.1     2010-05-10 * - Most of the functions have been moved to an
                            autoload script to avoid loading unnecessary ones.
                          - Fixed a problem with the redo command.
                          - Many small fixes.
+
 |---------|------------|-----------------------------------------------------|
     2.0     2010-04-01 * New features:
                          - All features are redo/undo-wise safe.
@@ -587,7 +603,6 @@ This script was inspired by the auto-completion of delimiters of TextMate.
                            active if you have any of the expansion options
                            set.
                          - <S-Backspace> deletes the closing delimiter.
-
                          * Fixed bug:
                          - s:vars were being used to store buffer options.
 
@@ -646,4 +661,4 @@ _____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____ ~
 __|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_ ~
 _____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____ ~
 
-vim:tw=78:ts=8:ft=help:norl:formatoptions+=tcroqn:autoindent:
+vim:tw=78:et:ts=2:sw=2:ft=help:norl:formatoptions+=tcroqn:autoindent:

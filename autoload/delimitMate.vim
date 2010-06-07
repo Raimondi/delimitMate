@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        autoload/delimitMate.vim
-" Version:     2.3.1
+" Version:     2.4DEV
 " Modified:    2010-06-06
 " Description: This plugin provides auto-completion for quotes, parens, etc.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
@@ -348,10 +348,41 @@ function! delimitMate#FlushBuffer() " {{{
 	let b:delimitMate_buffer = []
 	return ''
 endfunction " }}}
+
 " }}}
 
 " Doers {{{
-function! delimitMate#JumpIn(char) " {{{
+function! delimitMate#SkipDelim(char) "{{{
+	if delimitMate#IsForbidden(a:char)
+		return a:char
+	endif
+	let col = col('.') - 1
+	let line = getline('.')
+	if col > 0
+		let cur = line[col]
+		let pre = line[col-1]
+	else
+		let cur = line[col]
+		let pre = ""
+	endif
+	if pre == "\\"
+		" Escaped character
+		return a:char
+	elseif cur == a:char
+		" Exit pair
+		"return delimitMate#WriteBefore(a:char)
+		return a:char . delimitMate#Del()
+	elseif delimitMate#IsEmptyPair( pre . a:char )
+		" Add closing delimiter and jump back to the middle.
+		call insert(b:delimitMate_buffer, a:char)
+		return delimitMate#WriteAfter(a:char)
+	else
+		" Nothing special here, return the same character.
+		return a:char
+	endif
+endfunction "}}}
+
+function! delimitMate#ParenDelim(char) " {{{
 	if delimitMate#IsForbidden(a:char)
 		return ''
 	endif
@@ -367,6 +398,35 @@ function! delimitMate#JumpIn(char) " {{{
 	endif
 	return ''
 endfunction " }}}
+
+function! delimitMate#QuoteDelim(char) "{{{
+	if delimitMate#IsForbidden(a:char)
+		return a:char
+	endif
+	let line = getline('.')
+	let col = col('.') - 2
+	if line[col] == "\\"
+		" Seems like a escaped character, insert one quotation mark.
+		return a:char
+	elseif line[col + 1] == a:char
+		" Get out of the string.
+		"return delimitMate#WriteBefore(a:char)
+		return a:char . delimitMate#Del()
+	elseif (line[col] =~ '[a-zA-Z0-9]' && a:char == "'") ||
+				\(line[col] =~ '[a-zA-Z0-9]' && b:delimitMate_smart_quotes)
+		" Seems like an apostrophe or a closing, insert a single quote.
+		return a:char
+	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:delimitMate_smart_quotes
+		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
+		call insert(b:delimitMate_buffer, a:char)
+		return delimitMate#WriteAfter(a:char)
+	else
+		" Insert a pair and jump to the middle.
+		call insert(b:delimitMate_buffer, a:char)
+		call delimitMate#WriteAfter(a:char)
+		return a:char
+	endif
+endfunction "}}}
 
 function! delimitMate#JumpOut(char) "{{{
 	if delimitMate#IsForbidden(a:char)
@@ -405,65 +465,6 @@ function! delimitMate#JumpAny(key) " {{{
 		return char . delimitMate#Del()
 	endif
 endfunction " delimitMate#JumpAny() }}}
-
-function! delimitMate#SkipDelim(char) "{{{
-	if delimitMate#IsForbidden(a:char)
-		return a:char
-	endif
-	let col = col('.') - 1
-	let line = getline('.')
-	if col > 0
-		let cur = line[col]
-		let pre = line[col-1]
-	else
-		let cur = line[col]
-		let pre = ""
-	endif
-	if pre == "\\"
-		" Escaped character
-		return a:char
-	elseif cur == a:char
-		" Exit pair
-		"return delimitMate#WriteBefore(a:char)
-		return a:char . delimitMate#Del()
-	elseif delimitMate#IsEmptyPair( pre . a:char )
-		" Add closing delimiter and jump back to the middle.
-		call insert(b:delimitMate_buffer, a:char)
-		return delimitMate#WriteAfter(a:char)
-	else
-		" Nothing special here, return the same character.
-		return a:char
-	endif
-endfunction "}}}
-
-function! delimitMate#QuoteDelim(char) "{{{
-	if delimitMate#IsForbidden(a:char)
-		return a:char
-	endif
-	let line = getline('.')
-	let col = col('.') - 2
-	if line[col] == "\\"
-		" Seems like a escaped character, insert one quotation mark.
-		return a:char
-	elseif line[col + 1] == a:char
-		" Get out of the string.
-		"return delimitMate#WriteBefore(a:char)
-		return a:char . delimitMate#Del()
-	elseif (line[col] =~ '[a-zA-Z0-9]' && a:char == "'") ||
-				\(line[col] =~ '[a-zA-Z0-9]' && b:delimitMate_smart_quotes)
-		" Seems like an apostrophe or a closing, insert a single quote.
-		return a:char
-	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:delimitMate_smart_quotes
-		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
-		call insert(b:delimitMate_buffer, a:char)
-		return delimitMate#WriteAfter(a:char)
-	else
-		" Insert a pair and jump to the middle.
-		call insert(b:delimitMate_buffer, a:char)
-		call delimitMate#WriteAfter(a:char)
-		return a:char
-	endif
-endfunction "}}}
 
 function! delimitMate#MapMsg(msg) "{{{
 	redraw
@@ -577,7 +578,7 @@ function! delimitMate#AutoClose() "{{{
 	while i < len(b:delimitMate_matchpairs_list)
 		let ld = b:delimitMate_left_delims[i]
 		let rd = b:delimitMate_right_delims[i]
-		exec 'inoremap <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#JumpIn("' . rd . '")<CR>'
+		exec 'inoremap <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . rd . '")<CR>'
 		let i += 1
 	endwhile
 
