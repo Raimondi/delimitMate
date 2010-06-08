@@ -106,6 +106,15 @@ function! delimitMate#Init() "{{{
 		" Nothing to do.
 	endif " }}}
 
+	" delimitMate_unbalanced_parens {{{
+	if !exists("b:delimitMate_unbalanced_parens") && !exists("g:delimitMate_unbalanced_parens")
+		let b:delimitMate_unbalanced_parens = 0
+	elseif !exists("b:delimitMate_unbalanced_parens") && exists("g:delimitMate_unbalanced_parens")
+		let b:delimitMate_unbalanced_parens = g:delimitMate_unbalanced_parens
+	else
+		" Nothing to do.
+	endif " }}}
+
 	let b:delimitMate_matchpairs_list = split(s:matchpairs_temp, ',')
 	let b:delimitMate_left_delims = split(s:matchpairs_temp, ':.,\=')
 	let b:delimitMate_right_delims = split(s:matchpairs_temp, ',\=.:')
@@ -349,6 +358,51 @@ function! delimitMate#FlushBuffer() " {{{
 	return ''
 endfunction " }}}
 
+function! delimitMate#BalancedParens(char) "{{{
+	" Returns:
+	" = 0 => Parens balanced.
+	" > 0 => More opening parens.
+	" < 0 => More closing parens.
+
+	let line = getline('.')
+	let col = col('.') - 2
+	let col = col >= 0 ? col : 0
+	let list = split(line, '\zs')
+	let left = b:delimitMate_left_delims[index(b:delimitMate_right_delims, a:char)]
+	let right = a:char
+	let opening = 0
+	let closing = 0
+
+	" If the cursor is not at the beginning, count what's behind it.
+	if col > 0
+		  " Find the first opening paren:
+		  let start = index(list, left)
+		  " Must be before cursor:
+		  let start = start < col ? start : col - 1
+		  " Now count from the first opening until the cursor, this will prevent
+		  " extra closing parens from being counted.
+		  let opening = count(list[start : col - 1], left)
+		  let closing = count(list[start : col - 1], right)
+		  " I don't care if there are more closing parens than opening parens.
+		  let closing = closing > opening ? opening : closing
+	endif
+
+	" Evaluate parens from the cursor to the end:
+	let opening += count(list[col :], left)
+	let closing += count(list[col :], right)
+
+	"echom "–––––––––"
+	"echom line
+	"echom col
+	""echom left.":".a:char
+	"echom string(list)
+	"echom string(list[start : col - 1]) . " : " . string(list[col :])
+	"echom opening . " - " . closing . " = " . (opening - closing)
+
+	" Return the found balance:
+	return opening - closing
+endfunction "}}}
+
 " }}}
 
 " Doers {{{
@@ -384,6 +438,10 @@ endfunction "}}}
 
 function! delimitMate#ParenDelim(char) " {{{
 	if delimitMate#IsForbidden(a:char)
+		return ''
+	endif
+	if b:delimitMate_unbalanced_parens &&
+				\ delimitMate#BalancedParens(a:char) <= 0
 		return ''
 	endif
 	let line = getline('.')
