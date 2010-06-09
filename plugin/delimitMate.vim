@@ -7,7 +7,7 @@
 " Manual:      Read ":help delimitMate".
 
 " Initialization: {{{
-if exists("g:loaded_delimitMate") "{{{
+if exists("g:loaded_delimitMate")
 	" User doesn't want this plugin, let's get out!
 	finish
 endif
@@ -25,9 +25,8 @@ if v:version < 700
 	finish
 endif
 
-let s:loaded_delimitMate = 1 " }}}
+let s:loaded_delimitMate = 1
 let delimitMate_version = "2.4DEV"
-
 "}}}
 
 " Tools: {{{
@@ -57,25 +56,15 @@ endfunction "}}}
 function! s:DelimitMateDo(...) "{{{
 	if exists("g:delimitMate_excluded_ft")
 		" Check if this file type is excluded:
-		for ft in split(g:delimitMate_excluded_ft,',')
-			if ft ==? &filetype
-				"echomsg "excluded"
-				call delimitMate#UnMap()
-				return 1
+		if index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
+			if !exists('b:delimitMate_enabled')
+				call delimitMate#Init()
 			endif
-		endfor
+			call delimitMate#UnMap()
+			return 1
+		endif
 	endif
-	try
-		"echomsg "included"
-		let save_cpo = &cpo
-		let save_keymap = &keymap
-		set keymap=
-		set cpo&vim
-		call delimitMate#Init()
-	finally
-		let &cpo = save_cpo
-		let &keymap = save_keymap
-	endtry
+	call delimitMate#Init()
 	if a:0 > 0
 		echo "delimitMate has been reset."
 	endif

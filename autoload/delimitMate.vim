@@ -122,13 +122,22 @@ function! delimitMate#Init() "{{{
 	let b:delimitMate_buffer = []
 
 	call delimitMate#UnMap()
-	if b:delimitMate_autoclose
-		call delimitMate#AutoClose()
-	else
-		call delimitMate#NoAutoClose()
-	endif
-	call delimitMate#VisualMaps()
-	call delimitMate#ExtraMappings()
+	try
+		let save_cpo = &cpo
+		let save_keymap = &keymap
+		set keymap=
+		set cpo&vim
+		if b:delimitMate_autoclose
+			call delimitMate#AutoClose()
+		else
+			call delimitMate#NoAutoClose()
+		endif
+		call delimitMate#VisualMaps()
+		call delimitMate#ExtraMappings()
+	finally
+		let &cpo = save_cpo
+		let &keymap = save_keymap
+	endtry
 
 	let b:loaded_delimitMate = 1
 	let b:delimitMate_enabled = 1
