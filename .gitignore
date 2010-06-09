@@ -1,4 +1,5 @@
 *.sw?
+*.un?
 *.vba
 *.zip
 *.gz

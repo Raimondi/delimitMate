@@ -186,27 +186,12 @@ function! delimitMate#IsBlockVisual() " {{{
 endfunction " }}}
 
 function! delimitMate#Visual(del) " {{{
-	let mode = mode()
-	if mode == "\<C-V>"
-		redraw
-		echom "delimitMate: delimitMate is disabled on blockwise visual mode."
-		return ""
-	endif
-	" Store unnamed register values for later use in delimitMate#RestoreRegister().
-	let b:save_reg = getreg('"')
-	let b:save_reg_mode = getregtype('"')
-
 	if len(getline('.')) == 0
 		" This for proper wrap of empty lines.
 		let @" = "\n"
 	endif
 
-	if mode ==# "V"
-		let dchar = "\<BS>"
-	else
-		let dchar = ""
-	endif
-
+	" Let's find which kind of delimiter we got:
 	let index = index(b:delimitMate_left_delims, a:del)
 	if index >= 0
 		let ld = a:del
@@ -219,11 +204,24 @@ function! delimitMate#Visual(del) " {{{
 		let rd = a:del
 	endif
 
-	let index = index(b:delimitMate_quotes_list, a:del)
-	if index >= 0
+	if index(b:delimitMate_quotes_list, a:del) >= 0
 		let ld = a:del
 		let rd = ld
 	endif
+
+	let mode = mode()
+	if mode == "\<C-V>"
+		" Block-wise visual
+		return "I" . ld . "\<Esc>gv\<Right>A" . rd . "\<Esc>"
+	elseif mode ==# "V"
+		let dchar = "\<BS>"
+	else
+		let dchar = ""
+	endif
+
+	" Store unnamed register values for later use in delimitMate#RestoreRegister().
+	let b:save_reg = getreg('"')
+	let b:save_reg_mode = getregtype('"')
 
 	return "s" . ld . "\<C-R>\"" . dchar . rd . "\<Esc>:call delimitMate#RestoreRegister()\<CR>"
 endfunction " }}}
