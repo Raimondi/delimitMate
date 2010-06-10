@@ -121,6 +121,7 @@ function! delimitMate#Init() "{{{
 
 	let b:delimitMate_buffer = []
 
+	" Set mappings:
 	call delimitMate#UnMap()
 	try
 		let save_cpo = &cpo

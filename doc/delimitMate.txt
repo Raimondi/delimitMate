@@ -149,8 +149,9 @@ e.g. typing at the "|": >
 When visual mode is active this script allows for the selection to be enclosed
 with delimiters. But, since brackets have special meaning in visual mode, a
 leader (the value of 'mapleader' by default) should precede the delimiter.
-NOTE that this feature brakes the redo command and doesn't currently work on
-blockwise visual mode, any suggestions to fix this will be very welcome.
+NOTE that this feature brakes the redo command and doesn't currently work well
+on blockwise visual mode when the selection has lines one character smaller
+than the rest, any suggestions to fix this will be very welcome.
 
 e.g. (selection represented between square brackets): >
 
@@ -516,7 +517,7 @@ e.g.: You can use this to create your own mapping to jump over any delimiter.
  6. TODO LIST                                                *delimitMateTodo*
 
 - Automatic set-up by file type.
-- Make visual wrapping work on blockwise visual mode.
+- Make block-wise visual wrapping work on un-even regions.
 
 ==============================================================================
  7. MAINTAINER                                         *delimitMateMaintainer*
