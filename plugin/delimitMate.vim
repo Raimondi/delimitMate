@@ -93,19 +93,24 @@ command! DelimitMateTest call s:TestMappingsDo()
 
 " Switch On/Off:
 command! DelimitMateSwitch call s:DelimitMateSwitch()
+"}}}
 
-" Run on file type events.
-"autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
-autocmd FileType * call <SID>DelimitMateDo()
+" Autocommands: {{{
 
-" Run on new buffers.
-autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
+augroup delimitMate
+	au!
+	" Run on file type change.
+	"autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
+	autocmd FileType * call <SID>DelimitMateDo()
 
-" Flush the char buffer:
-autocmd InsertEnter * call delimitMate#FlushBuffer()
-autocmd BufEnter * if mode() == 'i' | call delimitMate#FlushBuffer() | endif
+	" Run on new buffers.
+	autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
 
-"function! s:GetSynRegion () | echo synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') | endfunction
+	" Flush the char buffer:
+	autocmd InsertEnter * call delimitMate#FlushBuffer()
+	autocmd BufEnter * if mode() == 'i' | call delimitMate#FlushBuffer() | endif
+
+augroup END
 
 "}}}
 
