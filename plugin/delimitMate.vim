@@ -7,6 +7,7 @@
 " Manual:      Read ":help delimitMate".
 
 " Initialization: {{{
+
 if exists("g:loaded_delimitMate")
 	" User doesn't want this plugin, let's get out!
 	finish
@@ -29,7 +30,8 @@ let s:loaded_delimitMate = 1
 let delimitMate_version = "2.4DEV"
 "}}}
 
-" Tools: {{{
+" Functions: {{{
+
 function! s:TestMappingsDo() "{{{
 	if !exists("g:delimitMate_testing")
 		silent call delimitMate#TestMappings()
@@ -83,6 +85,7 @@ endfunction "}}}
 "}}}
 
 " Commands: {{{
+
 call s:DelimitMateDo()
 
 " Let me refresh without re-loading the buffer:
