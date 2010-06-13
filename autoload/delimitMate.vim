@@ -59,9 +59,33 @@ function! delimitMate#Init() "{{{
 					\ exists('g:mapleader') ? g:mapleader : "\\")
 
 	" expand_space
+	if exists("b:delimitMate_expand_space") && type(b:delimitMate_expand_space) == type("")
+		echom "b:delimitMate_expand_space is '".b:delimitMate_expand_space."' but it must be either 1 or 0!"
+		echom "Read :help 'delimitMate_expand_space' for more details."
+		unlet b:delimitMate_expand_space
+		let b:delimitMate_expand_space = 1
+	endif
+	if exists("g:delimitMate_expand_space") && type(g:delimitMate_expand_space) == type("")
+		echom "g:delimitMate_expand_space is '".g:delimitMate_expand_space."' but it must be either 1 or 0!"
+		echom "Read :help 'delimitMate_expand_space' for more details."
+		unlet g:delimitMate_expand_space
+		let b:delimitMate_expand_space = 1
+	endif
 	call delimitMate#option_init("expand_space", 0)
 
 	" expand_cr
+	if exists("b:delimitMate_expand_cr") && type(b:delimitMate_expand_cr) == type("")
+		echom "b:delimitMate_expand_cr is '".b:delimitMate_expand_cr."' but it must be either 1 or 0!"
+		echom "Read :help 'delimitMate_expand_cr' for more details."
+		unlet b:delimitMate_expand_cr
+		let b:delimitMate_expand_cr = 1
+	endif
+	if exists("g:delimitMate_expand_cr") && type(g:delimitMate_expand_cr) == type("")
+		echom "g:delimitMate_expand_cr is '".g:delimitMate_expand_cr."' but it must be either 1 or 0!"
+		echom "Read :help 'delimitMate_expand_cr' for more details."
+		unlet g:delimitMate_expand_cr
+		let b:delimitMate_expand_cr = 1
+	endif
 	call delimitMate#option_init("expand_cr", 0)
 
 	" smart_quotes

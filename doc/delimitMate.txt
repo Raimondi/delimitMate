@@ -305,7 +305,7 @@ Default: "\" ' `"                                                            ~
 Use this option to tell delimitMate which characters should be considered as
 quotes. Read |delimitMateAutoClose| for details.
 e.g.: >
-        let b:delimitMate_quotes = "\" ' ` *"
+        let delimitMate_quotes = "\" ' ` *"
         au FileType html let b:delimitMate_quotes = "\" '"
 <
 ------------------------------------------------------------------------------
@@ -329,20 +329,20 @@ Default: 0                                                                   ~
 This option turns on/off the expansion of <CR>. Read |delimitMateExpansion|
 for details.
 e.g.: >
-        let b:delimitMate_expand_cr = "\<CR>\<CR>\<Up>"
-        au FileType mail let b:delimitMate_expand_cr = "\<CR>"
+        let delimitMate_expand_cr = 1
+        au FileType mail let b:delimitMate_expand_cr = 1
 <
 ------------------------------------------------------------------------------
                                                   *'delimitMate_expand_space'*
                                                 *'b:delimitMate_expand_space'*
-Values: A key mapping.                                                       ~
-Default: "\<Space>"                                                          ~
+Values: 1 or 0                                                       ~
+Default: 0                                                          ~
 
 This option turns on/off the expansion of <Space>. Read |delimitMateExpansion|
 for details.
 e.g.: >
-        let delimitMate_expand_space = "\<Space>\<Space>\<Left>"
-        au FileType tcl let b:delimitMate_expand_space = "\<Space>"
+        let delimitMate_expand_space = 1
+        au FileType tcl let b:delimitMate_expand_space = 1
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_excluded_ft'*
