@@ -7,128 +7,88 @@
 " Manual:      Read ":help delimitMate".
 
 " Utilities {{{
+
+function! delimitMate#option_init(name, default) "{{{
+	let b = exists("b:delimitMate_" . a:name)
+	let g = exists("g:delimitMate_" . a:name)
+	let prefix = "delimitMate_l_"
+
+	if type(a:default) == type("")
+		let default = '"'.escape(a:default, '"').'"'
+	else
+		let default = a:default
+	endif
+
+	if !b && !g
+		let sufix = default
+	elseif !b && g
+		let sufix = "g:delimitMate_" . a:name
+	else
+		let sufix = "b:delimitMate_" . a:name
+	endif
+	if exists("b:" . prefix . a:name)
+		exec "unlockvar! b:" . prefix . a:name
+	endif
+	exec "let b:" . prefix . a:name . " = " . sufix
+	exec "lockvar! b:" . prefix . a:name
+endfunction "}}}
+
 function! delimitMate#Init() "{{{
-" Initialize variables:
+" Initialize variables: {{{
 
-	" delimitMate_autoclose {{{
-	if !exists("b:delimitMate_autoclose") && !exists("g:delimitMate_autoclose")
-		let b:delimitMate_autoclose = 1
-	elseif !exists("b:delimitMate_autoclose") && exists("g:delimitMate_autoclose")
-		let b:delimitMate_autoclose = g:delimitMate_autoclose
-	else
-		" Nothing to do.
-	endif " }}}
+	" autoclose
+	call delimitMate#option_init("autoclose", 1)
 
-	" delimitMate_matchpairs {{{
-	if !exists("b:delimitMate_matchpairs") && !exists("g:delimitMate_matchpairs")
-		let s:matchpairs_temp = &matchpairs
-	elseif exists("b:delimitMate_matchpairs")
-		let s:matchpairs_temp = b:delimitMate_matchpairs
-	else
-		let s:matchpairs_temp = g:delimitMate_matchpairs
-	endif " }}}
+	" matchpairs
+	call delimitMate#option_init("matchpairs", string(&matchpairs)[1:-2])
+	let b:delimitMate_matchpairs_list = split(b:delimitMate_l_matchpairs, ',')
+	let b:delimitMate_left_delims = split(b:delimitMate_l_matchpairs, ':.,\=')
+	let b:delimitMate_right_delims = split(b:delimitMate_l_matchpairs, ',\=.:')
 
-	" delimitMate_quotes {{{
-	if exists("b:delimitMate_quotes")
-		let s:quotes = split(b:delimitMate_quotes)
-	elseif exists("g:delimitMate_quotes")
-		let s:quotes = split(g:delimitMate_quotes)
-	else
-		let s:quotes = split("\" ' `")
-	endif
-	let b:delimitMate_quotes_list = s:quotes " }}}
+	" quotes
+	call delimitMate#option_init("quotes", "\" ' `")
+	let b:delimitMate_quotes_list = split(b:delimitMate_l_quotes)
 
-	" delimitMate_excluded_regions {{{
-	if exists("b:delimitMate_excluded_regions")
-		let s:excluded_regions = b:delimitMate_excluded_regions
-	elseif exists("g:delimitMate_excluded_regions")
-		let s:excluded_regions = g:delimitMate_excluded_regions
-	else
-		let s:excluded_regions = "Comment"
-	endif
-	let b:delimitMate_excluded_regions_list = split(s:excluded_regions, ',\s*')
-	let b:delimitMate_excluded_regions_enabled = len(b:delimitMate_excluded_regions_list) " }}}
+	" excluded_regions
+	call delimitMate#option_init("excluded_regions", "Comment")
+	let b:delimitMate_excluded_regions_list = split(b:delimitMate_l_excluded_regions, ',\s*')
+	let b:delimitMate_excluded_regions_enabled = len(b:delimitMate_excluded_regions_list) > 0
 
-	" delimitMate_visual_leader {{{
-	if !exists("b:delimitMate_visual_leader") && !exists("g:delimitMate_visual_leader")
-		let b:delimitMate_visual_leader = exists('b:maplocalleader') ? b:maplocalleader :
-					\ exists('g:mapleader') ? g:mapleader : "\\"
-	elseif !exists("b:delimitMate_visual_leader") && exists("g:delimitMate_visual_leader")
-		let b:delimitMate_visual_leader = g:delimitMate_visual_leader
-	else
-		" Nothing to do.
-	endif " }}}
+	" visual_leader
+	call delimitMate#option_init("visual_leader", exists('b:maplocalleader') ? b:maplocalleader :
+					\ exists('g:mapleader') ? g:mapleader : "\\")
 
-	" delimitMate_expand_space {{{
-	if !exists("b:delimitMate_expand_space") && !exists("g:delimitMate_expand_space")
-		let b:delimitMate_expand_space = 0
-	elseif !exists("b:delimitMate_expand_space") && exists("g:delimitMate_expand_space")
-		let b:delimitMate_expand_space = g:delimitMate_expand_space
-	else
-		" Nothing to do.
-	endif " }}}
+	" expand_space
+	call delimitMate#option_init("expand_space", 0)
 
-	" delimitMate_expand_cr {{{
-	if !exists("b:delimitMate_expand_cr") && !exists("g:delimitMate_expand_cr")
-		let b:delimitMate_expand_cr = 0
-	elseif !exists("b:delimitMate_expand_cr") && exists("g:delimitMate_expand_cr")
-		let b:delimitMate_expand_cr = g:delimitMate_expand_cr
-	else
-		" Nothing to do.
-	endif " }}}
+	" expand_cr
+	call delimitMate#option_init("expand_cr", 0)
 
-	" delimitMate_smart_quotes {{{
-	if !exists("b:delimitMate_smart_quotes") && !exists("g:delimitMate_smart_quotes")
-		let b:delimitMate_smart_quotes = 1
-	elseif !exists("b:delimitMate_smart_quotes") && exists("g:delimitMate_smart_quotes")
-		let b:delimitMate_smart_quotes = split(g:delimitMate_smart_quotes)
-	else
-		" Nothing to do.
-	endif " }}}
+	" smart_quotes
+	call delimitMate#option_init("smart_quotes", 1)
 
-	" delimitMate_apostrophes {{{
-	if !exists("b:delimitMate_apostrophes") && !exists("g:delimitMate_apostrophes")
-		"let s:apostrophes = split("n't:'s:'re:'m:'d:'ll:'ve:s'",':')
-		let s:apostrophes = []
-	elseif !exists("b:delimitMate_apostrophes") && exists("g:delimitMate_apostrophes")
-		let s:apostrophes = split(g:delimitMate_apostrophes)
-	else
-		let s:apostrophes = split(b:delimitMate_apostrophes)
-	endif
-		let b:delimitMate_apostrophes_list = s:apostrophes " }}}
+	" apostrophes
+	call delimitMate#option_init("apostrophes", "")
+	let b:delimitMate_apostrophes_list = split(b:delimitMate_l_apostrophes, ":\s*")
 
-	" delimitMate_tab2exit {{{
-	if !exists("b:delimitMate_tab2exit") && !exists("g:delimitMate_tab2exit")
-		let b:delimitMate_tab2exit = 1
-	elseif !exists("b:delimitMate_tab2exit") && exists("g:delimitMate_tab2exit")
-		let b:delimitMate_tab2exit = g:delimitMate_tab2exit
-	else
-		" Nothing to do.
-	endif " }}}
+	" tab2exit
+	call delimitMate#option_init("tab2exit", 1)
 
-	" delimitMate_unbalanced_parens {{{
-	if !exists("b:delimitMate_unbalanced_parens") && !exists("g:delimitMate_unbalanced_parens")
-		let b:delimitMate_unbalanced_parens = 0
-	elseif !exists("b:delimitMate_unbalanced_parens") && exists("g:delimitMate_unbalanced_parens")
-		let b:delimitMate_unbalanced_parens = g:delimitMate_unbalanced_parens
-	else
-		" Nothing to do.
-	endif " }}}
-
-	let b:delimitMate_matchpairs_list = split(s:matchpairs_temp, ',')
-	let b:delimitMate_left_delims = split(s:matchpairs_temp, ':.,\=')
-	let b:delimitMate_right_delims = split(s:matchpairs_temp, ',\=.:')
+	" unbalanced_parens
+	call delimitMate#option_init("unbalanced_parens", 0)
 
 	let b:delimitMate_buffer = []
 
-	" Set mappings:
+	" }}}
+
+	" Set mappings: {{{
 	call delimitMate#UnMap()
 	try
 		let save_cpo = &cpo
 		let save_keymap = &keymap
 		set keymap=
 		set cpo&vim
-		if b:delimitMate_autoclose
+		if b:delimitMate_l_autoclose
 			call delimitMate#AutoClose()
 		else
 			call delimitMate#NoAutoClose()
@@ -142,6 +102,8 @@ function! delimitMate#Init() "{{{
 
 	let b:loaded_delimitMate = 1
 	let b:delimitMate_enabled = 1
+	" }}}
+
 endfunction "}}} Init()
 
 function! delimitMate#ShouldJump() "{{{
@@ -158,7 +120,7 @@ function! delimitMate#ShouldJump() "{{{
 	endfor
 
 	let nchar = getline('.')[col]
-	if b:delimitMate_expand_space && char == " "
+	if b:delimitMate_l_expand_space && char == " "
 		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 			if nchar == cdel
 				" Closing delimiter with space expansion.
@@ -168,7 +130,7 @@ function! delimitMate#ShouldJump() "{{{
 	endif
 
 	let uchar = getline(line('.') + 1)[0]
-	if b:delimitMate_expand_cr && char == ""
+	if b:delimitMate_l_expand_cr && char == ""
 		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 			if uchar == cdel
 				" Closing delimiter with CR expansion.
@@ -448,7 +410,7 @@ function! delimitMate#ParenDelim(char) " {{{
 	if delimitMate#IsForbidden(a:char)
 		return ''
 	endif
-	if b:delimitMate_unbalanced_parens &&
+	if b:delimitMate_l_unbalanced_parens &&
 				\ delimitMate#BalancedParens(a:char) <= 0
 		return ''
 	endif
@@ -479,10 +441,10 @@ function! delimitMate#QuoteDelim(char) "{{{
 		"return delimitMate#WriteBefore(a:char)
 		return a:char . delimitMate#Del()
 	elseif (line[col] =~ '[a-zA-Z0-9]' && a:char == "'") ||
-				\(line[col] =~ '[a-zA-Z0-9]' && b:delimitMate_smart_quotes)
+				\(line[col] =~ '[a-zA-Z0-9]' && b:delimitMate_l_smart_quotes)
 		" Seems like an apostrophe or a closing, insert a single quote.
 		return a:char
-	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:delimitMate_smart_quotes
+	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:delimitMate_l_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
 		call insert(b:delimitMate_buffer, a:char)
 		return delimitMate#WriteAfter(a:char)
@@ -668,7 +630,7 @@ endfunction "}}}
 
 function! delimitMate#VisualMaps() " {{{
 	let VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
-	let vleader = b:delimitMate_visual_leader
+	let vleader = b:delimitMate_l_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	for del in b:delimitMate_right_delims + b:delimitMate_left_delims + b:delimitMate_quotes_list
 		exec "vnoremap <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
@@ -683,17 +645,17 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <buffer> <expr> <S-BS> delimitMate#WithinEmptyPair() && !delimitMate#IsForbidden("") ? "\<Del>" : "\<S-BS>"
 
 	" Expand return if inside an empty pair:
-	if b:delimitMate_expand_cr != 0
+	if b:delimitMate_l_expand_cr != 0
 		inoremap <buffer> <CR> <C-R>=delimitMate#ExpandReturn()<CR>
 	endif
 
 	" Expand space if inside an empty pair:
-	if b:delimitMate_expand_space != 0
+	if b:delimitMate_l_expand_space != 0
 		inoremap <buffer> <Space> <C-R>=delimitMate#ExpandSpace()<CR>
 	endif
 
 	" Jump out ot any empty pair:
-	if b:delimitMate_tab2exit
+	if b:delimitMate_l_tab2exit
 		inoremap <buffer> <S-Tab> <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
 	endif
 
@@ -740,10 +702,10 @@ function! delimitMate#UnMap() " {{{
 		endif
 	endfor
 
-	if !exists("b:delimitMate_visual_leader")
+	if !exists("b:delimitMate_l_visual_leader")
 		let vleader = ""
 	else
-		let vleader = b:delimitMate_visual_leader
+		let vleader = b:delimitMate_l_visual_leader
 	endif
 	for map in vmaps
 		if maparg(vleader . map, "v") =~? "delimitMate"
@@ -758,19 +720,19 @@ endfunction " }}} delimitMate#UnMap()
 
 " Tools: {{{
 function! delimitMate#TestMappings() "{{{
-	exec "normal i*b:delimitMate_autoclose = " . b:delimitMate_autoclose . "\<CR>"
-	exec "normal i*b:delimitMate_expand_space = " . b:delimitMate_expand_space . "\<CR>"
-	exec "normal i*b:delimitMate_expand_cr = " . b:delimitMate_expand_cr . "\<CR>\<CR>"
+	exec "normal i*b:delimitMate_l_autoclose = " . b:delimitMate_l_autoclose . "\<CR>"
+	exec "normal i*b:delimitMate_l_expand_space = " . b:delimitMate_l_expand_space . "\<CR>"
+	exec "normal i*b:delimitMate_l_expand_cr = " . b:delimitMate_l_expand_cr . "\<CR>\<CR>"
 
-	if b:delimitMate_autoclose
+	if b:delimitMate_l_autoclose
 		for i in range(len(b:delimitMate_left_delims))
 			exec "normal GGAOpen & close: " . b:delimitMate_left_delims[i]. "|"
 			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . "\<BS>|"
 			exec "normal A\<CR>Exit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_left_delims[i] . " |"
 			exec "normal A\<CR>Delete space: " . b:delimitMate_left_delims[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_left_delims[i]
-			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_right_delims[i]
+			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_left_delims[i]
+			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_right_delims[i]
 			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . "\<CR>|"
 			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
@@ -780,7 +742,7 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . " |"
 			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes_list[i]
+			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_quotes_list[i]
 			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . "\<CR>|"
 			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
@@ -791,8 +753,8 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal A\<CR>Exit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . b:delimitMate_right_delims[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " |"
 			exec "normal A\<CR>Delete space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_left_delims[i]
-			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_right_delims[i]
+			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_left_delims[i]
+			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_right_delims[i]
 			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>|"
 			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
@@ -802,7 +764,7 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
 			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " |"
 			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_visual_leader . b:delimitMate_quotes_list[i]
+			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_quotes_list[i]
 			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>|"
 			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
 		endfor
