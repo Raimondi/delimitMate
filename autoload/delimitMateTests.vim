@@ -1,9 +1,11 @@
-function! delimitMateTests#Main() " {{{
+function! delimitMateTests#Main()
 	if !exists("g:delimitMate_testing")
 		echoerr "delimitMateTests#Main(): If you really want to use me, you must set delimitMate_testing to any value."
 		return
 	endif
 	nmap <F1> :qall!<CR>
+	let nomore = &more
+	set nomore
 	let b:test_results = {}
 	let b:errors = 0
 	let b:corrects = 0
@@ -45,6 +47,7 @@ function! delimitMateTests#Main() " {{{
 			normal gg.
 		endif
 
+		exec "normal \<Esc>"
 		call setpos('.', [0, 1, 1, 0])
 		let result = len(a:output) != line('$')
 		for line in a:output
@@ -267,6 +270,8 @@ function! delimitMateTests#Main() " {{{
 	hi def link resultSummary SpecialComment
 	hi def link resultSummaryNumber Error
 	" }}}
-endfunction " }}}
+
+	let &more = nomore
+endfunction
 " vim:foldmethod=marker:foldcolumn=4
 
