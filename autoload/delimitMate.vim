@@ -752,55 +752,58 @@ endfunction " }}} delimitMate#UnMap()
 
 " Tools: {{{
 function! delimitMate#TestMappings() "{{{
-	exec "normal i*b:delimitMate_l_autoclose = " . b:delimitMate_l_autoclose . "\<CR>"
-	exec "normal i*b:delimitMate_l_expand_space = " . b:delimitMate_l_expand_space . "\<CR>"
-	exec "normal i*b:delimitMate_l_expand_cr = " . b:delimitMate_l_expand_cr . "\<CR>\<CR>"
-
+	exec "normal i*b:delimitMate_l_autoclose = " . b:delimitMate_l_autoclose . "\<Esc>o"
+	exec "normal i*b:delimitMate_l_expand_space = " . b:delimitMate_l_expand_space . "\<Esc>o"
+	exec "normal i*b:delimitMate_l_expand_cr = " . b:delimitMate_l_expand_cr . "\<Esc>o\<Esc>o"
+	echom b:delimitMate_l_autoclose.b:delimitMate_l_expand_space.b:delimitMate_l_expand_cr
 	if b:delimitMate_l_autoclose
+		" {{{
 		for i in range(len(b:delimitMate_left_delims))
-			exec "normal GGAOpen & close: " . b:delimitMate_left_delims[i]. "|"
-			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . "\<BS>|"
-			exec "normal A\<CR>Exit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "|"
-			exec "normal A\<CR>Space: " . b:delimitMate_left_delims[i] . " |"
-			exec "normal A\<CR>Delete space: " . b:delimitMate_left_delims[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_left_delims[i]
-			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_right_delims[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . "\<CR>|"
-			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal GGoOpen & close: " . b:delimitMate_left_delims[i]. "|"
+			exec "normal oDelete: " . b:delimitMate_left_delims[i] . "\<BS>|"
+			exec "normal oExit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "|"
+			exec "normal oSpace: " . b:delimitMate_left_delims[i] . " |"
+			exec "normal oDelete space: " . b:delimitMate_left_delims[i] . " \<BS>|"
+			exec "normal GGoVisual-L: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_left_delims[i]
+			exec "normal oVisual-R: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_right_delims[i]
+			exec "normal oCar return: " . b:delimitMate_left_delims[i] . "\<CR>|"
+			exec "normal GGoDelete car return: " . b:delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
 		endfor
 		for i in range(len(b:delimitMate_quotes_list))
 			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. "|"
-			exec "normal A\<CR>Delete: "
-			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
-			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . " |"
-			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_quotes_list[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . "\<CR>|"
-			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal oDelete: "
+			exec "normal oExit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
+			exec "normal oSpace: " . b:delimitMate_quotes_list[i] . " |"
+			exec "normal oDelete space: " . b:delimitMate_quotes_list[i] . " \<BS>|"
+			exec "normal GGoVisual: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_quotes_list[i]
+			exec "normal oCar return: " . b:delimitMate_quotes_list[i] . "\<CR>|"
+			exec "normal GGoDelete car return: " . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
 		endfor
+		"}}}
 	else
+		"{{{
 		for i in range(len(b:delimitMate_left_delims))
-			exec "normal GGAOpen & close: " . b:delimitMate_left_delims[i]	. b:delimitMate_right_delims[i] . "|"
-			exec "normal A\<CR>Delete: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<BS>|"
-			exec "normal A\<CR>Exit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . b:delimitMate_right_delims[i] . "|"
-			exec "normal A\<CR>Space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " |"
-			exec "normal A\<CR>Delete space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual-L: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_left_delims[i]
-			exec "normal A\<CR>Visual-R: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_right_delims[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>|"
-			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal GGoOpen & close: " . b:delimitMate_left_delims[i]	. b:delimitMate_right_delims[i] . "|"
+			exec "normal oDelete: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<BS>|"
+			exec "normal oExit: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . b:delimitMate_right_delims[i] . "|"
+			exec "normal oSpace: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " |"
+			exec "normal oDelete space: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . " \<BS>|"
+			exec "normal GGoVisual-L: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_left_delims[i]
+			exec "normal oVisual-R: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_right_delims[i]
+			exec "normal oCar return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>|"
+			exec "normal GGoDelete car return: " . b:delimitMate_left_delims[i] . b:delimitMate_right_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
 		endfor
 		for i in range(len(b:delimitMate_quotes_list))
-			exec "normal GGAOpen & close: " . b:delimitMate_quotes_list[i]	. b:delimitMate_quotes_list[i] . "|"
-			exec "normal A\<CR>Delete: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<BS>|"
-			exec "normal A\<CR>Exit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
-			exec "normal A\<CR>Space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " |"
-			exec "normal A\<CR>Delete space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " \<BS>|"
-			exec "normal GGA\<CR>Visual: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_quotes_list[i]
-			exec "normal A\<CR>Car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>|"
-			exec "normal GGA\<CR>Delete car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<CR>\<CR>"
+			exec "normal GGoOpen & close: " . b:delimitMate_quotes_list[i]	. b:delimitMate_quotes_list[i] . "|"
+			exec "normal oDelete: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<BS>|"
+			exec "normal oExit: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "|"
+			exec "normal oSpace: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " |"
+			exec "normal oDelete space: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . " \<BS>|"
+			exec "normal GGoVisual: v\<Esc>v" . b:delimitMate_l_visual_leader . b:delimitMate_quotes_list[i]
+			exec "normal oCar return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>|"
+			exec "normal GGoDelete car return: " . b:delimitMate_quotes_list[i] . b:delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
 		endfor
-	endif
+	endif "}}}
 	exec "normal \<Esc>i"
 endfunction "}}}
 
