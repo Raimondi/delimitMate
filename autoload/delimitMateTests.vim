@@ -3,7 +3,7 @@ function! delimitMateTests#Main()
 		echoerr "delimitMateTests#Main(): If you really want to use me, you must set delimitMate_testing to any value."
 		return
 	elseif g:delimitMate_testing == "fork"
-		!gvim -N -u NONE -U NONE -c "set backspace=eol,start" -c "let delimitMate_testing = 1" -c "so autoload/delimitMate.vim" -c "so autoload/delimitMateTests.vim" -c "so plugin/delimitMate.vim" -c "call delimitMateTests\#Main()"
+		!gvim -N -u NONE -U NONE -c "set backspace=eol,start" -c "set background=light" -c "syntax on" -c "let delimitMate_testing = 1" -c "so autoload/delimitMate.vim" -c "so autoload/delimitMateTests.vim" -c "so plugin/delimitMate.vim" -c "call delimitMateTests\#Main()"
 		return ""
 	endif
 	nmap <F1> :qall!<CR>
