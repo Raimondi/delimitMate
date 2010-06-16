@@ -14,7 +14,7 @@ function! delimitMate#option_init(name, default) "{{{
 	let prefix = "delimitMate_l_"
 
 	if type(a:default) == type("")
-		let default = '"'.escape(a:default, '"').'"'
+		let default = '"'.escape(a:default, '"\\').'"'
 	else
 		let default = a:default
 	endif
