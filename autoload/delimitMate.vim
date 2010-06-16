@@ -103,10 +103,12 @@ function! delimitMate#Init() "{{{
 
 	let b:delimitMate_buffer = []
 
-	" }}}
+	let b:loaded_delimitMate = 1
 
-	" Set mappings: {{{
-	call delimitMate#UnMap()
+endfunction "}}} Init()
+
+function! delimitMate#Map() "{{{
+	" Set mappings:
 	try
 		let save_cpo = &cpo
 		let save_keymap = &keymap
@@ -124,11 +126,9 @@ function! delimitMate#Init() "{{{
 		let &keymap = save_keymap
 	endtry
 
-	let b:loaded_delimitMate = 1
 	let b:delimitMate_enabled = 1
-	" }}}
 
-endfunction "}}} Init()
+endfunction "}}} Map()
 
 function! delimitMate#ShouldJump() "{{{
 	" Returns 1 if the next character is a closing delimiter.

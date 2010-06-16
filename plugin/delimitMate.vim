@@ -43,6 +43,8 @@ function! s:TestMappingsDo() "{{{
 			for a in [0,1]
 				let b:delimitMate_autoclose = a
 				call delimitMate#Init()
+				call delimitMate#UnMap()
+				call delimitMate#Map()
 				call delimitMate#TestMappings()
 				exec "normal i\<CR>"
 			endfor
@@ -56,28 +58,41 @@ function! s:TestMappingsDo() "{{{
 endfunction "}}}
 
 function! s:DelimitMateDo(...) "{{{
-	if exists("g:delimitMate_excluded_ft")
-		" Check if this file type is excluded:
-		if index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
-			if !exists('b:delimitMate_enabled')
-				call delimitMate#Init()
-			endif
-			call delimitMate#UnMap()
-			return 1
-		endif
-	endif
+	" Initialize settings:
 	call delimitMate#Init()
+
+	" Check if this file type is excluded:
+	if exists("g:delimitMate_excluded_ft") &&
+				\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
+
+			" Remove any magic:
+			call delimitMate#UnMap()
+
+			" Finish here:
+			return 1
+	endif
+
+	" First, remove all magic, if needed:
+	if exists("b:delimitMate_enabled") && b:delimitMate_enabled == 1
+		call delimitMate#UnMap()
+	endif
+
+	" Now, add magic:
+	call delimitMate#Map()
+
 	if a:0 > 0
 		echo "delimitMate has been reset."
 	endif
 endfunction "}}}
 
 function! s:DelimitMateSwitch() "{{{
-	if b:delimitMate_enabled
+	call delimitMate#Init()
+	if exists("b:delimitMate_enabled") && b:delimitMate_enabled
 		call delimitMate#UnMap()
 		echo "delimitMate has been disabled."
 	else
-		call delimitMate#Init()
+		call delimitMate#UnMap()
+		call delimitMate#Map()
 		echo "delimitMate has been enabled."
 	endif
 endfunction "}}}
