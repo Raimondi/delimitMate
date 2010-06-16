@@ -46,7 +46,7 @@ function! s:TestMappingsDo() "{{{
 				call delimitMate#UnMap()
 				call delimitMate#Map()
 				call delimitMate#TestMappings()
-				exec "normal i\<CR>"
+				normal o
 			endfor
 		endfor
 		let b:delimitMate_expand_space = temp_varsDM[0]
@@ -122,11 +122,17 @@ augroup delimitMate
 	autocmd FileType * call <SID>DelimitMateDo()
 
 	" Run on new buffers.
-	autocmd BufNewFile,BufRead,BufEnter * if !exists("b:loaded_delimitMate") | call <SID>DelimitMateDo() | endif
+	autocmd BufNewFile,BufRead,BufEnter *
+				\ if !exists("b:loaded_delimitMate") |
+				\ call <SID>DelimitMateDo() |
+				\ endif
 
 	" Flush the char buffer:
 	autocmd InsertEnter * call delimitMate#FlushBuffer()
-	autocmd BufEnter * if mode() == 'i' | call delimitMate#FlushBuffer() | endif
+	autocmd BufEnter *
+				\ if mode() == 'i' |
+				\ call delimitMate#FlushBuffer() |
+				\ endif
 
 augroup END
 

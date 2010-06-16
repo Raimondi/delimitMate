@@ -34,7 +34,7 @@ function! delimitMate#option_init(name, default) "{{{
 endfunction "}}}
 
 function! delimitMate#Init() "{{{
-" Initialize variables: {{{
+" Initialize variables:
 
 	" autoclose
 	call delimitMate#option_init("autoclose", 1)
@@ -66,7 +66,7 @@ function! delimitMate#Init() "{{{
 		let b:delimitMate_expand_space = 1
 	endif
 	if exists("g:delimitMate_expand_space") && type(g:delimitMate_expand_space) == type("")
-		echom "g:delimitMate_expand_space is '".g:delimitMate_expand_space."' but it must be either 1 or 0!"
+		echom "delimitMate_expand_space is '".g:delimitMate_expand_space."' but it must be either 1 or 0!"
 		echom "Read :help 'delimitMate_expand_space' for more details."
 		unlet g:delimitMate_expand_space
 		let b:delimitMate_expand_space = 1
@@ -81,7 +81,7 @@ function! delimitMate#Init() "{{{
 		let b:delimitMate_expand_cr = 1
 	endif
 	if exists("g:delimitMate_expand_cr") && type(g:delimitMate_expand_cr) == type("")
-		echom "g:delimitMate_expand_cr is '".g:delimitMate_expand_cr."' but it must be either 1 or 0!"
+		echom "delimitMate_expand_cr is '".g:delimitMate_expand_cr."' but it must be either 1 or 0!"
 		echom "Read :help 'delimitMate_expand_cr' for more details."
 		unlet g:delimitMate_expand_cr
 		let b:delimitMate_expand_cr = 1
@@ -140,28 +140,28 @@ function! delimitMate#ShouldJump() "{{{
 	let lcol = col('$')
 	let char = getline('.')[col - 1]
 
+	" Closing delimiter on the right.
 	for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 		if char == cdel
-			" Closing delimiter on the right.
 			return 1
 		endif
 	endfor
 
+	" Closing delimiter with space expansion.
 	let nchar = getline('.')[col]
 	if b:delimitMate_l_expand_space && char == " "
 		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 			if nchar == cdel
-				" Closing delimiter with space expansion.
 				return 1
 			endif
 		endfor
 	endif
 
+	" Closing delimiter with CR expansion.
 	let uchar = getline(line('.') + 1)[0]
 	if b:delimitMate_l_expand_cr && char == ""
 		for cdel in b:delimitMate_right_delims + b:delimitMate_quotes_list
 			if uchar == cdel
-				" Closing delimiter with CR expansion.
 				return 1
 			endif
 		endfor

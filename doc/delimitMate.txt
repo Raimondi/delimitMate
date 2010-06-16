@@ -335,8 +335,8 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                   *'delimitMate_expand_space'*
                                                 *'b:delimitMate_expand_space'*
-Values: 1 or 0                                                       ~
-Default: 0                                                          ~
+Values: 1 or 0                                                               ~
+Default: 0                                                                   ~
 
 This option turns on/off the expansion of <Space>. Read |delimitMateExpansion|
 for details.
