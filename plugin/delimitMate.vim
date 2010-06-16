@@ -36,7 +36,7 @@ function! s:TestMappingsDo() "{{{
 	if !exists("g:delimitMate_testing")
 		silent call delimitMate#TestMappings()
 	else
-		let temp_varsDM = [b:delimitMate_expand_space, b:delimitMate_expand_cr, b:delimitMate_autoclose]
+		let temp_varsDM = [b:delimitMate_l_expand_space, b:delimitMate_l_expand_cr, b:delimitMate_l_autoclose]
 		for i in [0,1]
 			let b:delimitMate_expand_space = i
 			let b:delimitMate_expand_cr = i
