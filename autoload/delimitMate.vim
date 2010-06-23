@@ -706,7 +706,7 @@ function! delimitMate#ExtraMappings() "{{{
 	"processes the escape sequence for terminal keys, see 'ttimeout' for a
 	"rough explanation, this just forces it to work
 	if !has('gui_running')
-		inoremap <silent> <silent> <C-[>OC <RIGHT>
+		inoremap <silent> <C-[>OC <RIGHT>
 	endif
 endfunction "}}}
 
