@@ -670,7 +670,7 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <buffer> <BS> <C-R>=delimitMate#BS()<CR>
 
 	" If pair is empty, delete closing delimiter:
-	inoremap <buffer> <expr> <S-BS> delimitMate#WithinEmptyPair() && !delimitMate#IsForbidden("") ? "\<Del>" : "\<S-BS>"
+	inoremap <buffer> <expr> <S-BS> delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#Del()\<CR>" : "\<S-BS>"
 
 	" Expand return if inside an empty pair:
 	if b:delimitMate_l_expand_cr != 0
