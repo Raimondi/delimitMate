@@ -472,9 +472,15 @@ Functions should be used enclosed between <C-R>= and <CR>, otherwise they
 might not work as expected or at all.
 
 ------------------------------------------------------------------------------
-delimitMate#WithinEmptyPair()                    *delimitMate_WithinEmptyPair*
+delimitMate#WithinEmptyPair()                  *delimitMate_WithinEmptyPair()*
 
 Returns 1 if the cursor is inside an empty pair, 0 otherwise.
+e.g.: >
+
+    inoremap <expr> <CR> delimitMate#WithinEmptyPair() ?
+             \ "\<C-R>=delimitMate#ExpandReturn()\<CR>" :
+             \ "external_mapping"
+<
 
 ------------------------------------------------------------------------------
 delimitMate#ExpandReturn()                        *delimitMate#ExpandReturn()*
@@ -485,7 +491,8 @@ Returns the expansion for <CR> if enabled and inside an empty pair, returns
 e.g.: This mapping could be used to select an item on a pop-up menu or expand
 <CR> inside an empty pair: >
 
-        inoremap <expr> <CR> pumvisible() ? "\<c-y>" :
+        inoremap <expr> <CR> pumvisible() ?
+                 \"\<c-y>" :
                  \ "\<C-R>=delimitMate#ExpandReturn()\<CR>"
 <
 ------------------------------------------------------------------------------
