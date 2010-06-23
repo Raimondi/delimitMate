@@ -170,21 +170,6 @@ function! delimitMate#ShouldJump() "{{{
 	return 0
 endfunction "}}}
 
-function! delimitMate#IsBlockVisual() " {{{
-	if mode() == "\<C-V>"
-		return 1
-	endif
-	" Store unnamed register values for later use in delimitMate#RestoreRegister().
-	let b:save_reg = getreg('"')
-	let b:save_reg_mode = getregtype('"')
-
-	if len(getline('.')) == 0
-		" This for proper wrap of empty lines.
-		let @" = "\n"
-	endif
-	return 0
-endfunction " }}}
-
 function! delimitMate#Visual(del) " {{{
 	if len(getline('.')) == 0
 		" This for proper wrap of empty lines.
@@ -308,7 +293,7 @@ function! delimitMate#WriteAfter(str) "{{{
 endfunction " }}}
 
 function! delimitMate#RestoreRegister() " {{{
-	" Restore unnamed register values store in delimitMate#IsBlockVisual().
+	" Restore unnamed register values stored in delimitMate#Visual().
 	call setreg('"', b:save_reg, b:save_reg_mode)
 	echo ""
 endfunction " }}}
