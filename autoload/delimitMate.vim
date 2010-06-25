@@ -13,23 +13,17 @@ function! delimitMate#option_init(name, default) "{{{
 	let g = exists("g:delimitMate_" . a:name)
 	let prefix = "_l_delimitMate_"
 
-	if type(a:default) == type("")
-		let default = '"'.escape(a:default, '"\\').'"'
-	else
-		let default = a:default
-	endif
-
 	if !b && !g
-		let sufix = default
+		let sufix = a:default
 	elseif !b && g
-		let sufix = "g:delimitMate_" . a:name
+		exec "let sufix = g:delimitMate_" . a:name
 	else
-		let sufix = "b:delimitMate_" . a:name
+		exec "let sufix = b:delimitMate_" . a:name
 	endif
 	if exists("b:" . prefix . a:name)
 		exec "unlockvar! b:" . prefix . a:name
 	endif
-	exec "let b:" . prefix . a:name . " = " . sufix
+	exec "let b:" . prefix . a:name . " = " . string(sufix)
 	exec "lockvar! b:" . prefix . a:name
 endfunction "}}}
 
@@ -214,7 +208,6 @@ endfunction " }}}
 
 function! delimitMate#IsEmptyPair(str) "{{{
 	for pair in b:_l_delimitMate_matchpairs_list
-		echom string(pair)
 		if a:str == join( split( pair, ':' ),'' )
 			return 1
 		endif
