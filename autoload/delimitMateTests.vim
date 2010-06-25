@@ -251,9 +251,10 @@ function! delimitMateTests#Main()
 	call append(0, "*TESTS REPORT: " . b:errors . " failed, " . b:corrects . " passed and " . b:ignores . " ignored.")
 	normal "_ddgg
 	let @/ = ".\\+Failed:.*!="
+	2,$sort /^.\+':/
+	normal gg
+	exec search('Ignored:','nW').",$sort! /^.\\+':/"
 	set nohlsearch
-	"syntax match failedLine "^.*Failed.*$" contains=ALL
-	"syn match passedLine ".*Passed.*"
 	syn match lineIgnored ".*Ignored.*"
 	syn match labelPassed "'\@<=.\+\(': 'Passed\)\@="
 	syn match labelFailed "'\@<=.\+\(': 'Failed\)\@="
