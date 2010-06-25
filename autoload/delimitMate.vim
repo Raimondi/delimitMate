@@ -64,7 +64,7 @@ function! delimitMate#Init() "{{{
 		echom "delimitMate_expand_space is '".g:delimitMate_expand_space."' but it must be either 1 or 0!"
 		echom "Read :help 'delimitMate_expand_space' for more details."
 		unlet g:delimitMate_expand_space
-		let b:delimitMate_expand_space = 1
+		let g:delimitMate_expand_space = 1
 	endif
 	call delimitMate#option_init("expand_space", 0)
 
@@ -79,7 +79,7 @@ function! delimitMate#Init() "{{{
 		echom "delimitMate_expand_cr is '".g:delimitMate_expand_cr."' but it must be either 1 or 0!"
 		echom "Read :help 'delimitMate_expand_cr' for more details."
 		unlet g:delimitMate_expand_cr
-		let b:delimitMate_expand_cr = 1
+		let g:delimitMate_expand_cr = 1
 	endif
 	if &backspace !~ 'eol' || &backspace !~ 'start'
 		echom "delimitMate: In order to use the <CR> expansion, you need to have 'eol' and 'start' in your backspace option. Read :help 'backspace'."
