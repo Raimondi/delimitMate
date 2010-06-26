@@ -125,8 +125,9 @@ If you press backspace inside an empty pair, both delimiters are deleted. When
 expansions are enabled, <BS> will also delete the expansions. NOTE that
 deleting <CR> expansions will brake the redo command.
 
-If you type shift + backspace instead, only the closing delimiter will be
-deleted.
+If you type <S-BS> (shift + backspace) instead, only the closing delimiter
+will be deleted. NOTE that this will not usually work when using Vim from the
+terminal.
 
 e.g. typing at the "|": >
 
