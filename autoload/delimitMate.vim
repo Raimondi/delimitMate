@@ -450,11 +450,11 @@ function! delimitMate#QuoteDelim(char) "{{{
 	elseif line[col + 1] == a:char &&
 				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
-		"return delimitMate#WriteBefore(a:char)
 		return a:char . delimitMate#Del()
-	elseif (line[col] =~ '[a-zA-Z0-9]' && a:char == "'") ||
-				\(line[col] =~ '[a-zA-Z0-9]' && b:_l_delimitMate_smart_quotes)
-		" Seems like an apostrophe or a closing, insert a single quote.
+	elseif (line[col] =~ '[[:alnum:]]' && a:char == "'") ||
+				\(line[col] =~ '[[:alnum:]]' && b:_l_delimitMate_smart_quotes) ||
+				\(line[col + 1] =~ '[[:alnum:]]' && b:_l_delimitMate_smart_quotes)
+		" Seems like an apostrophe or a smart quote case, insert a single quote.
 		return a:char
 	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:_l_delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
