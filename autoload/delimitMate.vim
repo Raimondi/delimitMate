@@ -43,6 +43,9 @@ function! delimitMate#Init() "{{{
 	call delimitMate#option_init("quotes", "\" ' `")
 	call delimitMate#option_init("quotes_list", split(b:_l_delimitMate_quotes))
 
+	" nesting_quotes
+	call delimitMate#option_init("nesting_quotes", [])
+
 	" excluded_regions
 	call delimitMate#option_init("excluded_regions", "Comment")
 	call delimitMate#option_init("excluded_regions_list", split(b:_l_delimitMate_excluded_regions, ',\s*'))
@@ -444,7 +447,8 @@ function! delimitMate#QuoteDelim(char) "{{{
 	if line[col] == "\\"
 		" Seems like a escaped character, insert one quotation mark.
 		return a:char
-	elseif line[col + 1] == a:char
+	elseif line[col + 1] == a:char &&
+				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
 		"return delimitMate#WriteBefore(a:char)
 		return a:char . delimitMate#Del()
