@@ -127,7 +127,7 @@ deleting <CR> expansions will brake the redo command.
 
 If you type <S-BS> (shift + backspace) instead, only the closing delimiter
 will be deleted. NOTE that this will not usually work when using Vim from the
-terminal.
+terminal, see 'delimitMate#JumpAny()' below to see how to fix it.
 
 e.g. typing at the "|": >
 
@@ -164,9 +164,10 @@ e.g. (selection represented between square brackets): >
 ------------------------------------------------------------------------------
    2.5 SMART QUOTES                                   *delimitMateSmartQuotes*
 
-Only one quote will be inserted following a quote, a "\" or an alphanumeric
-character. This should cover closing quotes, escaped quotes and apostrophes.
-Except for apostrophes, this feature can be disabled setting the option
+Only one quote will be inserted following a quote, a "\" or, following or
+preceding an alphanumeric character. This should cover closing quotes after a
+string, opening quotes before a string, escaped quotes and apostrophes. Except
+for apostrophes, this feature can be disabled setting the option
 |'delimitMate_smart_quotes'| to 0.
 
 e.g. typing at the "|": >
@@ -234,6 +235,10 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_quotes'|          Tells delimitMate which quotes should be
                                 used.
+
+|'delimitMate_nesting_quotes'|  Tells delimitMate which quotes should be
+                                allowed to be nested.
+
 
 |'delimitMate_visual_leader'|   Sets the leader to be used in visual mode.
 
@@ -308,6 +313,18 @@ quotes. Read |delimitMateAutoClose| for details.
 e.g.: >
         let delimitMate_quotes = "\" ' ` *"
         au FileType html let b:delimitMate_quotes = "\" '"
+<
+------------------------------------------------------------------------------
+                                                *'delimitMate_nesting_quotes'*
+                                              *'b:delimitMate_nesting_quotes'*
+Values: A list of quotes.                                                    ~
+Default: []                                                                  ~
+
+Quotes listed here will not be able to jump out of the empty pair, thus
+allowing the autoclosed quotes to be nested.
+e.g.: >
+        let delimitMate_quotes = ['"','`']
+        au FileType python let b:delimitMate_quotes = ['"']
 <
 ------------------------------------------------------------------------------
                                                  *'delimitMate_visual_leader'*
@@ -518,7 +535,7 @@ This function returns a mapping that will make the cursor jump to the right
 when delimitMate#ShouldJump() returns 1, returns the argument "key" otherwise.
 e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
-   inoremap <C-Tab> <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
+   inoremap <C-Tab> <C-R>=delimitMate#JumpAny("\<C-Tab>")<CR>
 <
 
 ==============================================================================
@@ -573,6 +590,11 @@ This script was inspired by the auto-completion of delimiters on TextMate.
                          - Unbalanced parens: see :help delimitMateBalance.
                          - Visual wrapping now works on block-wise visual
                            with some limitations.
+                         - Fixed a problem with <S-BS>.
+                         - Arrow key didn't work on terminal.
+                         - Added option to allow nested quotes.
+                         - Expand Smart Quotes to look for a string on the
+                           right of the cursor.
 
 |---------|------------|-----------------------------------------------------|
     2.3.1   2010-06-06 * - Fix: an extra <Space> is inserted after <Space>
