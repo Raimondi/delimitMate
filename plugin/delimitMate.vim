@@ -8,8 +8,8 @@
 
 " Initialization: {{{
 
-if exists("g:loaded_delimitMate")
-	" User doesn't want this plugin, let's get out!
+if exists("g:loaded_delimitMate") || &cp
+	" User doesn't want this plugin or compatible is set, let's get out!
 	finish
 endif
 let g:loaded_delimitMate = 1
