@@ -90,6 +90,9 @@ Without auto-close: >
                         –––––––––-|––––––––––
                         ()<S-Tab> |    ()|
 <
+NOTE: Abbreviations will not be expanded by delimiters used on delimitMate,
+you should use <C-]> (read |i_CTRL-]|) to expand them on the go.
+
 ------------------------------------------------------------------------------
    2.2 EXPANSION OF SPACE AND CAR RETURN                *delimitMateExpansion*
 
