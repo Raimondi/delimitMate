@@ -296,7 +296,7 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                     *'delimitMate_matchpairs'*
                                                   *'b:delimitMate_matchpairs'*
-Values: A string with |matchpairs| syntax.                                   ~
+Values: A string with |'matchpairs'| syntax.                                 ~
 Default: &matchpairs                                                         ~
 
 Use this option to tell delimitMate which characters should be considered
