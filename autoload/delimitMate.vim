@@ -115,6 +115,8 @@ function! delimitMate#Map() "{{{
 	try
 		let save_cpo = &cpo
 		let save_keymap = &keymap
+		let save_iminsert = &iminsert
+		let save_imsearch = &imsearch
 		set keymap=
 		set cpo&vim
 		if b:_l_delimitMate_autoclose
@@ -127,6 +129,8 @@ function! delimitMate#Map() "{{{
 	finally
 		let &cpo = save_cpo
 		let &keymap = save_keymap
+		let &iminsert = save_iminsert
+		let &imsearch = save_imsearch
 	endtry
 
 	let b:delimitMate_enabled = 1
