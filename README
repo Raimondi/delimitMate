@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v2.4DEV  *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.4  *delimitMate.txt*
 
 
 
@@ -90,6 +90,9 @@ Without auto-close: >
                         –––––––––-|––––––––––
                         ()<S-Tab> |    ()|
 <
+NOTE: Abbreviations will not be expanded by delimiters used on delimitMate,
+you should use <C-]> (read |i_CTRL-]|) to expand them on the go.
+
 ------------------------------------------------------------------------------
    2.2 EXPANSION OF SPACE AND CAR RETURN                *delimitMateExpansion*
 
@@ -125,8 +128,9 @@ If you press backspace inside an empty pair, both delimiters are deleted. When
 expansions are enabled, <BS> will also delete the expansions. NOTE that
 deleting <CR> expansions will brake the redo command.
 
-If you type shift + backspace instead, only the closing delimiter will be
-deleted.
+If you type <S-BS> (shift + backspace) instead, only the closing delimiter
+will be deleted. NOTE that this will not usually work when using Vim from the
+terminal, see 'delimitMate#JumpAny()' below to see how to fix it.
 
 e.g. typing at the "|": >
 
@@ -163,9 +167,10 @@ e.g. (selection represented between square brackets): >
 ------------------------------------------------------------------------------
    2.5 SMART QUOTES                                   *delimitMateSmartQuotes*
 
-Only one quote will be inserted following a quote, a "\" or an alphanumeric
-character. This should cover closing quotes, escaped quotes and apostrophes.
-Except for apostrophes, this feature can be disabled setting the option
+Only one quote will be inserted following a quote, a "\" or, following or
+preceding an alphanumeric character. This should cover closing quotes after a
+string, opening quotes before a string, escaped quotes and apostrophes. Except
+for apostrophes, this feature can be disabled setting the option
 |'delimitMate_smart_quotes'| to 0.
 
 e.g. typing at the "|": >
@@ -234,6 +239,10 @@ specific file types, see |delimitMateOptionDetails| for examples.
 |'delimitMate_quotes'|          Tells delimitMate which quotes should be
                                 used.
 
+|'delimitMate_nesting_quotes'|  Tells delimitMate which quotes should be
+                                allowed to be nested.
+
+
 |'delimitMate_visual_leader'|   Sets the leader to be used in visual mode.
 
 |'delimitMate_expand_cr'|       Turns on/off the expansion of <CR>.
@@ -287,7 +296,7 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                     *'delimitMate_matchpairs'*
                                                   *'b:delimitMate_matchpairs'*
-Values: A string with |matchpairs| syntax.                                   ~
+Values: A string with |'matchpairs'| syntax.                                 ~
 Default: &matchpairs                                                         ~
 
 Use this option to tell delimitMate which characters should be considered
@@ -307,6 +316,18 @@ quotes. Read |delimitMateAutoClose| for details.
 e.g.: >
         let delimitMate_quotes = "\" ' ` *"
         au FileType html let b:delimitMate_quotes = "\" '"
+<
+------------------------------------------------------------------------------
+                                                *'delimitMate_nesting_quotes'*
+                                              *'b:delimitMate_nesting_quotes'*
+Values: A list of quotes.                                                    ~
+Default: []                                                                  ~
+
+Quotes listed here will not be able to jump out of the empty pair, thus
+allowing the autoclosed quotes to be nested.
+e.g.: >
+        let delimitMate_quotes = ['"','`']
+        au FileType python let b:delimitMate_quotes = ['"']
 <
 ------------------------------------------------------------------------------
                                                  *'delimitMate_visual_leader'*
@@ -472,9 +493,15 @@ Functions should be used enclosed between <C-R>= and <CR>, otherwise they
 might not work as expected or at all.
 
 ------------------------------------------------------------------------------
-delimitMate#WithinEmptyPair()                    *delimitMate_WithinEmptyPair*
+delimitMate#WithinEmptyPair()                  *delimitMate_WithinEmptyPair()*
 
 Returns 1 if the cursor is inside an empty pair, 0 otherwise.
+e.g.: >
+
+    inoremap <expr> <CR> delimitMate#WithinEmptyPair() ?
+             \ "\<C-R>=delimitMate#ExpandReturn()\<CR>" :
+             \ "external_mapping"
+<
 
 ------------------------------------------------------------------------------
 delimitMate#ExpandReturn()                        *delimitMate#ExpandReturn()*
@@ -485,7 +512,8 @@ Returns the expansion for <CR> if enabled and inside an empty pair, returns
 e.g.: This mapping could be used to select an item on a pop-up menu or expand
 <CR> inside an empty pair: >
 
-        inoremap <expr> <CR> pumvisible() ? "\<c-y>" :
+        inoremap <expr> <CR> pumvisible() ?
+                 \"\<c-y>" :
                  \ "\<C-R>=delimitMate#ExpandReturn()\<CR>"
 <
 ------------------------------------------------------------------------------
@@ -510,7 +538,7 @@ This function returns a mapping that will make the cursor jump to the right
 when delimitMate#ShouldJump() returns 1, returns the argument "key" otherwise.
 e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
-   inoremap <C-Tab> <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
+   inoremap <C-Tab> <C-R>=delimitMate#JumpAny("\<C-Tab>")<CR>
 <
 
 ==============================================================================
@@ -561,10 +589,14 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.4DEV     2010-06-06 * Current release:
+    2.4     2010-07-29 * Current release:
                          - Unbalanced parens: see :help delimitMateBalance.
                          - Visual wrapping now works on block-wise visual
                            with some limitations.
+                         - Arrow keys didn't work on terminal.
+                         - Added option to allow nested quotes.
+                         - Expand Smart Quotes to look for a string on the
+                           right of the cursor.
 
 |---------|------------|-----------------------------------------------------|
     2.3.1   2010-06-06 * - Fix: an extra <Space> is inserted after <Space>

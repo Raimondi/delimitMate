@@ -10,12 +10,12 @@ VIM=/usr/bin/vim
 
 .PHONY: $(PLUGIN).vba README
 
-install: vimball
-	@echo install
-	$(VIM) -N -c ':so %' -c':q!' $(PLUGIN)-$(VERSION).vba
-	cp -f $(TESTS) $(VIMFOLDER)$(TESTS)
+#install: vimball
+	#@echo install
+	#$(VIM) -N -c ':so %' -c':q!' $(PLUGIN)-$(VERSION).vba
+	#cp -f $(TESTS) $(VIMFOLDER)$(TESTS)
 
-all: uninstall vimball install README zip gzip
+all: vimball README zip gzip
 
 vimball: $(PLUGIN).vba
 
@@ -25,10 +25,10 @@ clean:
 
 dist-clean: clean
 
-uninstall:
-	@echo uninstall
-	$(VIM) -N -c':RmVimball' -c':q!' $(PLUGIN)-$(VERSION).vba
-	rm -f $(VIMFOLDER)$(TESTS)
+#uninstall:
+	#@echo uninstall
+	#$(VIM) -N -c':RmVimball' -c':q!' $(PLUGIN)-$(VERSION).vba
+	#rm -f $(VIMFOLDER)$(TESTS)
 
 undo:
 	for i in */*.orig; do mv -f "$$i" "$${i%.*}"; done
@@ -47,8 +47,10 @@ zip:
 	@echo zip
 	rm -f *.zip
 	zip -r $(PLUGIN).zip doc plugin autoload
-	zip $(PLUGIN).zip -d \*.sw\?
-	zip $(PLUGIN).zip -d \*.orig
+	zip $(PLUGIN).zip -d \*.sw\? || echo 1
+	zip $(PLUGIN).zip -d \*.un\? || echo 1
+	zip $(PLUGIN).zip -d \*.orig || echo 1
+	zip $(PLUGIN).zip -d \*tags  || echo 1
 	zip $(PLUGIN).zip -d $(TESTS)
 	ln -f $(PLUGIN).zip $(PLUGIN)-$(VERSION).zip
 

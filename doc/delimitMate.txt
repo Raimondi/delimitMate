@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v2.4DEV  *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.4  *delimitMate.txt*
 
 
 
@@ -589,7 +589,7 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.4DEV     2010-06-06 * Current release:
+    2.4     2010-07-29 * Current release:
                          - Unbalanced parens: see :help delimitMateBalance.
                          - Visual wrapping now works on block-wise visual
                            with some limitations.
