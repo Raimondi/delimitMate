@@ -10,11 +10,6 @@ VIM=/usr/bin/vim
 
 .PHONY: $(PLUGIN).vba README
 
-#install: vimball
-	#@echo install
-	#$(VIM) -N -c ':so %' -c':q!' $(PLUGIN)-$(VERSION).vba
-	#cp -f $(TESTS) $(VIMFOLDER)$(TESTS)
-
 all: vimball README zip gzip
 
 vimball: $(PLUGIN).vba
@@ -24,11 +19,6 @@ clean:
 	rm -f *.vba */*.orig *.~* .VimballRecord *.zip *.gz
 
 dist-clean: clean
-
-#uninstall:
-	#@echo uninstall
-	#$(VIM) -N -c':RmVimball' -c':q!' $(PLUGIN)-$(VERSION).vba
-	#rm -f $(VIMFOLDER)$(TESTS)
 
 undo:
 	for i in */*.orig; do mv -f "$$i" "$${i%.*}"; done
