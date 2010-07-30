@@ -689,6 +689,8 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <silent> <buffer> <Right> <C-R>=delimitMate#Finish()<CR><Right>
 	inoremap <silent> <buffer> <Up> <C-R>=delimitMate#Finish()<CR><Up>
 	inoremap <silent> <buffer> <Down> <C-R>=delimitMate#Finish()<CR><Down>
+	inoremap <silent> <buffer> <Home> <C-R>=delimitMate#Finish()<CR><Home>
+	inoremap <silent> <buffer> <End> <C-R>=delimitMate#Finish()<CR><End>
 
 	inoremap <silent> <buffer> <Del> <C-R>=delimitMate#Del()<CR>
 
