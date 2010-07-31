@@ -344,8 +344,8 @@ Default: []                                                                  ~
 Quotes listed here will not be able to jump out of the empty pair, thus
 allowing the autoclosed quotes to be nested.
 e.g.: >
-        let delimitMate_quotes = ['"','`']
-        au FileType python let b:delimitMate_quotes = ['"']
+        let delimitMate_nesting_quotes = ['"','`']
+        au FileType python let b:delimitMate_nesting_quotes = ['"']
 <
 ------------------------------------------------------------------------------
                                                  *'delimitMate_visual_leader'*
