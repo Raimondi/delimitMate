@@ -103,8 +103,8 @@ function! delimitMate#Init() "{{{
 	" tab2exit
 	call delimitMate#option_init("tab2exit", 1)
 
-	" unbalanced_parens
-	call delimitMate#option_init("unbalanced_parens", 0)
+	" balance_matchpairs
+	call delimitMate#option_init("balance_matchpairs", 0)
 
 	let b:_l_delimitMate_buffer = []
 
@@ -428,7 +428,7 @@ function! delimitMate#ParenDelim(char) " {{{
 	if delimitMate#IsForbidden(a:char)
 		return ''
 	endif
-	if b:_l_delimitMate_unbalanced_parens &&
+	if b:_l_delimitMate_balance_matchpairs &&
 				\ delimitMate#BalancedParens(a:char) <= 0
 		return ''
 	endif
