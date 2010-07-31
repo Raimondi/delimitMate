@@ -264,20 +264,20 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_expand_space'|      Turns on/off the expansion of <Space>.
 
-|'delimitMate_excluded_ft'|       Turns off the script for the given file types.
+|'delimitMate_smart_quotes'|      Turns on/off the "smart quotes" feature.
+
+|'delimitMate_balance_matchairs'| Turns on/off the "balance matching pairs"
+                                feature.
 
 |'delimitMate_excluded_regions'|  Turns off the script for the given regions or
                                 syntax group names.
+
+|'delimitMate_excluded_ft'|       Turns off the script for the given file types.
 
 |'delimitMate_apostrophes'|       Tells delimitMate how it should "fix"
                                 balancing of single quotes when used as
                                 apostrophes. NOTE: Not needed any more, kept
                                 for compatibility with older versions.
-
-|'delimitMate_smart_quotes'|      Turns on/off the "smart quotes" feature.
-
-|'delimitMate_balance_matchairs'| Turns on/off the "balance matching pairs"
-                                feature.
 
 ------------------------------------------------------------------------------
    3.2 OPTIONS DETAILS                              *delimitMateOptionDetails*
@@ -408,16 +408,6 @@ e.g.: >
         au FileType tcl let b:delimitMate_balance_matchpairs = 1
 <
 ------------------------------------------------------------------------------
-                                                   *'delimitMate_excluded_ft'*
-Values: A string of file type names separated by single commas.              ~
-Default: Empty.                                                              ~
-
-This options turns delimitMate off for the listed file types, use this option
-only if you don't want any of the features it provides on those file types.
-e.g.: >
-        let delimitMate_excluded_ft = "mail,txt"
-<
-------------------------------------------------------------------------------
                                               *'delimitMate_excluded_regions'*
 Values: A string of syntax group names names separated by single commas.     ~
 Default: Comment                                                             ~
@@ -426,6 +416,16 @@ This options turns delimitMate off for the listed regions, read |group-name|
 for more info about what is a region.
 e.g.: >
         let delimitMate_excluded_regions = "Comments,String"
+<
+------------------------------------------------------------------------------
+                                                   *'delimitMate_excluded_ft'*
+Values: A string of file type names separated by single commas.              ~
+Default: Empty.                                                              ~
+
+This options turns delimitMate off for the listed file types, use this option
+only if you don't want any of the features it provides on those file types.
+e.g.: >
+        let delimitMate_excluded_ft = "mail,txt"
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_apostrophes'*
