@@ -1,4 +1,4 @@
-*delimitMate*    Trying to keep those beasts at bay! v2.4  *delimitMate.txt*
+*delimitMate*    Trying to keep those beasts at bay! v2.4.1  *delimitMate.txt*
 
 
 
@@ -26,8 +26,9 @@
         2.3 Backspace__________________________|delimitMateBackspace|
         2.4 Visual wrapping____________________|delimitMateVisualWrapping|
         2.5 Smart Quotes_______________________|delimitMateSmartQuotes|
-        2.6 FileType based configuration_______|delimitMateFileType|
-        2.7 Syntax awareness___________________|delimitMateSyntax|
+        2.6 Balancing matching pairs___________|delimitMateBalance|
+        2.7 FileType based configuration_______|delimitMateFileType|
+        2.8 Syntax awareness___________________|delimitMateSyntax|
     3. Customization___________________________|delimitMateOptions|
         3.1 Options summary____________________|delimitMateOptionSummary|
         3.2 Options details____________________|delimitMateOptionDetails|
@@ -182,7 +183,22 @@ e.g. typing at the "|": >
                       '   |  I|          |  I'|
 <
 ------------------------------------------------------------------------------
-   2.6 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
+   2.6 BALANCING MATCHING PAIRS                           *delimitMateBalance*
+
+When inserting an opening paren and |'delimitMate_balance_matchpairs'| is
+enabled, delimitMate will try to balance the closing pairs in the current
+line.
+
+e.g. typing at the "|": >
+
+                     What |    Before    |     After
+                  =======================================
+                      (   |      |)      |     (|)
+                      (   |      |       |     (|)
+                      (   |     (|)      |    ((|))
+<
+------------------------------------------------------------------------------
+   2.7 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
 
 delimitMate options can be set globally for all buffers using global
 ("regular") variables in your |vimrc| file. But |:autocmd| can be used to set
@@ -202,7 +218,7 @@ NOTE that you should use buffer variables (|b:var|) only to set options with
 |:autocmd|, for global options use regular variables (|g:var|) in your vimrc.
 
 ------------------------------------------------------------------------------
-   2.7 SYNTAX AWARENESS                                    *delimitMateSyntax*
+   2.8 SYNTAX AWARENESS                                    *delimitMateSyntax*
 
 The features of this plug-in might not be always helpful, comments and strings
 usualy don't need auto-completion. delimitMate monitors which region is being
@@ -228,38 +244,40 @@ The behaviour of this script can be customized setting the following options
 in your vimrc file. You can use local options to set the configuration for
 specific file types, see |delimitMateOptionDetails| for examples.
 
-|'loaded_delimitMate'|          Turns off the script.
+|'loaded_delimitMate'|            Turns off the script.
 
-|'delimitMate_autoclose'|       Tells delimitMate whether to automagically
+|'delimitMate_autoclose'|         Tells delimitMate whether to automagically
                                 insert the closing delimiter.
 
-|'delimitMate_matchpairs'|      Tells delimitMate which characters are
+|'delimitMate_matchpairs'|        Tells delimitMate which characters are
                                 matching pairs.
 
-|'delimitMate_quotes'|          Tells delimitMate which quotes should be
+|'delimitMate_quotes'|            Tells delimitMate which quotes should be
                                 used.
 
-|'delimitMate_nesting_quotes'|  Tells delimitMate which quotes should be
+|'delimitMate_nesting_quotes'|    Tells delimitMate which quotes should be
                                 allowed to be nested.
 
+|'delimitMate_visual_leader'|     Sets the leader to be used in visual mode.
 
-|'delimitMate_visual_leader'|   Sets the leader to be used in visual mode.
+|'delimitMate_expand_cr'|         Turns on/off the expansion of <CR>.
 
-|'delimitMate_expand_cr'|       Turns on/off the expansion of <CR>.
+|'delimitMate_expand_space'|      Turns on/off the expansion of <Space>.
 
-|'delimitMate_expand_space'|    Turns on/off the expansion of <Space>.
+|'delimitMate_smart_quotes'|      Turns on/off the "smart quotes" feature.
 
-|'delimitMate_excluded_ft'|     Turns off the script for the given file types.
+|'delimitMate_balance_matchpairs'|Turns on/off the "balance matching pairs"
+                                feature.
 
-|'delimitMate_excluded_regions'|Turns off the script for the given regions or
+|'delimitMate_excluded_regions'|  Turns off the script for the given regions or
                                 syntax group names.
 
-|'delimitMate_apostrophes'|     Tells delimitMate how it should "fix"
+|'delimitMate_excluded_ft'|       Turns off the script for the given file types.
+
+|'delimitMate_apostrophes'|       Tells delimitMate how it should "fix"
                                 balancing of single quotes when used as
                                 apostrophes. NOTE: Not needed any more, kept
                                 for compatibility with older versions.
-
-|'delimitMate_smart_quotes'|    Turns on/off the "smart quotes" feature.
 
 ------------------------------------------------------------------------------
    3.2 OPTIONS DETAILS                              *delimitMateOptionDetails*
@@ -326,8 +344,8 @@ Default: []                                                                  ~
 Quotes listed here will not be able to jump out of the empty pair, thus
 allowing the autoclosed quotes to be nested.
 e.g.: >
-        let delimitMate_quotes = ['"','`']
-        au FileType python let b:delimitMate_quotes = ['"']
+        let delimitMate_nesting_quotes = ['"','`']
+        au FileType python let b:delimitMate_nesting_quotes = ['"']
 <
 ------------------------------------------------------------------------------
                                                  *'delimitMate_visual_leader'*
@@ -366,14 +384,28 @@ e.g.: >
         au FileType tcl let b:delimitMate_expand_space = 1
 <
 ------------------------------------------------------------------------------
-                                                   *'delimitMate_excluded_ft'*
-Values: A string of file type names separated by single commas.              ~
-Default: Empty.                                                              ~
+                                                  *'delimitMate_smart_quotes'*
+                                                *'b:delimitMate_smart_quotes'*
+Values: 1 or 0                                                               ~
+Default: 1                                                                   ~
 
-This options turns delimitMate off for the listed file types, use this option
-only if you don't want any of the features it provides on those file types.
+This option turns on/off the smart quotes feature. Read
+|delimitMateSmartQuotes| for details.
 e.g.: >
-        let delimitMate_excluded_ft = "mail,txt"
+        let delimitMate_smart_quotes = 0
+        au FileType tcl let b:delimitMate_smart_quotes = 0
+<
+------------------------------------------------------------------------------
+                                            *'delimitMate_balance_matchpairs'*
+                                          *'b:delimitMate_balance_matchpairs'*
+Values: 1 or 0                                                               ~
+Default: 0                                                                   ~
+
+This option turns on/off the balancing of matching pairs. Read
+|delimitMateBalance| for details.
+e.g.: >
+        let delimitMate_balance_matchpairs = 1
+        au FileType tcl let b:delimitMate_balance_matchpairs = 1
 <
 ------------------------------------------------------------------------------
                                               *'delimitMate_excluded_regions'*
@@ -384,6 +416,16 @@ This options turns delimitMate off for the listed regions, read |group-name|
 for more info about what is a region.
 e.g.: >
         let delimitMate_excluded_regions = "Comments,String"
+<
+------------------------------------------------------------------------------
+                                                   *'delimitMate_excluded_ft'*
+Values: A string of file type names separated by single commas.              ~
+Default: Empty.                                                              ~
+
+This options turns delimitMate off for the listed file types, use this option
+only if you don't want any of the features it provides on those file types.
+e.g.: >
+        let delimitMate_excluded_ft = "mail,txt"
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_apostrophes'*
@@ -589,8 +631,13 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.4     2010-07-29 * Current release:
-                         - Unbalanced parens: see :help delimitMateBalance.
+    2.4.1   2010-07-31 * Current release:
+                         - Fix problem with <Home> and <End>.
+                         - Add missing doc on |'delimitMate_smart_quotes'|,
+                           |delimitMateBalance| and
+                           |'delimitMate_balance_matchpairs'|.
+|---------|------------|-----------------------------------------------------|
+    2.4     2010-07-29 * - Unbalanced parens: see :help delimitMateBalance.
                          - Visual wrapping now works on block-wise visual
                            with some limitations.
                          - Arrow keys didn't work on terminal.
