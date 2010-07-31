@@ -85,7 +85,9 @@ function! delimitMate#Init() "{{{
 		unlet g:delimitMate_expand_cr
 		let g:delimitMate_expand_cr = 1
 	endif
-	if &backspace !~ 'eol' || &backspace !~ 'start'
+	if (&backspace !~ 'eol' || &backspace !~ 'start') &&
+				\ ((exists('b:delimitMate_expand_cr') && b:delimitMate_expand_cr == 1) ||
+				\ (exists('g:delimitMate_expand_cr') && g:delimitMate_expand_cr == 1))
 		echom "delimitMate: In order to use the <CR> expansion, you need to have 'eol' and 'start' in your backspace option. Read :help 'backspace'."
 		let b:delimitMate_expand_cr = 0
 	endif
