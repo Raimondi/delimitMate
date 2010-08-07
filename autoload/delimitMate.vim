@@ -615,7 +615,7 @@ endfunction " }}}
 function! delimitMate#NoAutoClose() "{{{
 	" inoremap <buffer> ) <C-R>=delimitMate#SkipDelim('\)')<CR>
 	for delim in b:_l_delimitMate_right_delims + b:_l_delimitMate_quotes_list
-		exec 'inoremap <silent> <buffer> ' . delim . ' <C-R>=delimitMate#SkipDelim("' . escape(delim,'"\|') . '")<CR>'
+		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#SkipDelim("' . escape(delim,'"\|') . '")<CR>'
 	endfor
 endfunction "}}}
 
@@ -626,25 +626,25 @@ function! delimitMate#AutoClose() "{{{
 	while i < len(b:_l_delimitMate_matchpairs_list)
 		let ld = b:_l_delimitMate_left_delims[i]
 		let rd = b:_l_delimitMate_right_delims[i]
-		exec 'inoremap <silent> <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . rd . '")<CR>'
+		exec 'silent! inoremap <unique> <silent> <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . rd . '")<CR>'
 		let i += 1
 	endwhile
 
 	" Exit from inside the matching pair:
 	for delim in b:_l_delimitMate_right_delims
-		exec 'inoremap <silent> <buffer> ' . delim . ' <C-R>=delimitMate#JumpOut("\' . delim . '")<CR>'
+		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#JumpOut("\' . delim . '")<CR>'
 	endfor
 
 	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
 	" inoremap <silent> <buffer> " <C-R>=delimitMate#QuoteDelim("\"")<CR>
 	for delim in b:_l_delimitMate_quotes_list
-		exec 'inoremap <silent> <buffer> ' . delim . ' <C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
+		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
 	endfor
 
-	" Try to fix the use of apostrophes (de-activated by default):
+	" Try to fix the use of apostrophes (kept for backward compatibilt):
 	" inoremap <silent> <buffer> n't n't
 	for map in b:_l_delimitMate_apostrophes_list
-		exec "inoremap <silent> <buffer> " . map . " " . map
+		exec "silent! inoremap <unique> <silent> <buffer> " . map . " " . map
 	endfor
 endfunction "}}}
 
@@ -653,49 +653,57 @@ function! delimitMate#VisualMaps() " {{{
 	let vleader = b:_l_delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	for del in b:_l_delimitMate_right_delims + b:_l_delimitMate_left_delims + b:_l_delimitMate_quotes_list
-		exec "vnoremap <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
+		exec "silent! vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
 	endfor
 endfunction "}}}
 
 function! delimitMate#ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
-	inoremap <silent> <buffer> <BS> <C-R>=delimitMate#BS()<CR>
-
+	inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
 	" If pair is empty, delete closing delimiter:
-	inoremap <silent> <buffer> <expr> <S-BS> delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#Del()\<CR>" : "\<S-BS>"
-
+	inoremap <silent> <expr> <Plug>delimitMateSBS delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#Del()\<CR>" : "\<S-BS>"
 	" Expand return if inside an empty pair:
-	if b:_l_delimitMate_expand_cr != 0
-		inoremap <silent> <buffer> <CR> <C-R>=delimitMate#ExpandReturn()<CR>
-	endif
-
+	inoremap <silent> <Plug>delimitMateER <C-R>=delimitMate#ExpandReturn()<CR>
 	" Expand space if inside an empty pair:
-	if b:_l_delimitMate_expand_space != 0
-		inoremap <silent> <buffer> <Space> <C-R>=delimitMate#ExpandSpace()<CR>
-	endif
-
+	inoremap <silent> <Plug>delimitMateES <C-R>=delimitMate#ExpandSpace()<CR>
 	" Jump out ot any empty pair:
-	if b:_l_delimitMate_tab2exit
-		inoremap <silent> <buffer> <S-Tab> <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
+	inoremap <silent> <Plug>delimitMateSTab <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
+	" change char buffer on Del:
+	inoremap <silent> <Plug>delimitMateDel <C-R>=delimitMate#Del()<CR>
+	" Flush the char buffer on movement keystrokes or when leaving insert mode:
+	for map in ['Esc', 'Left', 'Right', 'Up', 'Down', 'Home', 'End']
+		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=delimitMate#Finish()<CR><'.map.'>'
+		if !hasmapto('<Plug>delimitMate'.map, 'i')
+			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
+		endif
+	endfor
+
+	for map in ['LeftMouse', 'RightMouse']
+		exec 'inoremap <silent> <Plug>delimitMateM'.map.' <C-R>=delimitMate#Finish()<CR><'.map.'>'
+		if !hasmapto('<Plug>delimitMate'.map, 'i')
+			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMateM'.map
+		endif
+	endfor
+
+	" Map away!
+	if !hasmapto('<Plug>delimitMateDel', 'i')
+		silent! imap <unique> <buffer> <Del> <Plug>delimitMateDel
 	endif
-
-	" Fix the re-do feature:
-	inoremap <silent> <buffer> <Esc> <C-R>=delimitMate#Finish()<CR><Esc>
-
-	" Flush the char buffer on mouse click:
-	inoremap <silent> <buffer> <LeftMouse> <C-R>=delimitMate#Finish()<CR><LeftMouse>
-	inoremap <silent> <buffer> <RightMouse> <C-R>=delimitMate#Finish()<CR><RightMouse>
-
-	" Flush the char buffer on key movements:
-	inoremap <silent> <buffer> <Left> <C-R>=delimitMate#Finish()<CR><Left>
-	inoremap <silent> <buffer> <Right> <C-R>=delimitMate#Finish()<CR><Right>
-	inoremap <silent> <buffer> <Up> <C-R>=delimitMate#Finish()<CR><Up>
-	inoremap <silent> <buffer> <Down> <C-R>=delimitMate#Finish()<CR><Down>
-	inoremap <silent> <buffer> <Home> <C-R>=delimitMate#Finish()<CR><Home>
-	inoremap <silent> <buffer> <End> <C-R>=delimitMate#Finish()<CR><End>
-
-	inoremap <silent> <buffer> <Del> <C-R>=delimitMate#Del()<CR>
-
+	if !hasmapto('<Plug>delimitMateBS','i')
+		silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
+	endif
+	if !hasmapto('<Plug>delimitMateSBS','i')
+		silent! imap <unique> <buffer> <S-BS> <Plug>delimitMateSBS
+	endif
+	if b:_l_delimitMate_expand_cr != 0 && !hasmapto('<Plug>delimitMateER', 'i')
+		silent! imap <unique> <buffer> <CR> <Plug>delimitMateER
+	endif
+	if b:_l_delimitMate_expand_space != 0 && !hasmapto('<Plug>delimitMateES', 'i')
+		silent! imap <unique> <buffer> <Space> <Plug>delimitMateES
+	endif
+	if b:_l_delimitMate_tab2exit && !hasmapto('<Plug>delimitMateSTab', 'i')
+		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateSTab
+	endif
 	" The following simply creates an ambiguous mapping so vim fully processes
 	" the escape sequence for terminal keys, see 'ttimeout' for a rough
 	" explanation, this just forces it to work
@@ -711,7 +719,8 @@ function! delimitMate#UnMap() " {{{
 				\ b:_l_delimitMate_quotes_list +
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
-				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>']
+				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
+				\ ['Home', 'End']
 
 	let vmaps =
 				\ b:_l_delimitMate_right_delims +
