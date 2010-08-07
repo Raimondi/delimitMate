@@ -107,7 +107,7 @@ call s:DelimitMateDo()
 command! DelimitMateReload call s:DelimitMateDo(1)
 
 " Quick test:
-command! DelimitMateTest call s:TestMappingsDo()
+command! DelimitMateTest silent call s:TestMappingsDo()
 
 " Switch On/Off:
 command! DelimitMateSwitch call s:DelimitMateSwitch()

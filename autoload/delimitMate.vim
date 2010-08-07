@@ -653,7 +653,7 @@ function! delimitMate#VisualMaps() " {{{
 	let vleader = b:_l_delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	for del in b:_l_delimitMate_right_delims + b:_l_delimitMate_left_delims + b:_l_delimitMate_quotes_list
-		exec "silent! vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
+		exec "silent vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
 	endfor
 endfunction "}}}
 
@@ -755,14 +755,14 @@ endfunction " }}} delimitMate#UnMap()
 
 " Tools: {{{
 function! delimitMate#TestMappings() "{{{
-	exec "normal i*b:_l_delimitMate_autoclose = " . b:_l_delimitMate_autoclose . "\<Esc>o"
-	exec "normal i*b:_l_delimitMate_expand_space = " . b:_l_delimitMate_expand_space . "\<Esc>o"
-	exec "normal i*b:_l_delimitMate_expand_cr = " . b:_l_delimitMate_expand_cr . "\<Esc>o\<Esc>o"
+	exec "normal GGi*b:_l_delimitMate_autoclose = " . b:_l_delimitMate_autoclose . "\<Esc>o"
+	exec "normal GGi*b:_l_delimitMate_expand_space = " . b:_l_delimitMate_expand_space . "\<Esc>o"
+	exec "normal GGi*b:_l_delimitMate_expand_cr = " . b:_l_delimitMate_expand_cr . "\<Esc>o\<Esc>o"
 	echom b:_l_delimitMate_autoclose.b:_l_delimitMate_expand_space.b:_l_delimitMate_expand_cr
 	if b:_l_delimitMate_autoclose
 		" {{{
 		for i in range(len(b:_l_delimitMate_left_delims))
-			exec "normal GGoOpen & close: " . b:_l_delimitMate_left_delims[i]. "|"
+			exec "normal GGoOpen: " . b:_l_delimitMate_left_delims[i]. "|"
 			exec "normal oDelete: " . b:_l_delimitMate_left_delims[i] . "\<BS>|"
 			exec "normal oExit: " . b:_l_delimitMate_left_delims[i] . b:_l_delimitMate_right_delims[i] . "|"
 			exec "normal oSpace: " . b:_l_delimitMate_left_delims[i] . " |"
@@ -770,17 +770,17 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal GGoVisual-L: v\<Esc>v" . b:_l_delimitMate_visual_leader . b:_l_delimitMate_left_delims[i]
 			exec "normal oVisual-R: v\<Esc>v" . b:_l_delimitMate_visual_leader . b:_l_delimitMate_right_delims[i]
 			exec "normal oCar return: " . b:_l_delimitMate_left_delims[i] . "\<CR>|"
-			exec "normal GGoDelete car return: " . b:_l_delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
+			exec "normal GGoDelete car return: " . b:_l_delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 		for i in range(len(b:_l_delimitMate_quotes_list))
-			exec "normal GGAOpen & close: " . b:_l_delimitMate_quotes_list[i]	. "|"
-			exec "normal oDelete: "
+			exec "normal GGAOpen: " . b:_l_delimitMate_quotes_list[i]	. "|"
+			exec "normal oDelete: " . b:_l_delimitMate_left_delims[i] . b:_l_delimitMate_right_delims[i] . "\<BS>|"
 			exec "normal oExit: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "|"
 			exec "normal oSpace: " . b:_l_delimitMate_quotes_list[i] . " |"
 			exec "normal oDelete space: " . b:_l_delimitMate_quotes_list[i] . " \<BS>|"
 			exec "normal GGoVisual: v\<Esc>v" . b:_l_delimitMate_visual_leader . b:_l_delimitMate_quotes_list[i]
 			exec "normal oCar return: " . b:_l_delimitMate_quotes_list[i] . "\<CR>|"
-			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
+			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 		"}}}
 	else
@@ -794,7 +794,7 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal GGoVisual-L: v\<Esc>v" . b:_l_delimitMate_visual_leader . b:_l_delimitMate_left_delims[i]
 			exec "normal oVisual-R: v\<Esc>v" . b:_l_delimitMate_visual_leader . b:_l_delimitMate_right_delims[i]
 			exec "normal oCar return: " . b:_l_delimitMate_left_delims[i] . b:_l_delimitMate_right_delims[i] . "\<CR>|"
-			exec "normal GGoDelete car return: " . b:_l_delimitMate_left_delims[i] . b:_l_delimitMate_right_delims[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
+			exec "normal GGoDelete car return: " . b:_l_delimitMate_left_delims[i] . b:_l_delimitMate_right_delims[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 		for i in range(len(b:_l_delimitMate_quotes_list))
 			exec "normal GGoOpen & close: " . b:_l_delimitMate_quotes_list[i]	. b:_l_delimitMate_quotes_list[i] . "|"
@@ -804,10 +804,47 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal oDelete space: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . " \<BS>|"
 			exec "normal GGoVisual: v\<Esc>v" . b:_l_delimitMate_visual_leader . b:_l_delimitMate_quotes_list[i]
 			exec "normal oCar return: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "\<CR>|"
-			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GGA\<Esc>o\<Esc>o"
+			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 	endif "}}}
-	exec "normal \<Esc>i"
+	"exec "normal \<Esc>i"
+
+	let imaps =
+				\ b:_l_delimitMate_right_delims +
+				\ b:_l_delimitMate_left_delims +
+				\ b:_l_delimitMate_quotes_list +
+				\ b:_l_delimitMate_apostrophes_list +
+				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
+				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
+				\ ['<Home>', '<End>']
+
+	let vmaps =
+				\ b:_l_delimitMate_right_delims +
+				\ b:_l_delimitMate_left_delims +
+				\ b:_l_delimitMate_quotes_list
+
+	let ibroken = []
+	for map in imaps
+		if maparg(map, "i") !~? 'delimitMate'
+			let ibroken = ibroken + [map.': is not set.']
+		endif
+	endfor
+	let ibroken = len(ibroken) > 0 ? ['IMAP'] + ibroken : []
+
+	let vbroken = []
+	if !exists("b:_l_delimitMate_visual_leader")
+		let vleader = ""
+	else
+		let vleader = b:_l_delimitMate_visual_leader
+	endif
+	for map in vmaps
+		if maparg(vleader . map, "v") !~? "delimitMate"
+			let vbroken = vbroken + [vleader.map.': is not set.']
+		endif
+	endfor
+	let vbroken = len(vbroken) > 0 ? ['VMAP'] + vbroken : []
+
+	call append('$', ibroken + vbroken + ['--------------------', '', ''])
 endfunction "}}}
 
 "}}}
