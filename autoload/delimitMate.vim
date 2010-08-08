@@ -826,7 +826,9 @@ function! delimitMate#TestMappings() "{{{
 	let ibroken = []
 	for map in imaps
 		if maparg(map, "i") !~? 'delimitMate'
-			let ibroken = ibroken + [map.': is not set.']
+			let output = ''
+			redir => output | execute "verbose imap ".map | redir END
+			let ibroken = ibroken + [map.": is not set:"] + split(output, '\n')
 		endif
 	endfor
 	let ibroken = len(ibroken) > 0 ? ['IMAP'] + ibroken : []
@@ -839,7 +841,9 @@ function! delimitMate#TestMappings() "{{{
 	endif
 	for map in vmaps
 		if maparg(vleader . map, "v") !~? "delimitMate"
-			let vbroken = vbroken + [vleader.map.': is not set.']
+			let output = ''
+			redir => output | execute "verbose imap ".map | redir END
+			let vbroken = vbroken + [vleader.map.": is not set:"] + split(output,'\n')
 		endif
 	endfor
 	let vbroken = len(vbroken) > 0 ? ['VMAP'] + vbroken : []
