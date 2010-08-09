@@ -641,7 +641,7 @@ function! delimitMate#AutoClose() "{{{
 		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
 	endfor
 
-	" Try to fix the use of apostrophes (kept for backward compatibilt):
+	" Try to fix the use of apostrophes (kept for backward compatibility):
 	" inoremap <silent> <buffer> n't n't
 	for map in b:_l_delimitMate_apostrophes_list
 		exec "silent! inoremap <unique> <silent> <buffer> " . map . " " . map
@@ -668,16 +668,23 @@ function! delimitMate#ExtraMappings() "{{{
 	inoremap <silent> <Plug>delimitMateES <C-R>=delimitMate#ExpandSpace()<CR>
 	" Jump out ot any empty pair:
 	inoremap <silent> <Plug>delimitMateSTab <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
-	" change char buffer on Del:
+	" Change char buffer on Del:
 	inoremap <silent> <Plug>delimitMateDel <C-R>=delimitMate#Del()<CR>
 	" Flush the char buffer on movement keystrokes or when leaving insert mode:
-	for map in ['Esc', 'Left', 'Right', 'Up', 'Down', 'Home', 'End']
+	for map in ['Esc', 'Left', 'Right', 'Home', 'End']
 		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=delimitMate#Finish()<CR><'.map.'>'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
 	endfor
-
+	" Except when pop-up menu is active:
+	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
+		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "<C-R>=delimitMate#Finish()<CR><'.map.'>"'
+		if !hasmapto('<Plug>delimitMate'.map, 'i')
+			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
+		endif
+	endfor
+	" Avoid ambiguous mappings:
 	for map in ['LeftMouse', 'RightMouse']
 		exec 'inoremap <silent> <Plug>delimitMateM'.map.' <C-R>=delimitMate#Finish()<CR><'.map.'>'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
@@ -720,7 +727,7 @@ function! delimitMate#UnMap() " {{{
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
-				\ ['Home', 'End']
+				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
 
 	let vmaps =
 				\ b:_l_delimitMate_right_delims +
@@ -816,7 +823,7 @@ function! delimitMate#TestMappings() "{{{
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
-				\ ['<Home>', '<End>']
+				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
 
 	let vmaps =
 				\ b:_l_delimitMate_right_delims +
