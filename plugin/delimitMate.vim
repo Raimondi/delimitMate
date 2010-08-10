@@ -203,7 +203,7 @@ function! s:VisualMaps() " {{{
 	let vleader = b:_l_delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	for del in b:_l_delimitMate_right_delims + b:_l_delimitMate_left_delims + b:_l_delimitMate_quotes_list
-		exec "silent vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
+		exec "silent! vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
 	endfor
 endfunction "}}}
 
