@@ -268,6 +268,12 @@ function! s:DelimitMateSwitch() "{{{
 	endif
 endfunction "}}}
 
+function! s:FlushBuffer()
+	if exists('g:delimitMate_loaded')
+		call delimitMate#FlushBuffer()
+	endif
+endfunction
+
 "}}}
 
 " Mappers: {{{
@@ -405,14 +411,14 @@ augroup delimitMate
 	" Run on new buffers.
 	autocmd BufNewFile,BufRead,BufEnter *
 				\ if !exists("b:loaded_delimitMate") |
-				\ call <SID>DelimitMateDo() |
+				\   call <SID>DelimitMateDo() |
 				\ endif
 
 	" Flush the char buffer:
-	autocmd InsertEnter * call delimitMate#FlushBuffer()
+	autocmd InsertEnter * call <SID>FlushBuffer()
 	autocmd BufEnter *
 				\ if mode() == 'i' |
-				\ call delimitMate#FlushBuffer() |
+				\   call <SID>FlushBuffer() |
 				\ endif
 
 augroup END

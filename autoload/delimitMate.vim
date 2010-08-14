@@ -8,6 +8,8 @@
 
 " Utilities {{{
 
+let delimitMate_loaded = 1
+
 function! delimitMate#ShouldJump() "{{{
 	" Returns 1 if the next character is a closing delimiter.
 	let col = col('.')
