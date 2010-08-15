@@ -452,15 +452,16 @@ function! delimitMate#Finish() " {{{
 	let len = len(b:_l_delimitMate_buffer)
 	if len > 0
 		let buffer = join(b:_l_delimitMate_buffer, '')
+		let len2 = len(buffer)
 		" Reset buffer:
 		let b:_l_delimitMate_buffer = []
 		let line = getline('.')
 		let col = col('.') -2
 		"echom 'col: ' . col . '-' . line[:col] . "|" . line[col+len+1:] . '%' . buffer
 		if col < 0
-			call setline('.', line[col+len+1:])
+			call setline('.', line[col+len2+1:])
 		else
-			call setline('.', line[:col] . line[col+len+1:])
+			call setline('.', line[:col] . line[col+len2+1:])
 		endif
 		let i = 1
 		let lefts = "\<Left>"
