@@ -268,10 +268,18 @@ function! s:DelimitMateSwitch() "{{{
 	endif
 endfunction "}}}
 
+function! s:Finish()
+	if exists('g:delimitMate_loaded')
+		return delimitMate#Finish()
+	endif
+	return ''
+endfunction
+
 function! s:FlushBuffer()
 	if exists('g:delimitMate_loaded')
-		call delimitMate#FlushBuffer()
+		return delimitMate#FlushBuffer()
 	endif
+	return ''
 endfunction
 
 "}}}
@@ -337,14 +345,14 @@ function! s:ExtraMappings() "{{{
 	inoremap <silent> <Plug>delimitMateDel <C-R>=delimitMate#Del()<CR>
 	" Flush the char buffer on movement keystrokes or when leaving insert mode:
 	for map in ['Esc', 'Left', 'Right', 'Home', 'End']
-		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=delimitMate#Finish()<CR><'.map.'>'
+		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
 	endfor
 	" Except when pop-up menu is active:
 	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
-		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "<C-R>=delimitMate#Finish()<CR><'.map.'>"'
+		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "<C-R>=<SID>Finish()<CR><'.map.'>"'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
