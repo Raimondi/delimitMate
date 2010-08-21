@@ -27,8 +27,12 @@ function! delimitMateTests#Main()
 		let b:delimitMate_tab2exit = 1
 		" Set current test options:
 		for str in a:list
-			let pair = split(str, ':')
-			exec "let b:delimitMate_" . pair[0] . " = " . pair[1]
+			"echom '1:'.str
+			let op = strpart(str, 0, stridx(str,':'))
+			"echom op
+			let val = strpart(str, stridx(str, ':' ) + 1)
+			"echom val
+			exec "let b:delimitMate_" . op . " = " . val
 		endfor
 		DelimitMateReload
 	endfunction " }}}
@@ -242,6 +246,12 @@ function! delimitMateTests#Main()
 
 	" Manual close at start of line
 	call Type("Manual close at start of line", "m)\<Left>\<Left>)", [')|m)'], ["autoclose:0"])
+
+	" Use | in quotes
+	call Type("Use <Bar> in quotes", "\<Bar>bars", ['|bars|'], ["quotes:'|'"])
+
+	" Use | in matchpairs
+	call Type("Use <Bar> in matchpairs", "\<Bar>bars", ['|bars|$$'], ["matchpairs:'|:$'"])
 
 	"}}}
 

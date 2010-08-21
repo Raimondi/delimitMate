@@ -181,6 +181,9 @@ function! s:Unmap() " {{{
 
 	for map in imaps
 		if maparg(map, "i") =~? 'delimitMate'
+			if map == '|'
+				let map = '<Bar>'
+			endif
 			exec 'silent! iunmap <buffer> ' . map
 		endif
 	endfor
@@ -191,6 +194,9 @@ function! s:Unmap() " {{{
 		let vleader = b:_l_delimitMate_visual_leader
 	endif
 	for map in vmaps
+			if map == '|'
+				let map = '<Bar>'
+			endif
 		if maparg(vleader . map, "v") =~? "delimitMate"
 			exec 'silent! vunmap <buffer> ' . vleader . map
 		endif
@@ -288,7 +294,10 @@ endfunction
 function! s:NoAutoClose() "{{{
 	" inoremap <buffer> ) <C-R>=delimitMate#SkipDelim('\)')<CR>
 	for delim in b:_l_delimitMate_right_delims + b:_l_delimitMate_quotes_list
-		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#SkipDelim("' . escape(delim,'"\|') . '")<CR>'
+		if delim == '|'
+			let delim = '<Bar>'
+		endif
+		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#SkipDelim("' . escape(delim,'"') . '")<CR>'
 	endfor
 endfunction "}}}
 
@@ -297,9 +306,9 @@ function! s:AutoClose() "{{{
 	" inoremap <silent> <buffer> ( ()<Left>
 	let i = 0
 	while i < len(b:_l_delimitMate_matchpairs_list)
-		let ld = b:_l_delimitMate_left_delims[i]
-		let rd = b:_l_delimitMate_right_delims[i]
-		exec 'silent! inoremap <unique> <silent> <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . rd . '")<CR>'
+		let ld = b:_l_delimitMate_left_delims[i] == '|' ? '<bar>' : b:_l_delimitMate_left_delims[i]
+		let rd = b:_l_delimitMate_right_delims[i] == '|' ? '<bar>' : b:_l_delimitMate_right_delims[i]
+		exec 'silent! inoremap <unique> <silent> <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . escape(rd, '|') . '")<CR>'
 		let i += 1
 	endwhile
 
@@ -311,6 +320,9 @@ function! s:AutoClose() "{{{
 	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
 	" inoremap <silent> <buffer> " <C-R>=delimitMate#QuoteDelim("\"")<CR>
 	for delim in b:_l_delimitMate_quotes_list
+		if delim == '|'
+			let delim = '<Bar>'
+		endif
 		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
 	endfor
 
@@ -326,7 +338,7 @@ function! s:VisualMaps() " {{{
 	let vleader = b:_l_delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	for del in b:_l_delimitMate_right_delims + b:_l_delimitMate_left_delims + b:_l_delimitMate_quotes_list
-		exec "silent! vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")') . '")'
+		exec "silent! vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")|') . '")'
 	endfor
 endfunction "}}}
 
@@ -352,7 +364,7 @@ function! s:ExtraMappings() "{{{
 	endfor
 	" Except when pop-up menu is active:
 	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
-		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "<C-R>=<SID>Finish()<CR><'.map.'>"'
+		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
