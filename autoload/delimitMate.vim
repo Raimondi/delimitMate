@@ -485,10 +485,12 @@ endfunction " }}}
 
 " Tools: {{{
 function! delimitMate#TestMappings() "{{{
-	exec "normal GGi*b:_l_delimitMate_autoclose = " . b:_l_delimitMate_autoclose . "\<Esc>o"
-	exec "normal GGi*b:_l_delimitMate_expand_space = " . b:_l_delimitMate_expand_space . "\<Esc>o"
-	exec "normal GGi*b:_l_delimitMate_expand_cr = " . b:_l_delimitMate_expand_cr . "\<Esc>o\<Esc>o"
-	echom b:_l_delimitMate_autoclose.b:_l_delimitMate_expand_space.b:_l_delimitMate_expand_cr
+	let options = sort(keys(delimitMate#OptionsList()))
+	let optoutput = ['delimitMate Report', '', 'Options:']
+	for option in options
+		exec 'call add(optoutput, ''delimitMate_''.option.'' = ''.string(b:_l_delimitMate_'.option.'))'
+	endfor
+	call append(line('$'), optoutput + ['','Showcase:', ''])
 	if b:_l_delimitMate_autoclose
 		" {{{
 		for i in range(len(b:_l_delimitMate_left_delims))
@@ -537,16 +539,18 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 	endif "}}}
-	"exec "normal \<Esc>i"
 
-	let imaps =
-				\ b:_l_delimitMate_right_delims +
-				\ b:_l_delimitMate_left_delims +
+	" Check if mappings were set. {{{
+	let imaps = b:_l_delimitMate_right_delims
+	let imaps = imaps + ( b:_l_delimitMate_autoclose ? b:_l_delimitMate_left_delims : [] )
+	let imaps = imaps +
 				\ b:_l_delimitMate_quotes_list +
 				\ b:_l_delimitMate_apostrophes_list +
-				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
+				\ ['<BS>', '<S-BS>', '<Del>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
 				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
+	let imaps = imaps + ( b:_l_delimitMate_expand_cr ?  ['<CR>'] : [] )
+	let imaps = imaps + ( b:_l_delimitMate_expand_space ?  ['<Space>'] : [] )
 
 	let vmaps =
 				\ b:_l_delimitMate_right_delims +
@@ -584,9 +588,19 @@ function! delimitMate#TestMappings() "{{{
 	endfor
 	let vbroken = len(vbroken) > 0 ? ['VMAP'] + vbroken : []
 
-	call append('$', ibroken + vbroken + ['--------------------', '', ''])
+	unlet! output
+	if ibroken == [] && vbroken == []
+		let output = ['Mappings:', '', 'All mappings were set-up.', '--------------------', '', '']
+	else
+		let output = ['Mappings:', ''] + ibroken + vbroken + ['--------------------', '', '']
+	endif
+	call append('$', output)
+	" }}}
 endfunction "}}}
 
+function! delimitMate#OptionsList()
+	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'visual_leader' : ( exists('mapleader') ? mapleader : exists('b:maplocalleader') ? b:maplocalleader : '\' ), 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
+endfunction
 "}}}
 
 " vim:foldmethod=marker:foldcolumn=4

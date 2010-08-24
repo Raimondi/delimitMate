@@ -73,6 +73,9 @@ function! s:init() "{{{
 	let enabled = len(b:_l_delimitMate_excluded_regions_list) > 0
 	call s:option_init("excluded_regions_enabled", enabled)
 
+	" excluded filetypes
+	call s:option_init("excluded_ft", "")
+
 	" visual_leader
 	let leader = exists('b:maplocalleader') ? b:maplocalleader :
 					\ exists('g:mapleader') ? g:mapleader : "\\"
@@ -210,6 +213,7 @@ function! s:Unmap() " {{{
 endfunction " }}} s:Unmap()
 
 function! s:TestMappingsDo() "{{{
+	%d
 	if !exists("g:delimitMate_testing")
 		silent call delimitMate#TestMappings()
 	else
