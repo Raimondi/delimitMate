@@ -350,13 +350,13 @@ function! s:ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
 	inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
 	" If pair is empty, delete closing delimiter:
-	inoremap <silent> <expr> <Plug>delimitMateSBS delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#Del()\<CR>" : "\<S-BS>"
+	inoremap <silent> <expr> <Plug>delimitMateS-BS delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#Del()\<CR>" : "\<S-BS>"
 	" Expand return if inside an empty pair:
-	inoremap <silent> <Plug>delimitMateER <C-R>=delimitMate#ExpandReturn()<CR>
+	inoremap <silent> <Plug>delimitMateCR <C-R>=delimitMate#ExpandReturn()<CR>
 	" Expand space if inside an empty pair:
-	inoremap <silent> <Plug>delimitMateES <C-R>=delimitMate#ExpandSpace()<CR>
+	inoremap <silent> <Plug>delimitMateSpace <C-R>=delimitMate#ExpandSpace()<CR>
 	" Jump out ot any empty pair:
-	inoremap <silent> <Plug>delimitMateSTab <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
+	inoremap <silent> <Plug>delimitMateS-Tab <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
 	" Change char buffer on Del:
 	inoremap <silent> <Plug>delimitMateDel <C-R>=delimitMate#Del()<CR>
 	" Flush the char buffer on movement keystrokes or when leaving insert mode:
@@ -388,17 +388,17 @@ function! s:ExtraMappings() "{{{
 	if !hasmapto('<Plug>delimitMateBS','i')
 		silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
 	endif
-	if !hasmapto('<Plug>delimitMateSBS','i')
-		silent! imap <unique> <buffer> <S-BS> <Plug>delimitMateSBS
+	if !hasmapto('<Plug>delimitMateS-BS','i')
+		silent! imap <unique> <buffer> <S-BS> <Plug>delimitMateS-BS
 	endif
-	if b:_l_delimitMate_expand_cr != 0 && !hasmapto('<Plug>delimitMateER', 'i')
-		silent! imap <unique> <buffer> <CR> <Plug>delimitMateER
+	if b:_l_delimitMate_expand_cr != 0 && !hasmapto('<Plug>delimitMateCR', 'i')
+		silent! imap <unique> <buffer> <CR> <Plug>delimitMateCR
 	endif
-	if b:_l_delimitMate_expand_space != 0 && !hasmapto('<Plug>delimitMateES', 'i')
-		silent! imap <unique> <buffer> <Space> <Plug>delimitMateES
+	if b:_l_delimitMate_expand_space != 0 && !hasmapto('<Plug>delimitMateSpace', 'i')
+		silent! imap <unique> <buffer> <Space> <Plug>delimitMateSpace
 	endif
-	if b:_l_delimitMate_tab2exit && !hasmapto('<Plug>delimitMateSTab', 'i')
-		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateSTab
+	if b:_l_delimitMate_tab2exit && !hasmapto('<Plug>delimitMateS-Tab', 'i')
+		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
 	endif
 	" The following simply creates an ambiguous mapping so vim fully processes
 	" the escape sequence for terminal keys, see 'ttimeout' for a rough
