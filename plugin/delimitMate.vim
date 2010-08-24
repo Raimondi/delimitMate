@@ -301,7 +301,8 @@ function! s:NoAutoClose() "{{{
 		if delim == '|'
 			let delim = '<Bar>'
 		endif
-		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#SkipDelim("' . escape(delim,'"') . '")<CR>'
+		exec 'inoremap <silent> <Plug>delimitMate' . delim . ' <C-R>=delimitMate#SkipDelim("' . escape(delim,'"') . '")<CR>'
+		exec 'silent! imap <unique> <buffer> '.delim.' <Plug>delimitMate'.delim
 	endfor
 endfunction "}}}
 
@@ -312,13 +313,15 @@ function! s:AutoClose() "{{{
 	while i < len(b:_l_delimitMate_matchpairs_list)
 		let ld = b:_l_delimitMate_left_delims[i] == '|' ? '<bar>' : b:_l_delimitMate_left_delims[i]
 		let rd = b:_l_delimitMate_right_delims[i] == '|' ? '<bar>' : b:_l_delimitMate_right_delims[i]
-		exec 'silent! inoremap <unique> <silent> <buffer> ' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . escape(rd, '|') . '")<CR>'
+		exec 'inoremap <silent> <Plug>delimitMate' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . escape(rd, '|') . '")<CR>'
+		exec 'silent! imap <unique> <buffer> '.ld.' <Plug>delimitMate'.ld
 		let i += 1
 	endwhile
 
 	" Exit from inside the matching pair:
 	for delim in b:_l_delimitMate_right_delims
-		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#JumpOut("\' . delim . '")<CR>'
+		exec 'inoremap <silent> <Plug>delimitMate' . delim . ' <C-R>=delimitMate#JumpOut("\' . delim . '")<CR>'
+		exec 'silent! imap <unique> <buffer> ' . delim . ' <Plug>delimitMate'. delim
 	endfor
 
 	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
@@ -327,13 +330,15 @@ function! s:AutoClose() "{{{
 		if delim == '|'
 			let delim = '<Bar>'
 		endif
-		exec 'silent! inoremap <unique> <silent> <buffer> ' . delim . ' <C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
+		exec 'inoremap <silent> <Plug>delimitMate' . delim . ' <C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
+		exec 'silent! imap <unique> <buffer> ' . delim . ' <Plug>delimitMate' . delim
 	endfor
 
 	" Try to fix the use of apostrophes (kept for backward compatibility):
 	" inoremap <silent> <buffer> n't n't
 	for map in b:_l_delimitMate_apostrophes_list
-		exec "silent! inoremap <unique> <silent> <buffer> " . map . " " . map
+		exec "inoremap <silent> " . map . " " . map
+		exec 'silent! imap <unique> <buffer> ' . map . ' <Plug>delimitMate' . map
 	endfor
 endfunction "}}}
 
@@ -342,7 +347,8 @@ function! s:VisualMaps() " {{{
 	let vleader = b:_l_delimitMate_visual_leader
 	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
 	for del in b:_l_delimitMate_right_delims + b:_l_delimitMate_left_delims + b:_l_delimitMate_quotes_list
-		exec "silent! vnoremap <unique> <silent> <buffer> <expr> " . vleader . del . ' delimitMate#Visual("' . escape(del, '")|') . '")'
+		exec "vnoremap <silent> <expr> <Plug>delimitMateVisual" . del . ' delimitMate#Visual("' . escape(del, '")|') . '")'
+		exec 'silent! vmap <unique> <buffer> ' . vleader . del . ' <Plug>delimitMateVisual' . del
 	endfor
 endfunction "}}}
 
