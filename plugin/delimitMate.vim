@@ -421,13 +421,13 @@ endfunction "}}}
 call s:DelimitMateDo()
 
 " Let me refresh without re-loading the buffer:
-command! DelimitMateReload call s:DelimitMateDo(1)
+command! -bar DelimitMateReload call s:DelimitMateDo(1)
 
 " Quick test:
-command! DelimitMateTest silent call s:TestMappingsDo()
+command! -bar DelimitMateTest silent call s:TestMappingsDo()
 
 " Switch On/Off:
-command! DelimitMateSwitch call s:DelimitMateSwitch()
+command! -bar DelimitMateSwitch call s:DelimitMateSwitch()
 "}}}
 
 " Autocommands: {{{
