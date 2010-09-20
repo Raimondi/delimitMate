@@ -598,9 +598,9 @@ function! delimitMate#TestMappings() "{{{
 	" }}}
 endfunction "}}}
 
-function! delimitMate#OptionsList()
+function! delimitMate#OptionsList() "{{{
 	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'visual_leader' : ( exists('mapleader') ? mapleader : exists('b:maplocalleader') ? b:maplocalleader : '\' ), 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
-endfunction
+endfunction " delimitMate#OptionsList }}}
 "}}}
 
 " vim:foldmethod=marker:foldcolumn=4
