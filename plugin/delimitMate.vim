@@ -1,7 +1,7 @@
 " ============================================================================
 " File:        plugin/delimitMate.vim
-" Version:     2.5
-" Modified:    2010-09-22
+" Version:     2.5.1
+" Modified:    2010-09-27
 " Description: This plugin provides auto-completion for quotes, parens, etc.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
 " Manual:      Read ":help delimitMate".
@@ -27,7 +27,7 @@ if v:version < 700
 endif
 
 let s:loaded_delimitMate = 1
-let delimitMate_version = "2.5"
+let delimitMate_version = "2.5.1"
 
 function! s:option_init(name, default) "{{{
 	let b = exists("b:delimitMate_" . a:name)
@@ -75,11 +75,6 @@ function! s:init() "{{{
 
 	" excluded filetypes
 	call s:option_init("excluded_ft", "")
-
-	" visual_leader
-	let leader = exists('b:maplocalleader') ? b:maplocalleader :
-					\ exists('g:mapleader') ? g:mapleader : "\\"
-	call s:option_init("visual_leader", leader)
 
 	" expand_space
 	if exists("b:delimitMate_expand_space") && type(b:delimitMate_expand_space) == type("")
@@ -154,7 +149,6 @@ function! s:Map() "{{{
 		else
 			call s:NoAutoClose()
 		endif
-		call s:VisualMaps()
 		call s:ExtraMappings()
 	finally
 		let &cpo = save_cpo
@@ -177,31 +171,12 @@ function! s:Unmap() " {{{
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
 				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
 
-	let vmaps =
-				\ b:_l_delimitMate_right_delims +
-				\ b:_l_delimitMate_left_delims +
-				\ b:_l_delimitMate_quotes_list
-
 	for map in imaps
 		if maparg(map, "i") =~? 'delimitMate'
 			if map == '|'
 				let map = '<Bar>'
 			endif
 			exec 'silent! iunmap <buffer> ' . map
-		endif
-	endfor
-
-	if !exists("b:_l_delimitMate_visual_leader")
-		let vleader = ""
-	else
-		let vleader = b:_l_delimitMate_visual_leader
-	endif
-	for map in vmaps
-			if map == '|'
-				let map = '<Bar>'
-			endif
-		if maparg(vleader . map, "v") =~? "delimitMate"
-			exec 'silent! vunmap <buffer> ' . vleader . map
 		endif
 	endfor
 
@@ -339,16 +314,6 @@ function! s:AutoClose() "{{{
 	for map in b:_l_delimitMate_apostrophes_list
 		exec "inoremap <silent> " . map . " " . map
 		exec 'silent! imap <unique> <buffer> ' . map . ' <Plug>delimitMate' . map
-	endfor
-endfunction "}}}
-
-function! s:VisualMaps() " {{{
-	let VMapMsg = "delimitMate: delimitMate is disabled on blockwise visual mode."
-	let vleader = b:_l_delimitMate_visual_leader
-	" Wrap the selection with matching pairs, but do nothing if blockwise visual mode is active:
-	for del in b:_l_delimitMate_right_delims + b:_l_delimitMate_left_delims + b:_l_delimitMate_quotes_list
-		exec "vnoremap <silent> <expr> <Plug>delimitMateVisual" . del . ' delimitMate#Visual("' . escape(del, '")|') . '")'
-		exec 'silent! vmap <unique> <buffer> ' . vleader . del . ' <Plug>delimitMateVisual' . del
 	endfor
 endfunction "}}}
 

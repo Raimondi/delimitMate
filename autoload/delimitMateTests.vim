@@ -19,7 +19,6 @@ function! delimitMateTests#Main()
 		let b:delimitMate_matchpairs = &matchpairs
 		let b:delimitMate_quotes = "\" ' `"
 		let b:delimitMate_excluded_regions = "Comment"
-		silent! unlet b:delimitMate_visual_leader
 		let b:delimitMate_expand_space = 0
 		let b:delimitMate_expand_cr = 0
 		let b:delimitMate_smart_quotes = 1
@@ -163,36 +162,6 @@ function! delimitMateTests#Main()
 	" BS with car return expansion
 	call Type("BS with CR expansion", "(\<CR>\<BS>", ['(|)'], ['expand_cr:1'])
 	call RepeatLast("BS with CR expansion", ['(|)(|)'], 1)
-
-	" Visual wrapping
-	call Type("Visual wrapping left paren", "1234\<Esc>v,(", ['123(4)'], ['visual_leader:","'])
-	cal RepeatLast("Visual wrapping left paren", ['(1)23(4)'], 1)
-
-	" Visual line wrapping
-	call Type("Visual line wrapping left paren", "1234\<Esc>V,(", ['(1234)'], ['visual_leader:","'])
-	cal RepeatLast("Visual line wrapping left paren", ['((1234))'], 1)
-
-	" Visual wrapping
-	call Type("Visual wrapping right paren", "1234\<Esc>v,)", ['123(4)'], ['visual_leader:","'])
-	cal RepeatLast("Visual wrapping right paren", ['(1)23(4)'], 1)
-
-	" Visual line wrapping
-	call Type("Visual line wrapping right paren", "1234\<Esc>V,)", ['(1234)'], ['visual_leader:","'])
-	cal RepeatLast("Visual line wrapping right paren", ['((1234))'], 1)
-
-	" Visual wrapping
-	call Type("Visual wrapping quote", "1234\<Esc>v,\"", ['123"4"'], ['visual_leader:","'])
-	cal RepeatLast("Visual wrapping quote", ['"1"23"4"'], 1)
-
-	" Visual line wrapping
-	call Type("Visual line wrapping quote", "1234\<Esc>V,\"", ['"1234"'], ['visual_leader:","'])
-	cal RepeatLast("Visual line wrapping quote", ['""1234""'], 1)
-
-	" Visual line wrapping empty line
-	call Type("Visual line wrapping paren empty line", "\<Esc>V,(", ['()'], ['visual_leader:","'])
-
-	" Visual line wrapping empty line
-	call Type("Visual line wrapping quote empty line", "\<Esc>V,\"", ['""'], ['visual_leader:","'])
 
 	" Smart quotes
 	call Type("Smart quote alphanumeric", "a\"4", ['a"4|'], [])
