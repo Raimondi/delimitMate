@@ -439,11 +439,50 @@ endfunction " }}}
 " Tools: {{{
 function! delimitMate#TestMappings() "{{{
 	let options = sort(keys(delimitMate#OptionsList()))
-	let optoutput = ['delimitMate Report', '', 'Options:']
+	let optoutput = ['delimitMate Report', '==================', '', '* Options: (-) unset, (g) global, (b) buffer','']
 	for option in options
-		exec 'call add(optoutput, ''delimitMate_''.option.'' = ''.string(b:_l_delimitMate_'.option.'))'
+		exec 'call add(optoutput, ''('.(exists('g:delimitMate_'.option) ? 'g' : exists('b:delimitMate_'.option) ? 'b' : '-').') delimitMate_''.option.'' = ''.string(b:_l_delimitMate_'.option.'))'
 	endfor
-	call append(line('$'), optoutput + ['','Showcase:', ''])
+	call append(line('$'), optoutput + ['--------------------',''])
+
+	" Check if mappings were set. {{{
+	let imaps = b:_l_delimitMate_right_delims
+	let imaps = imaps + ( b:_l_delimitMate_autoclose ? b:_l_delimitMate_left_delims : [] )
+	let imaps = imaps +
+				\ b:_l_delimitMate_quotes_list +
+				\ b:_l_delimitMate_apostrophes_list +
+				\ ['<BS>', '<S-BS>', '<Del>', '<S-Tab>', '<Esc>'] +
+				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
+				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
+	let imaps = imaps + ( b:_l_delimitMate_expand_cr ?  ['<CR>'] : [] )
+	let imaps = imaps + ( b:_l_delimitMate_expand_space ?  ['<Space>'] : [] )
+
+	let vmaps =
+				\ b:_l_delimitMate_right_delims +
+				\ b:_l_delimitMate_left_delims +
+				\ b:_l_delimitMate_quotes_list
+
+	let ibroken = []
+	for map in imaps
+		if maparg(map, "i") !~? 'delimitMate'
+			let output = ''
+			if map == '|'
+				let map = '<Bar>'
+			endif
+			redir => output | execute "verbose imap ".map | redir END
+			let ibroken = ibroken + [map.": is not set:"] + split(output, '\n')
+		endif
+	endfor
+	let ibroken = len(ibroken) > 0 ? ['IMAP'] + ibroken : []
+
+	unlet! output
+	if ibroken == []
+		let output = ['* Mappings:', '', 'All mappings were set-up.', '--------------------', '', '']
+	else
+		let output = ['* Mappings:', ''] + ibroken + ['--------------------', '']
+	endif
+	call append('$', output+['* Showcase:', ''])
+	" }}}
 	if b:_l_delimitMate_autoclose
 		" {{{
 		for i in range(len(b:_l_delimitMate_left_delims))
@@ -486,45 +525,6 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 	endif "}}}
-
-	" Check if mappings were set. {{{
-	let imaps = b:_l_delimitMate_right_delims
-	let imaps = imaps + ( b:_l_delimitMate_autoclose ? b:_l_delimitMate_left_delims : [] )
-	let imaps = imaps +
-				\ b:_l_delimitMate_quotes_list +
-				\ b:_l_delimitMate_apostrophes_list +
-				\ ['<BS>', '<S-BS>', '<Del>', '<S-Tab>', '<Esc>'] +
-				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
-				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
-	let imaps = imaps + ( b:_l_delimitMate_expand_cr ?  ['<CR>'] : [] )
-	let imaps = imaps + ( b:_l_delimitMate_expand_space ?  ['<Space>'] : [] )
-
-	let vmaps =
-				\ b:_l_delimitMate_right_delims +
-				\ b:_l_delimitMate_left_delims +
-				\ b:_l_delimitMate_quotes_list
-
-	let ibroken = []
-	for map in imaps
-		if maparg(map, "i") !~? 'delimitMate'
-			let output = ''
-			if map == '|'
-				let map = '<Bar>'
-			endif
-			redir => output | execute "verbose imap ".map | redir END
-			let ibroken = ibroken + [map.": is not set:"] + split(output, '\n')
-		endif
-	endfor
-	let ibroken = len(ibroken) > 0 ? ['IMAP'] + ibroken : []
-
-	unlet! output
-	if ibroken == []
-		let output = ['Mappings:', '', 'All mappings were set-up.', '--------------------', '', '']
-	else
-		let output = ['Mappings:', ''] + ibroken + ['--------------------', '', '']
-	endif
-	call append('$', output)
-	" }}}
 endfunction "}}}
 
 function! delimitMate#OptionsList() "{{{

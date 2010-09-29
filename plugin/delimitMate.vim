@@ -211,6 +211,7 @@ function! s:TestMappingsDo() "{{{
 		unlet temp_varsDM
 	endif
 	normal gg
+	g/\%^$/d
 endfunction "}}}
 
 function! s:DelimitMateDo(...) "{{{
