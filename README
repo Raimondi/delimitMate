@@ -1,4 +1,4 @@
-*delimitMate.txt*    Trying to keep those beasts at bay! v2.5    *delimitMate*
+*delimitMate.txt*   Trying to keep those beasts at bay! v2.5.1   *delimitMate*
 
 
 
@@ -27,11 +27,10 @@
         3.1 Automatic closing & exiting________|delimitMateAutoClose|
         3.2 Expansion of space and CR__________|delimitMateExpansion|
         3.3 Backspace__________________________|delimitMateBackspace|
-        3.4 Visual wrapping____________________|delimitMateVisualWrapping|
-        3.5 Smart Quotes_______________________|delimitMateSmartQuotes|
-        3.6 Balancing matching pairs___________|delimitMateBalance|
-        3.7 FileType based configuration_______|delimitMateFileType|
-        3.8 Syntax awareness___________________|delimitMateSyntax|
+        3.4 Smart Quotes_______________________|delimitMateSmartQuotes|
+        3.5 Balancing matching pairs___________|delimitMateBalance|
+        3.6 FileType based configuration_______|delimitMateFileType|
+        3.7 Syntax awareness___________________|delimitMateSyntax|
     4. Commands________________________________|delimitMateCommands|
     5. Mappings________________________________|delimitMateMappings|
     6. Functions_______________________________|delimitMateFunctions|
@@ -87,8 +86,6 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_nesting_quotes'|    Tells delimitMate which quotes should be
                                 allowed to be nested.
-
-|'delimitMate_visual_leader'|     Sets the leader to be used in visual mode.
 
 |'delimitMate_expand_cr'|         Turns on/off the expansion of <CR>.
 
@@ -177,18 +174,6 @@ allowing the autoclosed quotes to be nested.
 e.g.: >
         let delimitMate_nesting_quotes = ['"','`']
         au FileType python let b:delimitMate_nesting_quotes = ['"']
-<
-------------------------------------------------------------------------------
-                                                 *'delimitMate_visual_leader'*
-                                               *'b:delimitMate_visual_leader'*
-Values: Any character.                                                       ~
-Default: q                                                                   ~
-
-The value of this option will be used to wrap the selection in visual mode
-when followed by a delimiter. Read |delimitMateVisualWrap| for details.
-e.g: >
-        let delimitMate_visual_leader = "f"
-        au FileType html let b:delimitMate_visual_leader = "f"
 <
 ------------------------------------------------------------------------------
                                                      *'delimitMate_expand_cr'*
@@ -373,24 +358,7 @@ e.g. typing at the "|": >
 <
 
 ------------------------------------------------------------------------------
-   3.4 WRAPPING OF VISUAL SELECTION                *delimitMateVisualWrapping*
-
-When visual mode is active this script allows for the selection to be enclosed
-with delimiters. But, since brackets have special meaning in visual mode, a
-leader (the value of 'mapleader' by default) should precede the delimiter.
-NOTE that this feature brakes the repeat command and doesn't currently work
-well on blockwise visual mode when the selection has lines one character
-smaller than the rest, any suggestions to fix this will be very welcome.
-
-e.g. (selection represented between square brackets): >
-
-                      Selected text    |       After \"
-                 =============================================
-                  An [absurd] example! | An "absurd" example!
-<
-
-------------------------------------------------------------------------------
-   3.5 SMART QUOTES                                   *delimitMateSmartQuotes*
+   3.4 SMART QUOTES                                   *delimitMateSmartQuotes*
 
 Only one quote will be inserted following a quote, a "\" or, following or
 preceding an alphanumeric character. This should cover closing quotes after a
@@ -408,7 +376,7 @@ e.g. typing at the "|": >
                       'm  |  I|          |  I'm|
 <
 ------------------------------------------------------------------------------
-   3.6 BALANCING MATCHING PAIRS                           *delimitMateBalance*
+   3.5 BALANCING MATCHING PAIRS                           *delimitMateBalance*
 
 When inserting an opening paren and |'delimitMate_balance_matchpairs'| is
 enabled, delimitMate will try to balance the closing pairs in the current
@@ -423,7 +391,7 @@ e.g. typing at the "|": >
                       (   |     (|)      |    ((|))
 <
 ------------------------------------------------------------------------------
-   3.7 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
+   3.6 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
 
 delimitMate options can be set globally for all buffers using global
 ("regular") variables in your |vimrc| file. But |:autocmd| can be used to set
@@ -443,7 +411,7 @@ NOTE that you should use buffer variables (|b:var|) only to set options with
 |:autocmd|, for global options use regular variables (|g:var|) in your vimrc.
 
 ------------------------------------------------------------------------------
-   3.8 SYNTAX AWARENESS                                    *delimitMateSyntax*
+   3.7 SYNTAX AWARENESS                                    *delimitMateSyntax*
 
 The features of this plug-in might not be always helpful, comments and strings
 usualy don't need auto-completion. delimitMate monitors which region is being
@@ -668,8 +636,12 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.5     2010-09-22 * Current release:
-                         - Better handling of mappings.
+    2.5.1   2010-09-30 * Current release:
+                         - Remove visual wrapping. Surround.vim offers a much
+                           better implementation.
+                         - Minor mods to DelimitMateTest.
+|---------|------------|-----------------------------------------------------|
+    2.5     2010-09-22 * - Better handling of mappings.
                          - Add report for mappings in |:DelimitMateTest|.
                          - Allow the use of "|" and multi-byte characters in
                            |'delimitMate_quotes'| and |'delimitMate_matchpairs'|.

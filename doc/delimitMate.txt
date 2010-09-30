@@ -636,9 +636,10 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.5.1   2010-09-27 * Current release:
+    2.5.1   2010-09-30 * Current release:
                          - Remove visual wrapping. Surround.vim offers a much
                            better implementation.
+                         - Minor mods to DelimitMateTest.
 |---------|------------|-----------------------------------------------------|
     2.5     2010-09-22 * - Better handling of mappings.
                          - Add report for mappings in |:DelimitMateTest|.
