@@ -441,7 +441,7 @@ function! delimitMate#TestMappings() "{{{
 	let options = sort(keys(delimitMate#OptionsList()))
 	let optoutput = ['delimitMate Report', '==================', '', '* Options: (-) unset, (g) global, (b) buffer','']
 	for option in options
-		exec 'call add(optoutput, ''('.(exists('g:delimitMate_'.option) ? 'g' : exists('b:delimitMate_'.option) ? 'b' : '-').') delimitMate_''.option.'' = ''.string(b:_l_delimitMate_'.option.'))'
+		exec 'call add(optoutput, ''('.(exists('b:delimitMate_'.option) ? 'b' : exists('g:delimitMate_'.option) ? 'g' : '-').') delimitMate_''.option.'' = ''.string(b:_l_delimitMate_'.option.'))'
 	endfor
 	call append(line('$'), optoutput + ['--------------------',''])
 
