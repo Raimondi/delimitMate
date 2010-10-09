@@ -496,7 +496,7 @@ function! delimitMate#TestMappings() "{{{
 		endfor
 		for i in range(len(b:_l_delimitMate_quotes_list))
 			exec "normal GGAOpen: " . b:_l_delimitMate_quotes_list[i]	. "|"
-			exec "normal oDelete: " . b:_l_delimitMate_left_delims[i] . b:_l_delimitMate_right_delims[i] . "\<BS>|"
+			exec "normal oDelete: " . b:_l_delimitMate_quotes_list[i] . "\<BS>|"
 			exec "normal oExit: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "|"
 			exec "normal oSpace: " . b:_l_delimitMate_quotes_list[i] . " |"
 			exec "normal oDelete space: " . b:_l_delimitMate_quotes_list[i] . " \<BS>|"
