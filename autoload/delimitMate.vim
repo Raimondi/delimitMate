@@ -261,6 +261,8 @@ function! delimitMate#ParenDelim(char) " {{{
 	if (col) < 0
 		call setline('.',a:char.line)
 		call insert(b:_l_delimitMate_buffer, a:char)
+	elseif b:_l_delimitMate_smart_parens && line[col + 1] =~ '[[:alnum:]]'
+		return ''
 	else
 		"echom string(col).':'.line[:(col)].'|'.line[(col+1):]
 		call setline('.',line[:(col)].a:char.line[(col+1):])
@@ -528,7 +530,7 @@ function! delimitMate#TestMappings() "{{{
 endfunction "}}}
 
 function! delimitMate#OptionsList() "{{{
-	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
+	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'smart_parens' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
 endfunction " delimitMate#OptionsList }}}
 "}}}
 

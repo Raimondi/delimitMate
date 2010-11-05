@@ -114,6 +114,8 @@ function! s:init() "{{{
 
 	" smart_quotes
 	call s:option_init("smart_quotes", 1)
+	" smart_parens
+	call s:option_init("smart_parens", 1)
 
 	" apostrophes
 	call s:option_init("apostrophes", "")

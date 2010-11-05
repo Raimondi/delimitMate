@@ -93,6 +93,8 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_smart_quotes'|      Turns on/off the "smart quotes" feature.
 
+|'delimitMate_smart_parens'|      Turns on/off the "smart parens" feature.
+
 |'delimitMate_balance_matchpairs'|Turns on/off the "balance matching pairs"
                                 feature.
 
@@ -210,6 +212,18 @@ This option turns on/off the smart quotes feature. Read
 e.g.: >
         let delimitMate_smart_quotes = 0
         au FileType tcl let b:delimitMate_smart_quotes = 0
+<
+------------------------------------------------------------------------------
+                                                  *'delimitMate_smart_parens'*
+                                                *'b:delimitMate_smart_parens'*
+Values: 1 or 0                                                               ~
+Default: 1                                                                   ~
+
+This option turns on/off the smart parens feature. Read
+|delimitMateSmartParens| for details.
+e.g.: >
+        let delimitMate_smart_parens = 0
+        au FileType tcl let b:delimitMate_smart_parens = 0
 <
 ------------------------------------------------------------------------------
                                             *'delimitMate_balance_matchpairs'*
@@ -374,6 +388,23 @@ e.g. typing at the "|": >
                       "   |  "String|    |  "String"|
                       "   |  let i = "|  |  let i = "|"
                       'm  |  I|          |  I'm|
+<
+------------------------------------------------------------------------------
+   3.4 SMART PARENS                                   *delimitMateSmartParens*
+
+Like "smart quotes", but applied to parens (as well as [, {, etc.), only
+inserting the opening delimiter if preceding an alphanumeric character. This
+should cover adding parens, etc around existing words without having to handle
+the uncessary closing delimiter. This feature can be disabled by setting the
+option
+|'delimitMate_smart_parens'| to 0.
+
+e.g. typing at the "|": >
+
+                     What |    Before    |     After
+                  =======================================
+                      (   |  function|   |  function(|)
+                      (   |  |var        |  (|var
 <
 ------------------------------------------------------------------------------
    3.5 BALANCING MATCHING PAIRS                           *delimitMateBalance*
