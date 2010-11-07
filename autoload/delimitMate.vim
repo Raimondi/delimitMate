@@ -477,7 +477,6 @@ function! delimitMate#TestMappings() "{{{
 			let ibroken = ibroken + [map.": is not set:"] + split(output, '\n')
 		endif
 	endfor
-	let ibroken = len(ibroken) > 0 ? ['IMAP'] + ibroken : []
 
 	unlet! output
 	if ibroken == []
