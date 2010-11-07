@@ -258,7 +258,10 @@ function! delimitMate#ParenDelim(char) " {{{
 	endif
 	let line = getline('.')
 	let col = col('.')-2
-	if (col) < 0
+	if b:_l_delimitMate_smart_matchpairs &&
+				\ line[col+1] =~ '\S'
+		return ''
+	elseif (col) < 0
 		call setline('.',a:char.line)
 		call insert(b:_l_delimitMate_buffer, a:char)
 	else

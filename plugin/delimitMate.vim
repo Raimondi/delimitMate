@@ -112,6 +112,9 @@ function! s:init() "{{{
 	endif
 	call s:option_init("expand_cr", 0)
 
+	" smart_matchpairs
+	call s:option_init("smart_matchpairs", 1)
+
 	" smart_quotes
 	call s:option_init("smart_quotes", 1)
 
