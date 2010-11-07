@@ -182,7 +182,8 @@ Values: 1 or 0                                                               ~
 Default: 0                                                                   ~
 
 This option turns on/off the expansion of <CR>. Read |delimitMateExpansion|
-for details.
+for details. NOTE This feature requires that 'backspace' is either set to 2 or
+has "eol" and "start" as part of its value.
 e.g.: >
         let delimitMate_expand_cr = 1
         au FileType mail let b:delimitMate_expand_cr = 1
