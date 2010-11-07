@@ -285,10 +285,10 @@ function! delimitMate#QuoteDelim(char) "{{{
 				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
 		return a:char . delimitMate#Del()
-	elseif (line[col] =~ '[[:alnum:]]' && a:char == "'") ||
+	elseif (line[col] =~ '\w' && a:char == "'") ||
 				\ (b:_l_delimitMate_smart_quotes &&
-				\ (line[col] =~ '[[:alnum:]]' ||
-				\ line[col + 1] =~ '[[:alnum:]]'))
+				\ (line[col] =~ '\w' ||
+				\ line[col + 1] =~ '\w'))
 		" Seems like an apostrophe or a smart quote case, insert a single quote.
 		return a:char
 	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:_l_delimitMate_smart_quotes
