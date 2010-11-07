@@ -193,7 +193,6 @@ e.g.: >
                                                 *'b:delimitMate_expand_space'*
 Values: 1 or 0                                                               ~
 Default: 0                                                                   ~
-
 This option turns on/off the expansion of <Space>. Read |delimitMateExpansion|
 for details.
 e.g.: >

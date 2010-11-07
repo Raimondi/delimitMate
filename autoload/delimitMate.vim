@@ -252,6 +252,7 @@ function! delimitMate#ParenDelim(char) " {{{
 	if delimitMate#IsForbidden(a:char)
 		return ''
 	endif
+	" Try to balance matchpairs
 	if b:_l_delimitMate_balance_matchpairs &&
 				\ delimitMate#BalancedParens(a:char) <= 0
 		return ''
