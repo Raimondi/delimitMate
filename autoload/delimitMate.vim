@@ -531,7 +531,7 @@ function! delimitMate#TestMappings() "{{{
 endfunction "}}}
 
 function! delimitMate#OptionsList() "{{{
-	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
+	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'smart_matchpairs' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
 endfunction " delimitMate#OptionsList }}}
 "}}}
 
