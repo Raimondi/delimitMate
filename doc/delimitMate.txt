@@ -219,7 +219,7 @@ e.g.: >
 Values: 1 or 0                                                               ~
 Default: 1                                                                   ~
 
-This option turns on/off the smart parens feature. Read
+This option turns on/off the smart matchpairs feature. Read
 |delimitMateSmartMatchpairs| for details.
 e.g.: >
         let delimitMate_smart_matchpairs = 0
@@ -375,7 +375,7 @@ e.g. typing at the "|": >
    3.4 SMART QUOTES                                   *delimitMateSmartQuotes*
 
 Only one quote will be inserted following a quote, a "\" or, following or
-preceding an alphanumeric character. This should cover closing quotes after a
+preceding a keyword character. This should cover closing quotes after a
 string, opening quotes before a string, escaped quotes and apostrophes. Except
 for apostrophes, this feature can be disabled setting the option
 |'delimitMate_smart_quotes'| to 0.
@@ -393,9 +393,9 @@ e.g. typing at the "|": >
    3.4 SMART MATCHPAIRS                           *delimitMateSmartMatchpairs*
 
 Like "smart quotes", but applied to parens (as well as [, {, etc.), only
-inserting the opening delimiter if preceding an alphanumeric character. This
-should cover adding parens, etc around existing words without having to handle
-the uncessary closing delimiter. This feature can be disabled by setting the
+inserting the opening delimiter if preceding a keyword character. This should
+cover adding parens, etc around existing words without having to handle the
+uncessary closing delimiter. This feature can be disabled by setting the
 option |'delimitMate_smart_matchpairs'| to 0.
 
 e.g. typing at the "|": >
