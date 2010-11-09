@@ -636,26 +636,34 @@ be very pleased to read them.
 ==============================================================================
  9. CREDITS                                               *delimitMateCredits*
 
-Some of the code that make this script is modified or just shamelessly copied
-from the following sources:
+Contributors: ~
 
-   - Ian McCracken
+  - Kim Silkebækken                                                         ~
+    Fixed mappings being echoed in the terminal.
+
+  - Eric Van Dewoestine                                                     ~
+    Implemented smart matchpairs.
+
+Some of the code that makes this script was modified or just shamelessly
+copied from the following sources:
+
+   - Ian McCracken                                                          ~
      Post titled: Vim, Part II: Matching Pairs:
      http://concisionandconcinnity.blogspot.com/
 
-   - Aristotle Pagaltzis
+   - Aristotle Pagaltzis                                                    ~
      From the comments on the previous blog post and from:
      http://gist.github.com/144619
 
-   - Karl Guertin
+   - Karl Guertin                                                           ~
      AutoClose:
      http://www.vim.org/scripts/script.php?script_id=1849
 
-   - Thiago Alves
+   - Thiago Alves                                                           ~
      AutoClose:
      http://www.vim.org/scripts/script.php?script_id=2009
 
-   - Edoardo Vacchi
+   - Edoardo Vacchi                                                         ~
      ClosePairs:
      http://www.vim.org/scripts/script.php?script_id=2373
 
