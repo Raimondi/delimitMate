@@ -259,8 +259,11 @@ function! delimitMate#ParenDelim(char) " {{{
 	endif
 	let line = getline('.')
 	let col = col('.')-2
-	if b:_l_delimitMate_smart_matchpairs &&
-				\ line[col+1] =~ '\w'
+	let left = b:_l_delimitMate_left_delims[index(b:_l_delimitMate_right_delims,a:char)]
+	let smart_matchpairs = substitute(b:_l_delimitMate_smart_matchpairs, '\\!', left, 'g')
+	"echom left.':'.smart_matchpairs . ':' . matchstr(line[col+1], smart_matchpairs)
+	if b:_l_delimitMate_smart_matchpairs != '' &&
+				\ line[col+1:] =~ smart_matchpairs
 		return ''
 	elseif (col) < 0
 		call setline('.',a:char.line)
@@ -531,7 +534,7 @@ function! delimitMate#TestMappings() "{{{
 endfunction "}}}
 
 function! delimitMate#OptionsList() "{{{
-	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'smart_matchpairs' : 1, 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
+	return {'autoclose' : 1,'matchpairs': &matchpairs, 'quotes' : '" '' `', 'nesting_quotes' : [], 'expand_cr' : 0, 'expand_space' : 0, 'smart_quotes' : 1, 'smart_matchpairs' : '\w', 'balance_matchpairs' : 0, 'excluded_regions' : 'Comment', 'excluded_ft' : '', 'apostrophes' : ''}
 endfunction " delimitMate#OptionsList }}}
 "}}}
 

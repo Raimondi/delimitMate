@@ -112,7 +112,7 @@ function! s:init() "{{{
 	call s:option_init("expand_cr", 0)
 
 	" smart_matchpairs
-	call s:option_init("smart_matchpairs", 1)
+	call s:option_init("smart_matchpairs", '^\%(\w\|\!\)')
 
 	" smart_quotes
 	call s:option_init("smart_quotes", 1)
