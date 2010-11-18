@@ -261,6 +261,7 @@ function! delimitMate#ParenDelim(char) " {{{
 	let col = col('.')-2
 	let left = b:_l_delimitMate_left_delims[index(b:_l_delimitMate_right_delims,a:char)]
 	let smart_matchpairs = substitute(b:_l_delimitMate_smart_matchpairs, '\\!', left, 'g')
+	let smart_matchpairs = substitute(smart_matchpairs, '\\#', a:char, 'g')
 	"echom left.':'.smart_matchpairs . ':' . matchstr(line[col+1], smart_matchpairs)
 	if b:_l_delimitMate_smart_matchpairs != '' &&
 				\ line[col+1:] =~ smart_matchpairs
