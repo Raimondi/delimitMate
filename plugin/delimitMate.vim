@@ -217,24 +217,22 @@ function! s:TestMappingsDo() "{{{
 endfunction "}}}
 
 function! s:DelimitMateDo(...) "{{{
-	" Initialize settings:
-	call s:init()
-
-	" Check if this file type is excluded:
-	if exists("g:delimitMate_excluded_ft") &&
-				\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
-
-			" Remove any magic:
-			call s:Unmap()
-
-			" Finish here:
-			return 1
-	endif
 
 	" First, remove all magic, if needed:
 	if exists("b:delimitMate_enabled") && b:delimitMate_enabled == 1
 		call s:Unmap()
 	endif
+
+	" Check if this file type is excluded:
+	if exists("g:delimitMate_excluded_ft") &&
+				\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
+
+			" Finish here:
+			return 1
+	endif
+
+	" Initialize settings:
+	call s:init()
 
 	" Now, add magic:
 	call s:Map()
@@ -245,12 +243,12 @@ function! s:DelimitMateDo(...) "{{{
 endfunction "}}}
 
 function! s:DelimitMateSwitch() "{{{
-	call s:init()
 	if exists("b:delimitMate_enabled") && b:delimitMate_enabled
 		call s:Unmap()
 		echo "delimitMate has been disabled."
 	else
 		call s:Unmap()
+		call s:init()
 		call s:Map()
 		echo "delimitMate has been enabled."
 	endif
