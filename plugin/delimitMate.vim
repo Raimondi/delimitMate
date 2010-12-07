@@ -258,7 +258,7 @@ endfunction "}}}
 
 function! s:Finish()
 	if exists('g:delimitMate_loaded')
-		return delimitMate#Finish()
+		return delimitMate#Finish(1)
 	endif
 	return ''
 endfunction
@@ -349,7 +349,7 @@ function! s:ExtraMappings() "{{{
 	endfor
 	" Avoid ambiguous mappings:
 	for map in ['LeftMouse', 'RightMouse']
-		exec 'inoremap <silent> <Plug>delimitMateM'.map.' <C-R>=delimitMate#Finish()<CR><'.map.'>'
+		exec 'inoremap <silent> <Plug>delimitMateM'.map.' <C-R>=delimitMate#Finish(1)<CR><'.map.'>'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMateM'.map
 		endif

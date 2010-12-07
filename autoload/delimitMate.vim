@@ -409,7 +409,7 @@ function! delimitMate#Del() " {{{
 	endif
 endfunction " }}}
 
-function! delimitMate#Finish() " {{{
+function! delimitMate#Finish(move_back) " {{{
 	let len = len(b:_l_delimitMate_buffer)
 	if len > 0
 		let buffer = join(b:_l_delimitMate_buffer, '')
@@ -425,8 +425,8 @@ function! delimitMate#Finish() " {{{
 			call setline('.', line[:col] . line[col+len2+1:])
 		endif
 		let i = 1
-		let lefts = "\<Left>"
-		while i < len
+		let lefts = ""
+		while i <= len && a:move_back
 			let lefts = lefts . "\<Left>"
 			let i += 1
 		endwhile
