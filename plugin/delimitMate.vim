@@ -171,7 +171,7 @@ function! s:Unmap() " {{{
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
-				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
+				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
 
 	for map in imaps
 		if maparg(map, "i") =~? 'delimitMate'
@@ -352,6 +352,10 @@ function! s:ExtraMappings() "{{{
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMateM'.map
 		endif
 	endfor
+
+	" Jump over next delimiters
+	inoremap <buffer> <Plug>delimitMateJumpMany <C-R>=len(b:_l_delimitMate_buffer) ? delimitMate#Finish(0) : delimitMate#JumpMany()<CR>
+	imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
 
 	" Map away!
 	if !hasmapto('<Plug>delimitMateDel', 'i')

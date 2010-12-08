@@ -346,6 +346,32 @@ function! delimitMate#JumpAny(key) " {{{
 	endif
 endfunction " delimitMate#JumpAny() }}}
 
+function! delimitMate#JumpMany() " {{{
+	let line = getline('.')[col('.') - 1 : ]
+	let len = len(line)
+	let rights = ""
+	let found = 0
+	let i = 0
+	while i < len
+		let char = line[i]
+		if index(b:_l_delimitMate_quotes_list, char) >= 0 ||
+					\ index(b:_l_delimitMate_right_delims, char) >= 0
+			let rights .= "\<Right>"
+			let found = 1
+		elseif found == 0
+			let rights .= "\<Right>"
+		else
+			break
+		endif
+		let i += 1
+	endwhile
+	if found == 1
+		return rights
+	else
+		return ''
+	endif
+endfunction " delimitMate#JumpMany() }}}
+
 function! delimitMate#MapMsg(msg) "{{{
 	redraw
 	echomsg a:msg
@@ -461,7 +487,7 @@ function! delimitMate#TestMappings() "{{{
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
-				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>']
+				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
 	let imaps = imaps + ( b:_l_delimitMate_expand_cr ?  ['<CR>'] : [] )
 	let imaps = imaps + ( b:_l_delimitMate_expand_space ?  ['<Space>'] : [] )
 
