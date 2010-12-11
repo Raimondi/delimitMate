@@ -525,7 +525,7 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal oSpace: " . b:_l_delimitMate_left_delims[i] . " |"
 			exec "normal oDelete space: " . b:_l_delimitMate_left_delims[i] . " \<BS>|"
 			exec "normal oCar return: " . b:_l_delimitMate_left_delims[i] . "\<CR>|"
-			exec "normal GGoDelete car return: " . b:_l_delimitMate_left_delims[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
+			exec "normal GGoDelete car return: " . b:_l_delimitMate_left_delims[i] . "\<CR>0\<C-D>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 		for i in range(len(b:_l_delimitMate_quotes_list))
 			exec "normal GGAOpen: " . b:_l_delimitMate_quotes_list[i]	. "|"
