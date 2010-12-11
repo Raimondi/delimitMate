@@ -215,6 +215,13 @@ function! delimitMate#BalancedParens(char) "{{{
 	return opening - closing
 endfunction "}}}
 
+function! delimitMate#RmBuffer(num) " {{{
+	if len(b:_l_delimitMate_buffer) > 0
+	   call remove(b:_l_delimitMate_buffer, 0, (a:num-1))
+	endif
+	return ""
+endfunction " }}}
+
 " }}}
 
 " Doers {{{
@@ -372,12 +379,6 @@ function! delimitMate#JumpMany() " {{{
 	endif
 endfunction " delimitMate#JumpMany() }}}
 
-function! delimitMate#MapMsg(msg) "{{{
-	redraw
-	echomsg a:msg
-	return ""
-endfunction "}}}
-
 function! delimitMate#ExpandReturn() "{{{
 	if delimitMate#IsForbidden("")
 		return "\<CR>"
@@ -459,13 +460,6 @@ function! delimitMate#Finish(move_back) " {{{
 		return substitute(buffer, "s", "\<Space>", 'g') . lefts
 	endif
 	return ''
-endfunction " }}}
-
-function! delimitMate#RmBuffer(num) " {{{
-	if len(b:_l_delimitMate_buffer) > 0
-	   call remove(b:_l_delimitMate_buffer, 0, (a:num-1))
-	endif
-	return ""
 endfunction " }}}
 
 " }}}
