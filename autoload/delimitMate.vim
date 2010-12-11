@@ -558,6 +558,9 @@ function! delimitMate#TestMappings() "{{{
 			exec "normal GGoDelete car return: " . b:_l_delimitMate_quotes_list[i] . b:_l_delimitMate_quotes_list[i] . "\<CR>\<BS>|\<Esc>GG\<Esc>o"
 		endfor
 	endif "}}}
+	redir => setoptions | set | redir END
+	call append(line('$'), split(setoptions,"\n"))
+	setlocal nowrap
 endfunction "}}}
 
 function! delimitMate#OptionsList() "{{{
