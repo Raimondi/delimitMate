@@ -204,7 +204,7 @@ function! s:TestMappingsDo() "{{{
 				call s:Unmap()
 				call s:Map()
 				call delimitMate#TestMappings()
-				normal o
+				call append(line('$'),'')
 			endfor
 		endfor
 		let b:delimitMate_expand_space = temp_varsDM[0]
