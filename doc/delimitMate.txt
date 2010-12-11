@@ -292,27 +292,34 @@ Unless |'delimitMate_matchpairs'| or |'delimitMate_quotes'|are set, this
 script uses the values in '&matchpairs' to identify the pairs, and ", ' and `
 for quotes respectively.
 
+<S-Tab> will jump over a single closing delimiter or quote, <C-G>g will jump
+over contiguous delimiters and/or quotes.
+
 The following table shows the behaviour, this applies to quotes too (the final
 position of the cursor is represented by a "|"):
 
 With auto-close: >
-                          Type   |  You get
-                        ====================
-                           (     |    (|)
-                        –––––––––|––––––––––
-                           ()    |    ()|
-                        –––––––––|––––––––––
-                        (<S-Tab> |    ()|
+                          Type     |  You get
+                        =======================
+                           (       |    (|)
+                        –––––––––––|–––––––––––
+                           ()      |    ()|
+                        –––––––––––|–––––––––––
+                        (<S-Tab>   |    ()|
+                        –––––––––––|–––––––––––
+                        {("<C-G>g  |  {("")}|
 <
 Without auto-close: >
 
-                          Type    |  You get
-                        =====================
-                           ()     |    (|)
-                        –––––––––-|––––––––––
-                           ())    |    ()|
-                        –––––––––-|––––––––––
-                        ()<S-Tab> |    ()|
+                          Type        |  You get
+                        =========================
+                           ()         |    (|)
+                        –––––––––-----|––––––––––
+                           ())        |    ()|
+                        –––––––––-----|––––––––––
+                        ()<S-Tab>     |    ()|
+                        ––––––––––––––|–––––––––––
+                        {}()""<C-G>g  |  {("")}|
 <
 NOTE: Abbreviations will not be expanded by delimiters used on delimitMate,
 you should use <C-]> (read |i_CTRL-]|) to expand them on the go.
@@ -392,7 +399,10 @@ e.g. typing at the "|": >
 ------------------------------------------------------------------------------
    3.4 SMART MATCHPAIRS                           *delimitMateSmartMatchpairs*
 
-Like "smart quotes", but applied to parens (as well as [, {, etc.), only
+This is similar to "smart quotes", but applied to the characters in
+|'delimitMate_matchpairs'|. The difference is that delimitMate will not
+auto-close the pair
+parens (as well as [, {, etc.), only
 inserting the opening delimiter if preceding a keyword character. This should
 cover adding parens, etc around existing words without having to handle the
 uncessary closing delimiter. This feature can be disabled by setting the
@@ -416,9 +426,9 @@ e.g. typing at the "|": >
 
                      What |    Before    |     After
                   =======================================
-                      (   |      |)      |     (|)
                       (   |      |       |     (|)
-                      (   |     (|)      |    ((|))
+                      (   |      |)      |     (|)
+                      ((  |      |)      |    ((|))
 <
 ------------------------------------------------------------------------------
    3.6 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
@@ -551,11 +561,12 @@ In order to make custom mappings easier and prevent overwritting existing
 ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 for its mappings.
 
-The following are the mappings alway set by delimitMate:
+These are the default mappings:
 
 <BS>         is mapped to <Plug>delimitMateBS
 <S-BS>       is mapped to <Plug>delimitMateS-BS
 <S-Tab>      is mapped to <Plug>delimitMateS-Tab
+<C-G>g       is mapped to <Plug>delimitMateJumpMany
 <Del>        is mapped to <Plug>delimitMateDel
 <Esc>        is mapped to <Plug>delimitMateEsc
 <Left>       is mapped to <Plug>delimitMateLeft
@@ -592,7 +603,7 @@ menus:
  6. FUNCTIONS                                           *delimitMateFunctions*
 
 ------------------------------------------------------------------------------
-delimitMate#WithinEmptyPair()                  *delimitMate_WithinEmptyPair()*
+delimitMate#WithinEmptyPair()                  *delimitMate#WithinEmptyPair()*
 
 Returns 1 if the cursor is inside an empty pair, 0 otherwise.
 e.g.: >
@@ -647,25 +658,25 @@ Contributors: ~
 Some of the code that makes this script was modified or just shamelessly
 copied from the following sources:
 
-   - Ian McCracken                                                          ~
-     Post titled: Vim, Part II: Matching Pairs:
-     http://concisionandconcinnity.blogspot.com/
+  - Ian McCracken                                                          ~
+    Post titled: Vim, Part II: Matching Pairs:
+    http://concisionandconcinnity.blogspot.com/
 
-   - Aristotle Pagaltzis                                                    ~
-     From the comments on the previous blog post and from:
-     http://gist.github.com/144619
+  - Aristotle Pagaltzis                                                    ~
+    From the comments on the previous blog post and from:
+    http://gist.github.com/144619
 
-   - Karl Guertin                                                           ~
-     AutoClose:
-     http://www.vim.org/scripts/script.php?script_id=1849
+  - Karl Guertin                                                           ~
+    AutoClose:
+    http://www.vim.org/scripts/script.php?script_id=1849
 
-   - Thiago Alves                                                           ~
-     AutoClose:
-     http://www.vim.org/scripts/script.php?script_id=2009
+  - Thiago Alves                                                           ~
+    AutoClose:
+    http://www.vim.org/scripts/script.php?script_id=2009
 
-   - Edoardo Vacchi                                                         ~
-     ClosePairs:
-     http://www.vim.org/scripts/script.php?script_id=2373
+  - Edoardo Vacchi                                                         ~
+    ClosePairs:
+    http://www.vim.org/scripts/script.php?script_id=2373
 
 This script was inspired by the auto-completion of delimiters on TextMate.
 
@@ -673,6 +684,9 @@ This script was inspired by the auto-completion of delimiters on TextMate.
  10. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
+|---------|------------|-----------------------------------------------------|
+    2.6     2010-09-30 * Current release:
+                         - Remove visual wrapping. Surround.vim offers a much
 |---------|------------|-----------------------------------------------------|
     2.5.1   2010-09-30 * Current release:
                          - Remove visual wrapping. Surround.vim offers a much
