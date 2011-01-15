@@ -413,7 +413,11 @@ augroup delimitMate
 	autocmd FileType * call <SID>DelimitMateDo()
 
 	" Run on new buffers.
-	autocmd BufNewFile,BufRead,BufEnter * call <SID>DelimitMateDo()
+	autocmd BufNewFile,BufRead,BufEnter *
+				\ if !exists('b:delimitMate_was_here') |
+				\   call <SID>DelimitMateDo() |
+				\   let b:delimitMate_was_here = 1 |
+				\ endif
 
 	" Flush the char buffer:
 	autocmd InsertEnter * call <SID>FlushBuffer()
