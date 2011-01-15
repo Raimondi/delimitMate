@@ -129,8 +129,6 @@ function! s:init() "{{{
 
 	let b:_l_delimitMate_buffer = []
 
-	let b:loaded_delimitMate = 1
-
 endfunction "}}} Init()
 
 "}}}
@@ -227,8 +225,13 @@ function! s:DelimitMateDo(...) "{{{
 	if exists("g:delimitMate_excluded_ft") &&
 				\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
 
-			" Finish here:
-			return 1
+		" Finish here:
+		return 1
+	endif
+
+	" Check if user tried to disable using b:loaded_delimitMate
+	if exists("b:loaded_delimitMate")
+		return 1
 	endif
 
 	" Initialize settings:
@@ -410,10 +413,7 @@ augroup delimitMate
 	autocmd FileType * call <SID>DelimitMateDo()
 
 	" Run on new buffers.
-	autocmd BufNewFile,BufRead,BufEnter *
-				\ if !exists("b:loaded_delimitMate") |
-				\   call <SID>DelimitMateDo() |
-				\ endif
+	autocmd BufNewFile,BufRead,BufEnter * call <SID>DelimitMateDo()
 
 	" Flush the char buffer:
 	autocmd InsertEnter * call <SID>FlushBuffer()
