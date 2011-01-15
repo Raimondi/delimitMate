@@ -205,25 +205,28 @@ e.g.: >
                                                   *'delimitMate_smart_quotes'*
                                                 *'b:delimitMate_smart_quotes'*
 Values: 1 or 0                                                               ~
-Default: 1                                                                   ~
+Default: 1                              ~
 
 This option turns on/off the smart quotes feature. Read
 |delimitMateSmartQuotes| for details.
 e.g.: >
         let delimitMate_smart_quotes = 0
-        au FileType tcl let b:delimitMate_smart_quotes = 0
+        au FileType tcl let b:delimitMate_smart_quotes = 1
 <
 ------------------------------------------------------------------------------
                                               *'delimitMate_smart_matchpairs'*
                                             *'b:delimitMate_smart_matchpairs'*
-Values: 1 or 0                                                               ~
-Default: 1                                                                   ~
+Values: Regexp                                                               ~
+Default: '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)'                                ~
 
-This option turns on/off the smart matchpairs feature. Read
-|delimitMateSmartMatchpairs| for details.
+This regex is matched against the text to the right of cursor, if it's not
+empty and there is a match delimitMate will not autoclose the pair. At the
+moment to match the text, an escaped bang (\!) in the regex will be replaced
+by the character being inserted, while an escaped number symbol (\#) will be
+replaced by the closing pair.
 e.g.: >
-        let delimitMate_smart_matchpairs = 0
-        au FileType tcl let b:delimitMate_smart_matchpairs = 0
+        let delimitMate_smart_matchpairs = ''
+        au FileType tcl let b:delimitMate_smart_matchpairs = '^\%(\w\|\$\)'
 <
 ------------------------------------------------------------------------------
                                             *'delimitMate_balance_matchpairs'*
@@ -288,7 +291,11 @@ When the cursor is inside an empty pair or located next to the left of a
 closing delimiter, the cursor is placed outside the pair to the right of the
 closing delimiter.
 
-Unless |'delimitMate_matchpairs'| or |'delimitMate_quotes'|are set, this
+When |'delimitMate_smart_matchpairs'| is not empty and it matches the text to
+the right of the cursor, delimitMate will not automatically insert the closing
+pair.
+
+Unless |'delimitMate_matchpairs'| or |'delimitMate_quotes'| are set, this
 script uses the values in '&matchpairs' to identify the pairs, and ", ' and `
 for quotes respectively.
 
@@ -401,12 +408,9 @@ e.g. typing at the "|": >
 
 This is similar to "smart quotes", but applied to the characters in
 |'delimitMate_matchpairs'|. The difference is that delimitMate will not
-auto-close the pair
-parens (as well as [, {, etc.), only
-inserting the opening delimiter if preceding a keyword character. This should
-cover adding parens, etc around existing words without having to handle the
-uncessary closing delimiter. This feature can be disabled by setting the
-option |'delimitMate_smart_matchpairs'| to 0.
+auto-close the pair when the regex matches the text on the right of the
+cursor. See |'delimitMate_smart_matchpairs'| for more details.
+
 
 e.g. typing at the "|": >
 
@@ -688,8 +692,7 @@ This script was inspired by the auto-completion of delimiters on TextMate.
     2.6     2010-09-30 * Current release:
                          - Remove visual wrapping. Surround.vim offers a much
 |---------|------------|-----------------------------------------------------|
-    2.5.1   2010-09-30 * Current release:
-                         - Remove visual wrapping. Surround.vim offers a much
+    2.5.1   2010-09-30 * - Remove visual wrapping. Surround.vim offers a much
                            better implementation.
                          - Minor mods to DelimitMateTest.
 |---------|------------|-----------------------------------------------------|
