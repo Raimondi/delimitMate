@@ -1,4 +1,4 @@
-*delimitMate.txt*   Trying to keep those beasts at bay! v2.5.1   *delimitMate*
+*delimitMate.txt*   Trying to keep those beasts at bay! v2.6     *delimitMate*
 
 
 
@@ -93,6 +93,8 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_smart_quotes'|      Turns on/off the "smart quotes" feature.
 
+|'delimitMate_smart_matchpairs'|  Turns on/off the "smart matchpairs" feature.
+
 |'delimitMate_balance_matchpairs'|Turns on/off the "balance matching pairs"
                                 feature.
 
@@ -182,7 +184,8 @@ Values: 1 or 0                                                               ~
 Default: 0                                                                   ~
 
 This option turns on/off the expansion of <CR>. Read |delimitMateExpansion|
-for details.
+for details. NOTE This feature requires that 'backspace' is either set to 2 or
+has "eol" and "start" as part of its value.
 e.g.: >
         let delimitMate_expand_cr = 1
         au FileType mail let b:delimitMate_expand_cr = 1
@@ -192,7 +195,6 @@ e.g.: >
                                                 *'b:delimitMate_expand_space'*
 Values: 1 or 0                                                               ~
 Default: 0                                                                   ~
-
 This option turns on/off the expansion of <Space>. Read |delimitMateExpansion|
 for details.
 e.g.: >
@@ -203,13 +205,28 @@ e.g.: >
                                                   *'delimitMate_smart_quotes'*
                                                 *'b:delimitMate_smart_quotes'*
 Values: 1 or 0                                                               ~
-Default: 1                                                                   ~
+Default: 1                              ~
 
 This option turns on/off the smart quotes feature. Read
 |delimitMateSmartQuotes| for details.
 e.g.: >
         let delimitMate_smart_quotes = 0
-        au FileType tcl let b:delimitMate_smart_quotes = 0
+        au FileType tcl let b:delimitMate_smart_quotes = 1
+<
+------------------------------------------------------------------------------
+                                              *'delimitMate_smart_matchpairs'*
+                                            *'b:delimitMate_smart_matchpairs'*
+Values: Regexp                                                               ~
+Default: '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)'                                ~
+
+This regex is matched against the text to the right of cursor, if it's not
+empty and there is a match delimitMate will not autoclose the pair. At the
+moment to match the text, an escaped bang (\!) in the regex will be replaced
+by the character being inserted, while an escaped number symbol (\#) will be
+replaced by the closing pair.
+e.g.: >
+        let delimitMate_smart_matchpairs = ''
+        au FileType tcl let b:delimitMate_smart_matchpairs = '^\%(\w\|\$\)'
 <
 ------------------------------------------------------------------------------
                                             *'delimitMate_balance_matchpairs'*
@@ -274,31 +291,42 @@ When the cursor is inside an empty pair or located next to the left of a
 closing delimiter, the cursor is placed outside the pair to the right of the
 closing delimiter.
 
-Unless |'delimitMate_matchpairs'| or |'delimitMate_quotes'|are set, this
+When |'delimitMate_smart_matchpairs'| is not empty and it matches the text to
+the right of the cursor, delimitMate will not automatically insert the closing
+pair.
+
+Unless |'delimitMate_matchpairs'| or |'delimitMate_quotes'| are set, this
 script uses the values in '&matchpairs' to identify the pairs, and ", ' and `
 for quotes respectively.
+
+<S-Tab> will jump over a single closing delimiter or quote, <C-G>g will jump
+over contiguous delimiters and/or quotes.
 
 The following table shows the behaviour, this applies to quotes too (the final
 position of the cursor is represented by a "|"):
 
 With auto-close: >
-                          Type   |  You get
-                        ====================
-                           (     |    (|)
-                        –––––––––|––––––––––
-                           ()    |    ()|
-                        –––––––––|––––––––––
-                        (<S-Tab> |    ()|
+                          Type     |  You get
+                        =======================
+                           (       |    (|)
+                        –––––––––––|–––––––––––
+                           ()      |    ()|
+                        –––––––––––|–––––––––––
+                        (<S-Tab>   |    ()|
+                        –––––––––––|–––––––––––
+                        {("<C-G>g  |  {("")}|
 <
 Without auto-close: >
 
-                          Type    |  You get
-                        =====================
-                           ()     |    (|)
-                        –––––––––-|––––––––––
-                           ())    |    ()|
-                        –––––––––-|––––––––––
-                        ()<S-Tab> |    ()|
+                          Type        |  You get
+                        =========================
+                           ()         |    (|)
+                        –––––––––-----|––––––––––
+                           ())        |    ()|
+                        –––––––––-----|––––––––––
+                        ()<S-Tab>     |    ()|
+                        ––––––––––––––|–––––––––––
+                        {}()""<C-G>g  |  {("")}|
 <
 NOTE: Abbreviations will not be expanded by delimiters used on delimitMate,
 you should use <C-]> (read |i_CTRL-]|) to expand them on the go.
@@ -361,7 +389,7 @@ e.g. typing at the "|": >
    3.4 SMART QUOTES                                   *delimitMateSmartQuotes*
 
 Only one quote will be inserted following a quote, a "\" or, following or
-preceding an alphanumeric character. This should cover closing quotes after a
+preceding a keyword character. This should cover closing quotes after a
 string, opening quotes before a string, escaped quotes and apostrophes. Except
 for apostrophes, this feature can be disabled setting the option
 |'delimitMate_smart_quotes'| to 0.
@@ -376,6 +404,22 @@ e.g. typing at the "|": >
                       'm  |  I|          |  I'm|
 <
 ------------------------------------------------------------------------------
+   3.4 SMART MATCHPAIRS                           *delimitMateSmartMatchpairs*
+
+This is similar to "smart quotes", but applied to the characters in
+|'delimitMate_matchpairs'|. The difference is that delimitMate will not
+auto-close the pair when the regex matches the text on the right of the
+cursor. See |'delimitMate_smart_matchpairs'| for more details.
+
+
+e.g. typing at the "|": >
+
+                     What |    Before    |     After
+                  =======================================
+                      (   |  function|   |  function(|)
+                      (   |  |var        |  (|var
+<
+------------------------------------------------------------------------------
    3.5 BALANCING MATCHING PAIRS                           *delimitMateBalance*
 
 When inserting an opening paren and |'delimitMate_balance_matchpairs'| is
@@ -386,9 +430,9 @@ e.g. typing at the "|": >
 
                      What |    Before    |     After
                   =======================================
-                      (   |      |)      |     (|)
                       (   |      |       |     (|)
-                      (   |     (|)      |    ((|))
+                      (   |      |)      |     (|)
+                      ((  |      |)      |    ((|))
 <
 ------------------------------------------------------------------------------
    3.6 FILE TYPE BASED CONFIGURATION                     *delimitMateFileType*
@@ -521,11 +565,12 @@ In order to make custom mappings easier and prevent overwritting existing
 ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 for its mappings.
 
-The following are the mappings alway set by delimitMate:
+These are the default mappings:
 
 <BS>         is mapped to <Plug>delimitMateBS
 <S-BS>       is mapped to <Plug>delimitMateS-BS
 <S-Tab>      is mapped to <Plug>delimitMateS-Tab
+<C-G>g       is mapped to <Plug>delimitMateJumpMany
 <Del>        is mapped to <Plug>delimitMateDel
 <Esc>        is mapped to <Plug>delimitMateEsc
 <Left>       is mapped to <Plug>delimitMateLeft
@@ -562,7 +607,7 @@ menus:
  6. FUNCTIONS                                           *delimitMateFunctions*
 
 ------------------------------------------------------------------------------
-delimitMate#WithinEmptyPair()                  *delimitMate_WithinEmptyPair()*
+delimitMate#WithinEmptyPair()                  *delimitMate#WithinEmptyPair()*
 
 Returns 1 if the cursor is inside an empty pair, 0 otherwise.
 e.g.: >
@@ -606,28 +651,36 @@ be very pleased to read them.
 ==============================================================================
  9. CREDITS                                               *delimitMateCredits*
 
-Some of the code that make this script is modified or just shamelessly copied
-from the following sources:
+Contributors: ~
 
-   - Ian McCracken
-     Post titled: Vim, Part II: Matching Pairs:
-     http://concisionandconcinnity.blogspot.com/
+  - Kim Silkebækken                                                         ~
+    Fixed mappings being echoed in the terminal.
 
-   - Aristotle Pagaltzis
-     From the comments on the previous blog post and from:
-     http://gist.github.com/144619
+  - Eric Van Dewoestine                                                     ~
+    Implemented smart matchpairs.
 
-   - Karl Guertin
-     AutoClose:
-     http://www.vim.org/scripts/script.php?script_id=1849
+Some of the code that makes this script was modified or just shamelessly
+copied from the following sources:
 
-   - Thiago Alves
-     AutoClose:
-     http://www.vim.org/scripts/script.php?script_id=2009
+  - Ian McCracken                                                          ~
+    Post titled: Vim, Part II: Matching Pairs:
+    http://concisionandconcinnity.blogspot.com/
 
-   - Edoardo Vacchi
-     ClosePairs:
-     http://www.vim.org/scripts/script.php?script_id=2373
+  - Aristotle Pagaltzis                                                    ~
+    From the comments on the previous blog post and from:
+    http://gist.github.com/144619
+
+  - Karl Guertin                                                           ~
+    AutoClose:
+    http://www.vim.org/scripts/script.php?script_id=1849
+
+  - Thiago Alves                                                           ~
+    AutoClose:
+    http://www.vim.org/scripts/script.php?script_id=2009
+
+  - Edoardo Vacchi                                                         ~
+    ClosePairs:
+    http://www.vim.org/scripts/script.php?script_id=2373
 
 This script was inspired by the auto-completion of delimiters on TextMate.
 
@@ -636,8 +689,12 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.5.1   2010-09-30 * Current release:
-                         - Remove visual wrapping. Surround.vim offers a much
+    2.6     2011-01-14 * Current release:
+                         - Add smart_matchpairs feature.
+                         - Add mapping to jump over contiguous delimiters.
+                         - Fix behaviour of b:loaded_delimitMate.
+|---------|------------|-----------------------------------------------------|
+    2.5.1   2010-09-30 * - Remove visual wrapping. Surround.vim offers a much
                            better implementation.
                          - Minor mods to DelimitMateTest.
 |---------|------------|-----------------------------------------------------|
