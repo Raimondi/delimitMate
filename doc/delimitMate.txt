@@ -1,4 +1,4 @@
-*delimitMate.txt*   Trying to keep those beasts at bay! v2.5.1   *delimitMate*
+*delimitMate.txt*   Trying to keep those beasts at bay! v2.6     *delimitMate*
 
 
 
@@ -689,7 +689,7 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.6     2010-09-30 * Current release:
+    2.6     2011-01-14 * Current release:
                          - Add smart_matchpairs feature.
                          - Add mapping to jump over contiguous delimiters.
                          - Fix behaviour of b:loaded_delimitMate.
