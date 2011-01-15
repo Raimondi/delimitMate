@@ -1,10 +1,10 @@
-" ============================================================================
 " File:        plugin/delimitMate.vim
 " Version:     2.5.1
 " Modified:    2010-09-30
 " Description: This plugin provides auto-completion for quotes, parens, etc.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
 " Manual:      Read ":help delimitMate".
+" ============================================================================
 
 " Initialization: {{{
 
@@ -112,7 +112,7 @@ function! s:init() "{{{
 	call s:option_init("expand_cr", 0)
 
 	" smart_matchpairs
-	call s:option_init("smart_matchpairs", '^\%(\w\|\!\)')
+	call s:option_init("smart_matchpairs", '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)')
 
 	" smart_quotes
 	call s:option_init("smart_quotes", 1)
