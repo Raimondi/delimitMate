@@ -13,6 +13,8 @@ if exists("g:loaded_delimitMate") || &cp
 	finish
 endif
 let g:loaded_delimitMate = 1
+let save_cpo = &cpo
+set cpo&vim
 
 if exists("s:loaded_delimitMate") && !exists("g:delimitMate_testing")
 	" Don't define the functions if they already exist: just do the work
@@ -138,12 +140,10 @@ endfunction "}}} Init()
 function! s:Map() "{{{
 	" Set mappings:
 	try
-		let save_cpo = &cpo
 		let save_keymap = &keymap
 		let save_iminsert = &iminsert
 		let save_imsearch = &imsearch
 		set keymap=
-		set cpo&vim
 		if b:_l_delimitMate_autoclose
 			call s:AutoClose()
 		else
@@ -151,7 +151,6 @@ function! s:Map() "{{{
 		endif
 		call s:ExtraMappings()
 	finally
-		let &cpo = save_cpo
 		let &keymap = save_keymap
 		let &iminsert = save_iminsert
 		let &imsearch = save_imsearch
@@ -430,5 +429,6 @@ augroup END
 
 "}}}
 
+let &cpo = save_cpo
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
 " vim:foldmethod=marker:foldcolumn=4
