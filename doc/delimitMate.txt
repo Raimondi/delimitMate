@@ -353,7 +353,7 @@ Expand <CR> to: >
                                     |    )
 <
 
-NOTE that the expansion of <CR> will brake the redo command.
+NOTE that the expansion of <CR> will break the redo command.
 
 Since <Space> and <CR> are used everywhere, I have made the functions involved
 in expansions global, so they can be used to make custom mappings. Read
@@ -364,7 +364,7 @@ in expansions global, so they can be used to make custom mappings. Read
 
 If you press backspace inside an empty pair, both delimiters are deleted. When
 expansions are enabled, <BS> will also delete the expansions. NOTE that
-deleting <CR> expansions will brake the redo command.
+deleting <CR> expansions will break the redo command.
 
 If you type <S-BS> (shift + backspace) instead, only the closing delimiter
 will be deleted. NOTE that this will not usually work when using Vim from the
@@ -725,7 +725,7 @@ This script was inspired by the auto-completion of delimiters on TextMate.
     2.3     2010-06-06 * - Syntax aware: Will turn off when editing comments
                            or other regions, customizable.
                          - Changed format of most mappings.
-                         - Fix: <CR> expansion doesn't brake automatic
+                         - Fix: <CR> expansion doesn't break automatic
                            indentation adjustments anymore.
                          - Fix: Arrow keys would insert A, B, C or D instead
                            of moving the cursor when using Vim on a terminal.
