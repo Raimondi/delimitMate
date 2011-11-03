@@ -129,6 +129,15 @@ e.g.: >
         au FileType mail let b:loaded_delimitMate = 1
 <
 ------------------------------------------------------------------------------
+                                                  *'delimitMate_offByDefault'*
+Values: 0 or 1.~
+Default: 0~
+
+If this option is set to 1, delimitMate will load, but will not take
+effect in any buffer unless |:DelimitMateSwitch| is called in that
+buffer.
+
+------------------------------------------------------------------------------
                                                      *'delimitMate_autoclose'*
                                                    *'b:delimitMate_autoclose'*
 Values: 0 or 1.                                                              ~

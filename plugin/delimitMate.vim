@@ -237,7 +237,9 @@ function! s:DelimitMateDo(...) "{{{
 	call s:init()
 
 	" Now, add magic:
-	call s:Map()
+	if !exists("g:delimitMate_offByDefault") || !g:delimitMate_offByDefault
+		call s:Map()
+	endif
 
 	if a:0 > 0
 		echo "delimitMate has been reset."

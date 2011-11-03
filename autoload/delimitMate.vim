@@ -387,7 +387,7 @@ function! delimitMate#ExpandReturn() "{{{
 		" Expand:
 		call delimitMate#FlushBuffer()
 		"return "\<Esc>a\<CR>x\<CR>\<Esc>k$\"_xa"
-		return "\<CR>\<UP>\<Esc>o"
+		return "\<Esc>a\<CR>\<UP>\<Esc>o"
 	else
 		return "\<CR>"
 	endif
