@@ -168,6 +168,7 @@ function! s:Unmap() " {{{
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
+				\ ['<C-Left>', '<C-Right>'] +
 				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
 
 	for map in imaps
@@ -352,7 +353,7 @@ function! s:ExtraMappings() "{{{
 		silent! imap <unique> <buffer> <Del> <Plug>delimitMateDel
 	endif
 	" Flush the char buffer on movement keystrokes or when leaving insert mode:
-	for map in ['Esc', 'Left', 'Right', 'Home', 'End']
+	for map in ['Esc', 'Left', 'Right', 'Home', 'End', 'C-Left', 'C-Right']
 		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
 		if !hasmapto('<Plug>delimitMate'.map, 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
