@@ -60,6 +60,20 @@ function! delimitMate#IsEmptyPair(str) "{{{
 	return 0
 endfunction "}}}
 
+function! delimitMate#GetCharBeforeCursor() "{{{
+	let line = getline('.')
+	let col = col('.') - 1
+	" get char before the cursor.
+	return matchstr(line[: col - 1], '.$')
+endfunction "delimitMate#GetCharUnderCursor }}}
+
+function! delimitMate#GetCharUnderCursor() "{{{
+	let line = getline('.')
+	let col = col('.') - 1
+	" get char under the cursor.
+	return matchstr(line[col :], '^.')
+endfunction "delimitMate#GetCharUnderCursor }}}
+
 function! delimitMate#IsCRExpansion() " {{{
 	let nchar = getline(line('.')-1)[-1:]
 	let schar = getline(line('.')+1)[:0]
@@ -99,8 +113,13 @@ function! delimitMate#IsSpaceExpansion() " {{{
 endfunction " }}} IsSpaceExpansion()
 
 function! delimitMate#WithinEmptyPair() "{{{
-	let cur = strpart( getline('.'), col('.')-2, 2 )
-	return delimitMate#IsEmptyPair( cur )
+	let line = getline('.')
+	let col = col('.') - 1
+	" get char before the cursor.
+	let char1 = delimitMate#GetCharBeforeCursor()
+	" get char under the cursor.
+	let char2 = delimitMate#GetCharUnderCursor()
+	return delimitMate#IsEmptyPair( char1.char2 )
 endfunction "}}}
 
 function! delimitMate#WriteBefore(str) "{{{
@@ -426,11 +445,8 @@ endfunction " }}} delimitMate#BS()
 
 function! delimitMate#Del() " {{{
 	if len(b:_l_delimitMate_buffer) > 0
-		let line = getline('.')
-		let col = col('.') - 2
 		call delimitMate#RmBuffer(1)
-		call setline('.', line[:col] . line[col+2:])
-		return ''
+		return "\<Del>"
 	else
 		return "\<Del>"
 	endif
