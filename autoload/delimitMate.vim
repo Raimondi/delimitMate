@@ -305,7 +305,7 @@ function! delimitMate#QuoteDelim(char) "{{{
 	if delimitMate#IsForbidden(a:char)
 		return a:char
 	endif
-	if line[col] == "\\"
+	if delimitMate#GetCharBeforeCursor() == "\\"
 		" Seems like a escaped character, insert one quotation mark.
 		return a:char
 	"elseif line[col + 1] == a:char &&
