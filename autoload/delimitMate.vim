@@ -360,9 +360,9 @@ function! delimitMate#JumpAny(key) " {{{
 		" CR expansion.
 		"let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
 		let b:_l_delimitMate_buffer = []
-		return "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
+		return "\<CR>" . getline(line('.') + 1)[0] . delimitMate#Del() . "\<Del>"
 	else
-		"call delimitMate#RmBuffer(1)
+		call delimitMate#RmBuffer(1)
 		return char . delimitMate#Del()
 	endif
 endfunction " delimitMate#JumpAny() }}}
