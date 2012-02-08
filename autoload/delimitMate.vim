@@ -14,7 +14,7 @@ function! delimitMate#ShouldJump() "{{{
 	" Returns 1 if the next character is a closing delimiter.
 	let col = col('.')
 	let lcol = col('$')
-	let char = getline('.')[col - 1]
+	let char = delimitMate#GetCharUnderCursor()
 
 	" Closing delimiter on the right.
 	for cdel in b:_l_delimitMate_right_delims + b:_l_delimitMate_quotes_list
@@ -249,10 +249,10 @@ function! delimitMate#SkipDelim(char) "{{{
 	let col = col('.') - 1
 	let line = getline('.')
 	if col > 0
-		let cur = line[col]
-		let pre = line[col-1]
+		let cur = delimitMate#GetCharUnderCursor()
+		let pre = delimitMate#GetCharBeforeCursor()
 	else
-		let cur = line[col]
+		let cur = delimitMate#GetCharUnderCursor()
 		let pre = ""
 	endif
 	if pre == "\\"
@@ -305,22 +305,21 @@ function! delimitMate#QuoteDelim(char) "{{{
 	if delimitMate#IsForbidden(a:char)
 		return a:char
 	endif
-	let line = getline('.')
-	let col = col('.') - 2
 	if line[col] == "\\"
 		" Seems like a escaped character, insert one quotation mark.
 		return a:char
-	elseif line[col + 1] == a:char &&
+	"elseif line[col + 1] == a:char &&
+	elseif delimitMate#GetCharUnderCursor() == a:char &&
 				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
 		return a:char . delimitMate#Del()
-	elseif (line[col] =~ '\w' && a:char == "'") ||
+	elseif (delimitMate#GetCharBeforeCursor() =~ '\w' && a:char == "'") ||
 				\ (b:_l_delimitMate_smart_quotes &&
-				\ (line[col] =~ '\w' ||
-				\ line[col + 1] =~ '\w'))
+				\ (delimitMate#GetCharBeforeCursor() =~ '\w' ||
+				\ delimitMate#GetCharUnderCursor()  =~ '\w'))
 		" Seems like an apostrophe or a smart quote case, insert a single quote.
 		return a:char
-	elseif (line[col] == a:char && line[col + 1 ] != a:char) && b:_l_delimitMate_smart_quotes
+	elseif (delimitMate#GetCharBeforeCursor() == a:char && delimitMate#GetCharUnderCursor() != a:char) && b:_l_delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
 		call insert(b:_l_delimitMate_buffer, a:char)
 		return delimitMate#WriteAfter(a:char)
@@ -336,9 +335,7 @@ function! delimitMate#JumpOut(char) "{{{
 	if delimitMate#IsForbidden(a:char)
 		return a:char
 	endif
-	let line = getline('.')
-	let col = col('.')-2
-	if line[col+1] == a:char
+	if delimitMate#GetCharUnderCursor() == a:char
 		return a:char . delimitMate#Del()
 	else
 		return a:char
@@ -353,7 +350,7 @@ function! delimitMate#JumpAny(key) " {{{
 		return a:key
 	endif
 	" Let's get the character on the right.
-	let char = getline('.')[col('.')-1]
+	let char = delimitMate#GetCharUnderCursor()
 	if char == " "
 		" Space expansion.
 		"let char = char . getline('.')[col('.')] . delimitMate#Del()
@@ -371,13 +368,10 @@ function! delimitMate#JumpAny(key) " {{{
 endfunction " delimitMate#JumpAny() }}}
 
 function! delimitMate#JumpMany() " {{{
-	let line = getline('.')[col('.') - 1 : ]
-	let len = len(line)
+	let line = split(getline('.')[col('.') - 1 : ], '\zs')
 	let rights = ""
 	let found = 0
-	let i = 0
-	while i < len
-		let char = line[i]
+	for char in line
 		if index(b:_l_delimitMate_quotes_list, char) >= 0 ||
 					\ index(b:_l_delimitMate_right_delims, char) >= 0
 			let rights .= "\<Right>"
@@ -387,8 +381,7 @@ function! delimitMate#JumpMany() " {{{
 		else
 			break
 		endif
-		let i += 1
-	endwhile
+	endfor
 	if found == 1
 		return rights
 	else
