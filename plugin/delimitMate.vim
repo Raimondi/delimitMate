@@ -58,9 +58,9 @@ function! s:init() "{{{
 
 	" matchpairs
 	call s:option_init("matchpairs", string(&matchpairs)[1:-2])
-	call s:option_init("matchpairs_list", split(b:_l_delimitMate_matchpairs, ','))
-	call s:option_init("left_delims", split(b:_l_delimitMate_matchpairs, ':.,\='))
-	call s:option_init("right_delims", split(b:_l_delimitMate_matchpairs, ',\=.:'))
+	call s:option_init("matchpairs_list", map(split(b:_l_delimitMate_matchpairs, ','), 'split(v:val, '':'')'))
+	call s:option_init("left_delims", map(copy(b:_l_delimitMate_matchpairs_list), 'v:val[0]'))
+	call s:option_init("right_delims", map(copy(b:_l_delimitMate_matchpairs_list), 'v:val[1]'))
 
 	" quotes
 	call s:option_init("quotes", "\" ' `")

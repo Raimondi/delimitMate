@@ -48,7 +48,7 @@ endfunction "}}}
 
 function! delimitMate#IsEmptyPair(str) "{{{
 	for pair in b:_l_delimitMate_matchpairs_list
-		if a:str == join( split( pair, ':' ),'' )
+		if a:str == join(pair,'')
 			return 1
 		endif
 	endfor
@@ -113,8 +113,6 @@ function! delimitMate#IsSpaceExpansion() " {{{
 endfunction " }}} IsSpaceExpansion()
 
 function! delimitMate#WithinEmptyPair() "{{{
-	let line = getline('.')
-	let col = col('.') - 1
 	" get char before the cursor.
 	let char1 = delimitMate#GetCharBeforeCursor()
 	" get char under the cursor.
