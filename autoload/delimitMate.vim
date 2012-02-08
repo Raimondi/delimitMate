@@ -40,16 +40,19 @@ function! delimitMate#ShouldJump() "{{{
 endfunction "}}}
 
 function! delimitMate#IsEmptyPair(str) "{{{
-	for pair in b:_l_delimitMate_matchpairs_list
-		if a:str == join(pair,'')
-			return 1
-		endif
-	endfor
-	for quote in b:_l_delimitMate_quotes_list
-		if a:str == quote . quote
-			return 1
-		endif
-	endfor
+	if strlen(substitute(a:str, ".", "x", "g")) != 2
+		return 0
+	endif
+	let idx = index(b:_l_delimitMate_left_delims, matchstr(a:str, '^.'))
+	if idx > -1 &&
+				\ b:_l_delimitMate_right_delims[idx] == matchstr(a:str, '.$')
+		return 1
+	endif
+	let idx = index(b:_l_delimitMate_quotes_list, matchstr(a:str, '^.'))
+	if idx > -1 &&
+				\ b:_l_delimitMate_quotes_list[idx] == matchstr(a:str, '.$')
+		return 1
+	endif
 	return 0
 endfunction "}}}
 
