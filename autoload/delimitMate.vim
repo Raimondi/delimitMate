@@ -59,12 +59,12 @@ endfunction "}}}
 function! delimitMate#GetCharFromCursor(...) "{{{
 	let idx = col('.') - 1
 	if !a:0 || (a:0 && a:1 >= 0)
-		" Get chars from cursor.
+		" Get char from cursor.
 		let line = getline('.')[idx :]
 		let pos = a:0 ? a:1 : 0
 		return matchstr(line, '^'.repeat('.', pos).'\zs.')
 	endif
-	" Get chars behind cursor.
+	" Get char behind cursor.
 	let line = getline('.')[: idx - 1]
 	let pos = 0 - (1 + a:1)
 	return matchstr(line, '.\ze'.repeat('.', pos).'$')
@@ -73,6 +73,7 @@ endfunction "delimitMate#GetCharFromCursor }}}
 function! delimitMate#IsCRExpansion() " {{{
 	let nchar = getline(line('.')-1)[-1:]
 	let schar = getline(line('.')+1)[:0]
+	" TODO: Consider whitespace?
 	let isEmpty = getline('.') == ""
 	if index(b:_l_delimitMate_left_delims, nchar) > -1 &&
 				\ index(b:_l_delimitMate_left_delims, nchar) == index(b:_l_delimitMate_right_delims, schar) &&
@@ -88,12 +89,10 @@ function! delimitMate#IsCRExpansion() " {{{
 endfunction " }}} delimitMate#IsCRExpansion()
 
 function! delimitMate#IsSpaceExpansion() " {{{
-	let line = getline('.')
-	let col = col('.')-2
-	if col > 0
-		let pchar = line[col - 1]
-		let nchar = line[col + 2]
-		let isSpaces = (line[col] == line[col+1] && line[col] == " ")
+	if col('.') > 2
+		let pchar = delimitMate#GetCharFromCursor(-2)
+		let nchar = delimitMate#GetCharFromCursor(1)
+		let isSpaces = (delimitMate#GetCharFromCursor(-1) == delimitMate#GetCharFromCursor(0) && delimitMate#GetCharFromCursor(-1) == " ")
 
 		if index(b:_l_delimitMate_left_delims, pchar) > -1 &&
 				\ index(b:_l_delimitMate_left_delims, pchar) == index(b:_l_delimitMate_right_delims, nchar) &&
