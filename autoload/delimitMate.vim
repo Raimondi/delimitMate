@@ -115,10 +115,15 @@ function! delimitMate#WithinEmptyPair() "{{{
 	return delimitMate#IsEmptyPair( char1.char2 )
 endfunction "}}}
 
+function! delimitMate#CursorIdx() "{{{
+	let idx = len(split(getline('.')[: col('.') - 1], '\zs')) - 1
+	return idx
+endfunction "delimitMate#CursorCol }}}
+
 function! delimitMate#WriteBefore(str) "{{{
 	let len = len(a:str)
 	let line = getline('.')
-	let col = col('.')-2
+	let col = delimitMate#CursorIdx() - 1
 	if col < 0
 		call setline('.',line[(col+len+1):])
 	else
@@ -130,11 +135,13 @@ endfunction " }}}
 function! delimitMate#WriteAfter(str) "{{{
 	let len = len(a:str)
 	let line = getline('.')
-	let col = col('.')-2
+	let col = delimitMate#CursorIdx()
 	if (col) < 0
 		call setline('.',a:str.line)
 	else
-		call setline('.',line[:(col)].a:str.line[(col+len):])
+		let line = line[:(col)].a:str.line[(col+len):]
+		echom 'line: '.line
+		call setline('.',line)
 	endif
 	return ''
 endfunction " }}}
@@ -165,14 +172,12 @@ function! delimitMate#IsForbidden(char) "{{{
 	if b:_l_delimitMate_excluded_regions_enabled == 0
 		return 0
 	endif
-	"let result = index(b:_l_delimitMate_excluded_regions_list, delimitMate#GetCurrentSyntaxRegion()) >= 0
-	if index(b:_l_delimitMate_excluded_regions_list, delimitMate#GetCurrentSyntaxRegion()) >= 0
+	let region = delimitMate#GetCurrentSyntaxRegion()
+	if index(b:_l_delimitMate_excluded_regions_list, region) >= 0
 		"echom "Forbidden 1!"
 		return 1
 	endif
 	let region = delimitMate#GetCurrentSyntaxRegionIf(a:char)
-	"let result = index(b:_l_delimitMate_excluded_regions_list, region) >= 0
-	"return result || region == 'Comment'
 	"echom "Forbidden 2!"
 	return index(b:_l_delimitMate_excluded_regions_list, region) >= 0
 endfunction "}}}
@@ -189,7 +194,7 @@ function! delimitMate#BalancedParens(char) "{{{
 	" < 0 => More closing parens.
 
 	let line = getline('.')
-	let col = col('.') - 2
+	let col = delimitMate#CursorIdx() - 1
 	let col = col >= 0 ? col : 0
 	let list = split(line, '\zs')
 	let left = b:_l_delimitMate_left_delims[index(b:_l_delimitMate_right_delims, a:char)]
@@ -214,14 +219,6 @@ function! delimitMate#BalancedParens(char) "{{{
 	" Evaluate parens from the cursor to the end:
 	let opening += count(list[col :], left)
 	let closing += count(list[col :], right)
-
-	"echom "–––––––––"
-	"echom line
-	"echom col
-	""echom left.":".a:char
-	"echom string(list)
-	"echom string(list[start : col - 1]) . " : " . string(list[col :])
-	"echom opening . " - " . closing . " = " . (opening - closing)
 
 	" Return the found balance:
 	return opening - closing
