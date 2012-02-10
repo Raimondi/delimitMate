@@ -260,14 +260,14 @@ function! s:DelimitMateSwitch() "{{{
 endfunction "}}}
 
 function! s:Finish() " {{{
-	if exists('g:delimitMate_loaded')
+	if exists('b:delimitMate_enabled')
 		return delimitMate#Finish(1)
 	endif
 	return ''
 endfunction " }}}
 
 function! s:FlushBuffer() " {{{
-	if exists('g:delimitMate_loaded')
+	if exists('b:delimitMate_enabled')
 		return delimitMate#FlushBuffer()
 	endif
 	return ''

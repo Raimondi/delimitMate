@@ -187,6 +187,10 @@ function! delimitMate#FlushBuffer() " {{{
 	return ''
 endfunction " }}}
 
+function! delimitMate#AddToBuffer(c) "{{{
+	call insert(b:_l_delimitMate_buffer, a:c)
+endfunction "delimitMate#AddToBuffer }}}
+
 function! delimitMate#BalancedParens(char) "{{{
 	" Returns:
 	" = 0 => Parens balanced.
@@ -256,7 +260,7 @@ function! delimitMate#SkipDelim(char) "{{{
 		return a:char . delimitMate#Del()
 	elseif delimitMate#IsEmptyPair( pre . a:char )
 		" Add closing delimiter and jump back to the middle.
-		call insert(b:_l_delimitMate_buffer, a:char)
+		call delimitMate#AddToBuffer(a:char)
 		return delimitMate#WriteAfter(a:char)
 	else
 		" Nothing special here, return the same character.
@@ -284,11 +288,11 @@ function! delimitMate#ParenDelim(char) " {{{
 		return ''
 	elseif (col) < 0
 		call setline('.',a:char.line)
-		call insert(b:_l_delimitMate_buffer, a:char)
+		call delimitMate#AddToBuffer(a:char)
 	else
 		"echom string(col).':'.line[:(col)].'|'.line[(col+1):]
 		call setline('.',line[:(col)].a:char.line[(col+1):])
-		call insert(b:_l_delimitMate_buffer, a:char)
+		call delimitMate#AddToBuffer(a:char)
 	endif
 	return ''
 endfunction " }}}
@@ -313,11 +317,11 @@ function! delimitMate#QuoteDelim(char) "{{{
 		return a:char
 	elseif (delimitMate#GetCharFromCursor(-1) == a:char && delimitMate#GetCharFromCursor(0) != a:char) && b:_l_delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
-		call insert(b:_l_delimitMate_buffer, a:char)
+		call delimitMate#AddToBuffer(a:char)
 		return delimitMate#WriteAfter(a:char)
 	else
 		" Insert a pair and jump to the middle.
-		call insert(b:_l_delimitMate_buffer, a:char)
+		call delimitMate#AddToBuffer(a:char)
 		call delimitMate#WriteAfter(a:char)
 		return a:char
 	endif
@@ -351,7 +355,7 @@ function! delimitMate#JumpAny(key) " {{{
 	elseif char == ""
 		" CR expansion.
 		"let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
-		let b:_l_delimitMate_buffer = []
+		call delimitMate#FlushBuffer()
 		return "\<CR>" . getline(line('.') + 1)[0] . delimitMate#Del() . "\<Del>"
 	else
 		"call delimitMate#RmBuffer(1)
@@ -404,7 +408,7 @@ function! delimitMate#ExpandSpace() "{{{
 	endif
 	if delimitMate#WithinEmptyPair()
 		" Expand:
-		call insert(b:_l_delimitMate_buffer, 's')
+		call delimitMate#AddToBuffer('s')
 		return delimitMate#WriteAfter(' ') . "\<Space>"
 	else
 		return "\<Space>"
@@ -460,7 +464,6 @@ function! delimitMate#Finish(move_back) " {{{
 			let i += 1
 		endwhile
 		let result = substitute(buffer, "s", "\<Space>", 'g') . lefts
-		echo 'buffer: '.result
 		return result
 	endif
 	return ''
