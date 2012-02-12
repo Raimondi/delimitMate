@@ -48,7 +48,7 @@ mode a little bit easier.
 
 Most of the features can be modified or disabled permanently, using global
 variables, or on a FileType basis, using autocommands. With a couple of
-exceptions and limitations, this features don't brake undo, redo or history.
+exceptions and limitations, this features don't break undo, redo or history.
 
 NOTE 1: If you have any trouble with this plugin, please run |:DelimitMateTest|
 in a new buffer to see what is not working.
