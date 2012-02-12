@@ -140,7 +140,6 @@ function! delimitMate#WriteAfter(str) "{{{
 		call setline('.',a:str.line)
 	else
 		let line = line[:(col)].a:str.line[(col+len):]
-		echom 'line: '.line
 		call setline('.',line)
 	endif
 	return ''
