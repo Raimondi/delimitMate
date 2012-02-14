@@ -133,15 +133,19 @@ function! delimitMate#WriteBefore(str) "{{{
 endfunction " }}}
 
 function! delimitMate#WriteAfter(str) "{{{
-	let len = len(a:str)
-	let line = getline('.')
-	let col = delimitMate#CursorIdx()
-	if (col) < 0
-		call setline('.',a:str.line)
+	let len = 1 "len(a:str)
+	let line = split(getline('.'), '\zs')
+	let col = delimitMate#CursorIdx() - 1
+	if (col + 1) < 0
+		let line = insert(line, a:str)
+	elseif col('.') == col('$')
+		let line = add(line, a:str)
 	else
-		let line = line[:(col)].a:str.line[(col+len):]
-		call setline('.',line)
+		let line1 = line[:(col)]
+		let line2 = line[(col+len):]
+		let line = line1 + [a:str] + line2
 	endif
+	call setline('.', join(line, ''))
 	return ''
 endfunction " }}}
 
