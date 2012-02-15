@@ -238,6 +238,19 @@ function! delimitMate#RmBuffer(num) " {{{
 	return ""
 endfunction " }}}
 
+function! delimitMate#IsSmartQuote(char) "{{{
+	if !b:_l_delimitMate_smart_quotes
+		return 0
+	endif
+	let char_at = delimitMate#GetCharFromCursor(0)
+	let char_before = delimitMate#GetCharFromCursor(-1)
+	let word_before = char_before =~ '\w'
+	let word_at = char_at  =~ '\w'
+	let escaped = delimitMate#CursorIdx() >= 1 && delimitMate#GetCharFromCursor(-1) == '\'
+	let result = word_before || escaped || word_at
+	return result
+endfunction "delimitMate#SmartQuote }}}
+
 " }}}
 
 " Doers {{{
@@ -304,21 +317,20 @@ function! delimitMate#QuoteDelim(char) "{{{
 	if delimitMate#IsForbidden(a:char)
 		return a:char
 	endif
-	if delimitMate#GetCharFromCursor(-1) == "\\"
-		" Seems like a escaped character, insert one quotation mark.
+	let char_at = delimitMate#GetCharFromCursor(0)
+	let char_before = delimitMate#GetCharFromCursor(-1)
+	if delimitMate#IsSmartQuote(a:char)
+		" Seems like a smart quote, insert a single char.
 		return a:char
 	"elseif line[col + 1] == a:char &&
-	elseif delimitMate#GetCharFromCursor(0) == a:char &&
+	elseif char_at == a:char &&
 				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
 		return a:char . delimitMate#Del()
-	elseif (delimitMate#GetCharFromCursor(-1) =~ '\w' && a:char == "'") ||
-				\ (b:_l_delimitMate_smart_quotes &&
-				\ (delimitMate#GetCharFromCursor(-1) =~ '\w' ||
-				\ delimitMate#GetCharFromCursor(0)  =~ '\w'))
-		" Seems like an apostrophe or a smart quote case, insert a single quote.
+	elseif (char_before =~ '\w' && a:char == "'")
+		" Seems like an apostrophe, insert a single quote.
 		return a:char
-	elseif (delimitMate#GetCharFromCursor(-1) == a:char && delimitMate#GetCharFromCursor(0) != a:char) && b:_l_delimitMate_smart_quotes
+	elseif (char_before == a:char && char_at != a:char) && b:_l_delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
 		call delimitMate#AddToBuffer(a:char)
 		return delimitMate#WriteAfter(a:char)
@@ -409,7 +421,8 @@ function! delimitMate#ExpandSpace() "{{{
 	if delimitMate#IsForbidden("\<Space>")
 		return "\<Space>"
 	endif
-	if delimitMate#WithinEmptyPair()
+	let escaped = delimitMate#CursorIdx() >= 2 && delimitMate#GetCharFromCursor(-2) == '\'
+	if delimitMate#WithinEmptyPair() && !escaped
 		" Expand:
 		call delimitMate#AddToBuffer('s')
 		return delimitMate#WriteAfter(' ') . "\<Space>"
