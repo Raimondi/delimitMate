@@ -436,18 +436,19 @@ function! delimitMate#BS() " {{{
 	if delimitMate#IsForbidden("")
 		return "\<BS>"
 	endif
-	if delimitMate#WithinEmptyPair()
-		"call delimitMate#RmBuffer(1)
-		return "\<BS>" . delimitMate#Del()
-"        return "\<Right>\<BS>\<BS>"
-	elseif delimitMate#IsSpaceExpansion()
-		"call delimitMate#RmBuffer(1)
-		return "\<BS>" . delimitMate#Del()
-	elseif delimitMate#IsCRExpansion()
-		return "\<BS>\<Del>"
-	else
+	if &backspace !~ 'start\|2' && empty(b:_l_delimitMate_buffer)
 		return "\<BS>"
 	endif
+	if delimitMate#WithinEmptyPair()
+		return "\<BS>" . delimitMate#Del()
+	endif
+	if delimitMate#IsSpaceExpansion()
+		return "\<BS>" . delimitMate#Del()
+	endif
+	if delimitMate#IsCRExpansion()
+		return "\<BS>\<Del>"
+	endif
+	return "\<BS>"
 endfunction " }}} delimitMate#BS()
 
 function! delimitMate#Del() " {{{
