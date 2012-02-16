@@ -328,9 +328,6 @@ function! delimitMate#QuoteDelim(char) "{{{
 				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
 		return a:char . delimitMate#Del()
-	elseif (char_before =~ '\w' && a:char == "'")
-		" Seems like an apostrophe, insert a single quote.
-		return a:char
 	elseif (char_before == a:char && char_at != a:char) && b:_l_delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
 		call delimitMate#AddToBuffer(a:char)
