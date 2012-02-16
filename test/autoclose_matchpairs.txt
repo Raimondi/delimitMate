@@ -1,0 +1,26 @@
+let g:delimitMate_autoclose = 1
+"(x" "(x)"
+"(\<BS>x" "x"
+"()x" "()x"
+"((\<C-G>gx" "(())x"
+"(x\<Esc>u" ""
+"@(x" "@(x)"
+"@#\<Left>(x" "@(x)#"
+"(\<S-Tab>x" "()x"
+let g:delimitMate_autoclose = 0
+"(x" "(x"
+"()x" "(x)"
+"())x" "()x"
+"()\<BS>x" "x"
+"@()x" "@(x)"
+"@#\<Left>()x" "@(x)#"
+let g:delimitMate_expand_space = 1
+let g:delimitMate_autoclose = 1
+"(\<Space>x" "( x )"
+"(\<Space>\<BS>x" "(x)"
+let g:delimitMate_autoclose = 0
+"()\<Space>\<BS>x" "(x)"
+let g:delimitMate_autoclose = 1
+# Handle backspace gracefully.
+set backspace=
+"(\<Esc>a\<BS>x" "(x)"
