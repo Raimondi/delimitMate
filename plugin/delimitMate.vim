@@ -143,7 +143,9 @@ function! s:Map() "{{{
 		let save_keymap = &keymap
 		let save_iminsert = &iminsert
 		let save_imsearch = &imsearch
+		let save_cpo = &cpo
 		set keymap=
+		set cpo&vim
 		if b:_l_delimitMate_autoclose
 			call s:AutoClose()
 		else
@@ -151,6 +153,7 @@ function! s:Map() "{{{
 		endif
 		call s:ExtraMappings()
 	finally
+		let &cpo = save_cpo
 		let &keymap = save_keymap
 		let &iminsert = save_iminsert
 		let &imsearch = save_imsearch

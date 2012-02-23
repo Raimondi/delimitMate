@@ -30,3 +30,5 @@ let g:delimitMate_autoclose = 1
 # Handle backspace gracefully.
 set backspace=
 "'\<Esc>a\<BS>x" "'x'"
+set cpo=ces$
+"'x" "'x'"
