@@ -364,6 +364,15 @@ function! s:ExtraMappings() "{{{
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
 	endfor
+	" Also for default MacVim movements:
+	if has('gui_macvim')
+		for [key, map] in [['D-Left','Home'], ['D-Right','End'], ['M-Left','C-Left'], ['M-Right','C-Right']]
+			exec 'inoremap <silent> <Plug>delimitMate'.key.' <C-R>=<SID>Finish()<CR><'.map.'>'
+			if mapcheck('<'.key.'>', 'i') == '<'.map.'>'
+				exec 'silent! imap <buffer> <'.key.'> <Plug>delimitMate'.key
+			endif
+		endfor
+	endif
 	" Except when pop-up menu is active:
 	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
 		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
