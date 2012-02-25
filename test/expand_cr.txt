@@ -1,0 +1,12 @@
+# 
+%d
+filetype indent on
+set bs=2 et sts=4 sw=4 ft=javascript
+call setline(1, '$(document).ready(function() {})')
+DelimitMateReload
+exec "normal 31|i\<CR>x\<Esc>"
+================================================================================
+$(document).ready(function() {
+    x
+})
+--------------------------------------------------------------------------------

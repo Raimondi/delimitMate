@@ -406,9 +406,9 @@ function! delimitMate#ExpandReturn() "{{{
 		" Expand:
 		call delimitMate#FlushBuffer()
 
-		let b:delimitMate_lineSuffix = getline('.')[col('.')-1:]
-		call feedkeys("\<Esc>l\"_Do \<CR>\<C-R>\<C-R>=b:delimitMate_lineSuffix\<CR>\<Esc>k$i\<Del>", 't')
-		return ''
+		" Not sure why I used the previous combos, but I'm sure somebody will tell
+		" me about it.
+		return "\<Esc>a\<CR>\<Esc>O"
 	else
 		return "\<CR>"
 	endif
