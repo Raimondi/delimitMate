@@ -193,7 +193,7 @@ endfunction " }}} s:Unmap()
 function! s:TestMappingsDo() "{{{
 	%d
 	if !exists("g:delimitMate_testing")
-		silent call delimitMate#TestMappings()
+		call delimitMate#TestMappings()
 	else
 		let temp_varsDM = [b:_l_delimitMate_expand_space, b:_l_delimitMate_expand_cr, b:_l_delimitMate_autoclose]
 		for i in [0,1]
@@ -412,7 +412,7 @@ call s:DelimitMateDo()
 command! -bar DelimitMateReload call s:DelimitMateDo(1)
 
 " Quick test:
-command! -bar DelimitMateTest silent call s:TestMappingsDo()
+command! -bar DelimitMateTest call s:TestMappingsDo()
 
 " Switch On/Off:
 command! -bar DelimitMateSwitch call s:DelimitMateSwitch()
