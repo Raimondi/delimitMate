@@ -257,7 +257,7 @@ Default: Comment                                                             ~
 This options turns delimitMate off for the listed regions, read |group-name|
 for more info about what is a region.
 e.g.: >
-        let delimitMate_excluded_regions = "Comments,String"
+        let delimitMate_excluded_regions = "Comment,String"
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_excluded_ft'*
