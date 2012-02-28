@@ -397,7 +397,7 @@ function! s:ExtraMappings() "{{{
 	" The following simply creates an ambiguous mapping so vim fully processes
 	" the escape sequence for terminal keys, see 'ttimeout' for a rough
 	" explanation, this just forces it to work
-	if !has('gui_running')
+	if !has('gui_running') && (!exists('g:delimitMate_no_esc_mapping') || !g:delimitMate_no_esc_mapping)
 		imap <silent> <C-[>OC <RIGHT>
 	endif
 endfunction "}}}
