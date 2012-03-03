@@ -32,3 +32,5 @@ set backspace=
 "'\<Esc>a\<BS>x" "'x'"
 set cpo=ces$
 "'x" "'x'"
+# Make sure smart quote works beyond first column.
+" 'x" " 'x'"

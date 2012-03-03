@@ -244,7 +244,7 @@ function! delimitMate#IsSmartQuote(char) "{{{
 	endif
 	let char_at = delimitMate#GetCharFromCursor(0)
 	let char_before = delimitMate#GetCharFromCursor(-1)
-	let valid_char_re = '\w\|[^[:punct:]]'
+	let valid_char_re = '\w\|[^[:punct:][:space:]]'
 	let word_before = char_before =~ valid_char_re
 	let word_at = char_at  =~ valid_char_re
 	let escaped = delimitMate#CursorIdx() >= 1 && delimitMate#GetCharFromCursor(-1) == '\'
