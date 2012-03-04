@@ -34,3 +34,5 @@ set cpo=ces$
 "'x" "'x'"
 # Make sure smart quote works beyond first column.
 " 'x" " 'x'"
+# Make sure we jump over a quote on the right. #89.
+"('test'x" "('test'x)"

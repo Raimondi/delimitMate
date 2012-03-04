@@ -320,14 +320,13 @@ function! delimitMate#QuoteDelim(char) "{{{
 	endif
 	let char_at = delimitMate#GetCharFromCursor(0)
 	let char_before = delimitMate#GetCharFromCursor(-1)
-	if delimitMate#IsSmartQuote(a:char)
-		" Seems like a smart quote, insert a single char.
-		return a:char
-	"elseif line[col + 1] == a:char &&
-	elseif char_at == a:char &&
+	if char_at == a:char &&
 				\ index(b:_l_delimitMate_nesting_quotes, a:char) < 0
 		" Get out of the string.
 		return a:char . delimitMate#Del()
+	elseif delimitMate#IsSmartQuote(a:char)
+		" Seems like a smart quote, insert a single char.
+		return a:char
 	elseif (char_before == a:char && char_at != a:char) && b:_l_delimitMate_smart_quotes
 		" Seems like we have an unbalanced quote, insert one quotation mark and jump to the middle.
 		call delimitMate#AddToBuffer(a:char)
