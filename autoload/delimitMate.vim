@@ -75,18 +75,17 @@ function! delimitMate#GetCharFromCursor(...) "{{{
 	return matchstr(line, '.\ze'.repeat('.', pos).'$')
 endfunction "delimitMate#GetCharFromCursor }}}
 
-function! delimitMate#IsCRExpansion() " {{{
+function! delimitMate#IsCRExpansion(...) " {{{
 	let nchar = getline(line('.')-1)[-1:]
-	let schar = getline(line('.')+1)[:0]
-	" TODO: Consider whitespace?
-	let isEmpty = getline('.') == ""
-	if index(b:_l_delimitMate_left_delims, nchar) > -1 &&
-				\ index(b:_l_delimitMate_left_delims, nchar) == index(b:_l_delimitMate_right_delims, schar) &&
-				\ isEmpty
+	let schar = matchstr(getline(line('.')+1), '^\s*\zs\S')
+	let isEmpty = a:0 ? getline('.') =~ '^\s*$' : empty(getline('.'))
+	if index(b:_l_delimitMate_left_delims, nchar) > -1
+				\ && index(b:_l_delimitMate_left_delims, nchar) == index(b:_l_delimitMate_right_delims, schar)
+				\ && isEmpty
 		return 1
-	elseif index(b:_l_delimitMate_quotes_list, nchar) > -1 &&
-				\ index(b:_l_delimitMate_quotes_list, nchar) == index(b:_l_delimitMate_quotes_list, schar) &&
-				\ isEmpty
+	elseif index(b:_l_delimitMate_quotes_list, nchar) > -1
+				\ && index(b:_l_delimitMate_quotes_list, nchar) == index(b:_l_delimitMate_quotes_list, schar)
+				\ && isEmpty
 		return 1
 	else
 		return 0
@@ -453,7 +452,7 @@ function! delimitMate#BS() " {{{
 		return "\<BS>" . delimitMate#Del()
 	endif
 	if delimitMate#IsCRExpansion()
-		return "\<BS>\<Del>"
+		return "\<BS>" . repeat("\<Del>", len(matchstr(getline(line('.') + 1), '^\s*\S')))
 	endif
 	return "\<BS>"
 endfunction " }}} delimitMate#BS()
