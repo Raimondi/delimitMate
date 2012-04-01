@@ -354,8 +354,7 @@ function! delimitMate#JumpOut(char) "{{{
 		return ' '.a:char.delimitMate#Del().delimitMate#Del()
 	elseif jump == 5
 		call delimitMate#FlushBuffer()
-		return "\<CR>" . matchstr(getline(line('.') + 1), '^\s*\S')
-					\ . delimitMate#Del() .  "\<Del>"
+		return "\<C-O>:exec \"normal! \\<CR>a\"\<CR>"
 	else
 		return a:char
 	endif
