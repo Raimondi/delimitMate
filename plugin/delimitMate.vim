@@ -329,38 +329,38 @@ endfunction "}}}
 function! s:ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
 	inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
-	if !hasmapto('<Plug>delimitMateBS','i')
+	if !hasmapto('<Plug>delimitMateBS','i') && !maparg('<BS>'. 'i')
 		silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
 	endif
 	" If pair is empty, delete closing delimiter:
 	inoremap <silent> <expr> <Plug>delimitMateS-BS delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#Del()\<CR>" : "\<S-BS>"
-	if !hasmapto('<Plug>delimitMateS-BS','i')
+	if !hasmapto('<Plug>delimitMateS-BS','i') && !maparg('<S-BS>', 'i')
 		silent! imap <unique> <buffer> <S-BS> <Plug>delimitMateS-BS
 	endif
 	" Expand return if inside an empty pair:
 	inoremap <silent> <Plug>delimitMateCR <C-R>=delimitMate#ExpandReturn()<CR>
-	if b:_l_delimitMate_expand_cr != 0 && !hasmapto('<Plug>delimitMateCR', 'i')
+	if b:_l_delimitMate_expand_cr != 0 && !hasmapto('<Plug>delimitMateCR', 'i') && !maparg('<CR>', 'i')
 		silent! imap <unique> <buffer> <CR> <Plug>delimitMateCR
 	endif
 	" Expand space if inside an empty pair:
 	inoremap <silent> <Plug>delimitMateSpace <C-R>=delimitMate#ExpandSpace()<CR>
-	if b:_l_delimitMate_expand_space != 0 && !hasmapto('<Plug>delimitMateSpace', 'i')
+	if b:_l_delimitMate_expand_space != 0 && !hasmapto('<Plug>delimitMateSpace', 'i') && !maparg('<Space>', 'i')
 		silent! imap <unique> <buffer> <Space> <Plug>delimitMateSpace
 	endif
 	" Jump over any delimiter:
 	inoremap <silent> <Plug>delimitMateS-Tab <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
-	if b:_l_delimitMate_tab2exit && !hasmapto('<Plug>delimitMateS-Tab', 'i')
+	if b:_l_delimitMate_tab2exit && !hasmapto('<Plug>delimitMateS-Tab', 'i') && !maparg('<S-Tab>', 'i')
 		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
 	endif
 	" Change char buffer on Del:
 	inoremap <silent> <Plug>delimitMateDel <C-R>=delimitMate#Del()<CR>
-	if !hasmapto('<Plug>delimitMateDel', 'i')
+	if !hasmapto('<Plug>delimitMateDel', 'i') && !maparg('<Del>', 'i')
 		silent! imap <unique> <buffer> <Del> <Plug>delimitMateDel
 	endif
 	" Flush the char buffer on movement keystrokes or when leaving insert mode:
 	for map in ['Esc', 'Left', 'Right', 'Home', 'End', 'C-Left', 'C-Right']
 		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
-		if !hasmapto('<Plug>delimitMate'.map, 'i')
+		if !hasmapto('<Plug>delimitMate'.map, 'i') && !maparg('<'.map.'>', 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
 	endfor
@@ -376,28 +376,28 @@ function! s:ExtraMappings() "{{{
 	" Except when pop-up menu is active:
 	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
 		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
-		if !hasmapto('<Plug>delimitMate'.map, 'i')
+		if !hasmapto('<Plug>delimitMate'.map, 'i') && !maparg('<'.map.'>', 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
 	endfor
 	" Avoid ambiguous mappings:
 	for map in ['LeftMouse', 'RightMouse']
 		exec 'inoremap <silent> <Plug>delimitMateM'.map.' <C-R>=delimitMate#Finish(1)<CR><'.map.'>'
-		if !hasmapto('<Plug>delimitMate'.map, 'i')
+		if !hasmapto('<Plug>delimitMate'.map, 'i') && !maparg('<'.map.'>', 'i')
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMateM'.map
 		endif
 	endfor
 
 	" Jump over next delimiters
 	inoremap <buffer> <Plug>delimitMateJumpMany <C-R>=len(b:_l_delimitMate_buffer) ? delimitMate#Finish(0) : delimitMate#JumpMany()<CR>
-	if !hasmapto('<Plug>delimitMateJumpMany')
+	if !hasmapto('<Plug>delimitMateJumpMany', 'i') && !maparg("<C-G>g", 'i')
 		imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
 	endif
 
 	" The following simply creates an ambiguous mapping so vim fully processes
 	" the escape sequence for terminal keys, see 'ttimeout' for a rough
 	" explanation, this just forces it to work
-	if !has('gui_running') && (!exists('g:delimitMate_no_esc_mapping') || !g:delimitMate_no_esc_mapping)
+	if !has('gui_running') && (!exists('g:delimitMate_no_esc_mapping') || !g:delimitMate_no_esc_mapping) && !maparg('<C-[>OC', 'i')
 		imap <silent> <C-[>OC <RIGHT>
 	endif
 endfunction "}}}
