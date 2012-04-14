@@ -103,6 +103,10 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_excluded_ft'|       Turns off the script for the given file types.
 
+|'delimitMate_eol_marker'|        Determines what to insert after the closing
+                                matchpair when typing an opening matchpair on
+                                the end of the line.
+
 |'delimitMate_apostrophes'|       Tells delimitMate how it should "fix"
                                 balancing of single quotes when used as
                                 apostrophes. NOTE: Not needed any more, kept
@@ -268,6 +272,16 @@ This options turns delimitMate off for the listed file types, use this option
 only if you don't want any of the features it provides on those file types.
 e.g.: >
         let delimitMate_excluded_ft = "mail,txt"
+<
+------------------------------------------------------------------------------
+                                                    *'delimitMate_eol_marker'*
+Values: String.                                                              ~
+Default: Empty.                                                              ~
+
+The contents of this string will be inserted after the closing matchpair when
+the opening matchapair is inserted at the end of the line.
+e.g.: >
+        au FileType c,perl let b:delimitMate_eol_marker = ";"
 <
 ------------------------------------------------------------------------------
                                                    *'delimitMate_apostrophes'*
@@ -824,4 +838,4 @@ _____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____ ~
 __|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_ ~
 _____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____ ~
 
-vim:tw=78:et:ts=2:sw=2:ft=help:norl:formatoptions+=tcroqn:autoindent:
+vim:tw=78:et:ts=8:sw=2:ft=help:norl:formatoptions+=tcroqn:autoindent:

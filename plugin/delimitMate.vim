@@ -129,6 +129,9 @@ function! s:init() "{{{
 	" balance_matchpairs
 	call s:option_init("balance_matchpairs", 0)
 
+	" eol marker
+	call s:option_init("eol_marker", "")
+
 	let b:_l_delimitMate_buffer = []
 
 endfunction "}}} Init()
