@@ -459,9 +459,8 @@ function! delimitMate#BS() " {{{
 				\ . escape(b:_l_delimitMate_eol_marker, '\*.^$')
 				\ . '$'
 	if buffer_tail =~ tail_re && search('\%#'.tail_re, 'cWn')
-		for c in range(len(split(b:_l_delimitMate_eol_marker, '\zs')))
-			let extra .= delimitMate#Del()
-		endfor
+		let extra .= join(map(split(b:_l_delimitMate_eol_marker, '\zs'),
+					\ 'delimitMate#Del()'), '')
 	endif
 	return "\<BS>" . extra
 endfunction " }}} delimitMate#BS()
