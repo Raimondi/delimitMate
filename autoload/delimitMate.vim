@@ -439,6 +439,7 @@ function! delimitMate#ExpandSpace() "{{{
 endfunction "}}}
 
 function! delimitMate#BS() " {{{
+	let buffer_tail = get(b:_l_delimitMate_buffer, '-1', '')
 	if delimitMate#IsForbidden("")
 		let extra = ''
 	elseif &backspace !~ 'start\|2' && empty(b:_l_delimitMate_buffer)
@@ -452,12 +453,12 @@ function! delimitMate#BS() " {{{
 	else
 		let extra = ''
 	endif
-	if  search('\m\C\%#\%('
+	let tail_re = '\m\C\%('
 				\ . join(b:_l_delimitMate_right_delims, '\|')
 				\ . '\)'
-				\ . escape(b:_l_delimitMate_eol_marker, '\*.')
-				\ . '$',
-				\ 'cWn')
+				\ . escape(b:_l_delimitMate_eol_marker, '\*.^$')
+				\ . '$'
+	if buffer_tail =~ tail_re && search('\%#'.tail_re, 'cWn')
 		for c in range(len(split(b:_l_delimitMate_eol_marker, '\zs')))
 			let extra .= delimitMate#Del()
 		endfor
