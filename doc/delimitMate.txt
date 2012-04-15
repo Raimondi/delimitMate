@@ -279,7 +279,8 @@ Values: String.                                                              ~
 Default: Empty.                                                              ~
 
 The contents of this string will be inserted after the closing matchpair when
-the opening matchapair is inserted at the end of the line.
+the opening matchapair is inserted at the end of the line. This feature only
+works if the eol marker was inserted on the current insert session.
 e.g.: >
         au FileType c,perl let b:delimitMate_eol_marker = ";"
 <
