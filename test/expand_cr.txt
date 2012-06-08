@@ -46,5 +46,20 @@ sub foo {
 call setline(1, "\"{bracketed}")
 normal A"x
 ================================================================================
-"{bracketed}"x
+"{bracketed""x
+--------------------------------------------------------------------------------
+# Syntax folding enabled by autocmd breaks expansion. But ti can't be tested
+# with :normal
+new
+autocmd InsertEnter * let w:fdm=&foldmethod | setl foldmethod=manual
+autocmd InsertLeave * let &foldmethod = w:fdm
+set foldmethod=marker
+set foldmarker={,}
+set foldlevel=0
+set backspace=2
+exec "normal iabc {\<CR>x"
+================================================================================
+abc {
+    x
+}
 --------------------------------------------------------------------------------

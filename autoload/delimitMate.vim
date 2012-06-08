@@ -418,7 +418,9 @@ function! delimitMate#ExpandReturn() "{{{
 
 		" Not sure why I used the previous combos, but I'm sure somebody will tell
 		" me about it.
-		return "\<Esc>a\<CR>\<Esc>O"
+		" XXX zv prevents breaking expansion with syntax folding enabled by
+		" InsertLeave.
+		return "\<Esc>a\<CR>\<Esc>zvO"
 	else
 		return "\<CR>"
 	endif
