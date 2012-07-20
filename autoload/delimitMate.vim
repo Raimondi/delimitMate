@@ -531,7 +531,11 @@ function! delimitMate#TestMappings() "{{{
 				\ b:_l_delimitMate_apostrophes_list +
 				\ ['<BS>', '<S-BS>', '<Del>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
-				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
+				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g'] +
+				\ ['<ScrollWheelUp>', '<S-ScrollWheelUp>', '<C-ScrollWheelUp>'] +
+				\ ['<ScrollWheelDown>', '<S-ScrollWheelDown>', '<C-ScrollWheelDown>'] +
+				\ ['<ScrollWheelLeft>', '<S-ScrollWheelLeft>', '<C-ScrollWheelLeft>'] +
+				\ ['<ScrollWheelRight>', '<S-ScrollWheelRight>', '<C-ScrollWheelRight>']
 	let imaps = imaps + ( b:_l_delimitMate_expand_cr ?  ['<CR>'] : [] )
 	let imaps = imaps + ( b:_l_delimitMate_expand_space ?  ['<Space>'] : [] )
 

@@ -367,6 +367,16 @@ function! s:ExtraMappings() "{{{
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
 	endfor
+	" Flush the char buffer on scrolling:
+	for map in ['ScrollWheelUp', 'S-ScrollWheelUp', 'C-ScrollWheelUp',
+				\ 'ScrollWheelDown', 'S-ScrollWheelDown', 'C-ScrollWheelDown',
+				\ 'ScrollWheelLeft', 'S-ScrollWheelLeft', 'C-ScrollWheelLeft',
+				\ 'ScrollWheelRight', 'S-ScrollWheelRight', 'C-ScrollWheelRight']
+		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
+		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
+			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
+		endif
+	endfor
 	" Also for default MacVim movements:
 	if has('gui_macvim')
 		for [key, map] in [['D-Left','Home'], ['D-Right','End'], ['M-Left','C-Left'], ['M-Right','C-Right']]
