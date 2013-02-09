@@ -406,13 +406,6 @@ function! s:ExtraMappings() "{{{
 	if !hasmapto('<Plug>delimitMateJumpMany', 'i') && maparg("<C-G>g", 'i') == ''
 		imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
 	endif
-
-	" The following simply creates an ambiguous mapping so vim fully processes
-	" the escape sequence for terminal keys, see 'ttimeout' for a rough
-	" explanation, this just forces it to work
-	if !has('gui_running') && (!exists('g:delimitMate_no_esc_mapping') || !g:delimitMate_no_esc_mapping) && maparg('<C-[>OC', 'i') == ''
-		imap <silent> <C-[>OC <RIGHT>
-	endif
 endfunction "}}}
 
 "}}}
