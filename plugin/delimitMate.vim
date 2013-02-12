@@ -361,7 +361,7 @@ function! s:ExtraMappings() "{{{
 		silent! imap <unique> <buffer> <Del> <Plug>delimitMateDel
 	endif
 	" Flush the char buffer on movement keystrokes or when leaving insert mode:
-	for map in ['Esc', 'Left', 'Right', 'Home', 'End', 'C-Left', 'C-Right']
+	for map in ['Left', 'Right', 'Home', 'End', 'C-Left', 'C-Right']
 		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
 		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
