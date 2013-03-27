@@ -360,19 +360,14 @@ function! s:ExtraMappings() "{{{
 	if !hasmapto('<Plug>delimitMateDel', 'i') && maparg('<Del>', 'i') == ''
 		silent! imap <unique> <buffer> <Del> <Plug>delimitMateDel
 	endif
-	" Flush the char buffer on movement keystrokes or when leaving insert mode:
-	for map in ['Left', 'Right', 'Home', 'End', 'C-Left', 'C-Right']
-		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
-		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
-			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
-		endif
-	endfor
-	" Flush the char buffer on scrolling:
-	for map in ['ScrollWheelUp', 'S-ScrollWheelUp', 'C-ScrollWheelUp',
-				\ 'ScrollWheelDown', 'S-ScrollWheelDown', 'C-ScrollWheelDown',
-				\ 'ScrollWheelLeft', 'S-ScrollWheelLeft', 'C-ScrollWheelLeft',
-				\ 'ScrollWheelRight', 'S-ScrollWheelRight', 'C-ScrollWheelRight']
-		exec 'inoremap <silent> <Plug>delimitMate'.map.' <C-R>=<SID>Finish()<CR><'.map.'>'
+	let keys = ['Left', 'Right', 'Home', 'End', 'C-Left', 'C-Right',
+						\ 'ScrollWheelUp', 'S-ScrollWheelUp', 'C-ScrollWheelUp',
+						\ 'ScrollWheelDown', 'S-ScrollWheelDown', 'C-ScrollWheelDown',
+						\ 'ScrollWheelLeft', 'S-ScrollWheelLeft', 'C-ScrollWheelLeft',
+						\ 'ScrollWheelRight', 'S-ScrollWheelRight', 'C-ScrollWheelRight']
+	" Flush the char buffer on movement keystrokes:
+	for map in keys
+		exec 'inoremap <silent><expr> <Plug>delimitMate'.map.' !empty(b:_l_delimitMate_buffer) ? "<C-R>=delimitMate#Finish(1)<CR><'.map.'>" : "<'.map.'>"'
 		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
@@ -388,7 +383,7 @@ function! s:ExtraMappings() "{{{
 	endif
 	" Except when pop-up menu is active:
 	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
-		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible() ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
+		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible()  \|\| empty(b:_l_delimitMate_buffer) ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
 		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
