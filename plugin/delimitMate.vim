@@ -279,6 +279,10 @@ function! s:FlushBuffer() " {{{
 	return ''
 endfunction " }}}
 
+function! s:empty_buffer()
+	return empty(b:_l_delimitMate_buffer)
+endfunction
+
 "}}}
 
 " Mappers: {{{
@@ -331,7 +335,7 @@ endfunction "}}}
 
 function! s:ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
-	inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
+	inoremap <silent><expr> <Plug>delimitMateBS delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#BS()\<CR>" : "\<BS>"
 	if !hasmapto('<Plug>delimitMateBS','i') && maparg('<BS>'. 'i') == ''
 		silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
 	endif
@@ -367,7 +371,7 @@ function! s:ExtraMappings() "{{{
 						\ 'ScrollWheelRight', 'S-ScrollWheelRight', 'C-ScrollWheelRight']
 	" Flush the char buffer on movement keystrokes:
 	for map in keys
-		exec 'inoremap <silent><expr> <Plug>delimitMate'.map.' !empty(b:_l_delimitMate_buffer) ? "<C-R>=delimitMate#Finish(1)<CR><'.map.'>" : "<'.map.'>"'
+		exec 'inoremap <silent><expr> <Plug>delimitMate'.map.' !<SID>empty_buffer() ? "<C-R>=delimitMate#Finish(1)<CR><'.map.'>" : "<'.map.'>"'
 		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
@@ -383,7 +387,7 @@ function! s:ExtraMappings() "{{{
 	endif
 	" Except when pop-up menu is active:
 	for map in ['Up', 'Down', 'PageUp', 'PageDown', 'S-Down', 'S-Up']
-		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible()  \|\| empty(b:_l_delimitMate_buffer) ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
+		exec 'inoremap <silent> <expr> <Plug>delimitMate'.map.' pumvisible()  \|\| <SID>empty_buffer() ? "\<'.map.'>" : "\<C-R>=\<SID>Finish()\<CR>\<'.map.'>"'
 		if !hasmapto('<Plug>delimitMate'.map, 'i') && maparg('<'.map.'>', 'i') == ''
 			exec 'silent! imap <unique> <buffer> <'.map.'> <Plug>delimitMate'.map
 		endif
