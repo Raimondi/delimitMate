@@ -56,7 +56,7 @@ in a new buffer to see what is not working.
 NOTE 2: |'timeout'| needs to be set when working in the terminal, otherwise you
 might find weird behaviour with mappings including <Esc> or arrow keys.
 
-NOTE 3: Abbreiations set with |:iabbrev| will not be expanded by delimiters
+NOTE 3: Abbreviations set with |:iabbrev| will not be expanded by delimiters
 used on delimitMate, you should use <C-]> (read |i_CTRL-]|) to expand them on
 the go.
 
