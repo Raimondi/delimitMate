@@ -91,6 +91,8 @@ specific file types, see |delimitMateOptionDetails| for examples.
 
 |'delimitMate_expand_space'|      Turns on/off the expansion of <Space>.
 
+|'delimitMate_jump_expansion'|    Turns on/off jumping over expansions.
+
 |'delimitMate_smart_quotes'|      Turns on/off the "smart quotes" feature.
 
 |'delimitMate_smart_matchpairs'|  Turns on/off the "smart matchpairs" feature.
@@ -213,6 +215,17 @@ for details.
 e.g.: >
         let delimitMate_expand_space = 1
         au FileType tcl let b:delimitMate_expand_space = 1
+<
+------------------------------------------------------------------------------
+                                                *'delimitMate_jump_expansion'*
+                                              *'b:delimitMate_jump_expansion'*
+Values: 1 or 0                                                               ~
+Default: 0                                                                   ~
+This option turns on/off the jumping over <CR> and <Space> expansions when
+inserting closing matchpairs. Read |delimitMateExpansion| for details.
+e.g.: >
+        let delimitMate_jump_expansion = 1
+        au FileType tcl let b:delimitMate_jump_expansion = 1
 <
 ------------------------------------------------------------------------------
                                                   *'delimitMate_smart_quotes'*

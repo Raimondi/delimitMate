@@ -113,6 +113,9 @@ function! s:init() "{{{
 	endif
 	call s:option_init("expand_cr", 0)
 
+	" jump_expansion
+	call s:option_init("jump_expansion", 0)
+
 	" smart_matchpairs
 	call s:option_init("smart_matchpairs", '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)')
 
