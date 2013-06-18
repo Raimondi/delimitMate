@@ -12,6 +12,8 @@ $(document).ready(function() {
 --------------------------------------------------------------------------------
 # Issue #95
 new
+let b:delimitMate_jump_expansion = 1
+DelimitMateReload
 exec "normal i(\<CR>test)x"
 ================================================================================
 (
@@ -43,10 +45,10 @@ sub foo {
 }
 --------------------------------------------------------------------------------
 %d
-call setline(1, "\"{bracketed}")
+call setline(1, '"{bracketed}')
 normal A"x
 ================================================================================
-"{bracketed""x
+"{bracketed}"x"
 --------------------------------------------------------------------------------
 # Syntax folding enabled by autocmd breaks expansion. But ti can't be tested
 # with :normal

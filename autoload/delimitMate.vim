@@ -143,7 +143,7 @@ function! delimitMate#WriteAfter(str) "{{{
 	let len = 1 "len(a:str)
 	let line = split(getline('.'), '\zs')
 	let col = delimitMate#CursorIdx() - 1
-	if (col + 1) < 0
+	if (col + 1) < 0 || col('.') == 1
 		let line = insert(line, a:str)
 	elseif col('.') == col('$')
 		let line = add(line, a:str)

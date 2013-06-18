@@ -338,7 +338,7 @@ endfunction "}}}
 
 function! s:ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
-	inoremap <silent><expr> <Plug>delimitMateBS delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#BS()\<CR>" : "\<BS>"
+	inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
 	if !hasmapto('<Plug>delimitMateBS','i') && maparg('<BS>'. 'i') == ''
 		silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
 	endif
