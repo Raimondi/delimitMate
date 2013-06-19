@@ -261,8 +261,11 @@ function! delimitMate#IsSmartQuote(char) "{{{
 	let valid_char_re = '\w\|[^[:punct:][:space:]]'
 	let word_before = char_before =~ valid_char_re
 	let word_at = char_at  =~ valid_char_re
-	let escaped = delimitMate#CursorIdx() >= 1 && delimitMate#GetCharFromCursor(-1) == '\'
-	let result = word_before || escaped || word_at
+	let escaped = delimitMate#CursorIdx() >= 1
+				\ && delimitMate#GetCharFromCursor(-1) == '\'
+	let noescaped = substitute(getline('.'), '\\.', '', 'g')
+	let even = !(count(split(noescaped, '\zs'), a:char) % 2)
+	let result = word_before || escaped || word_at || !even
 	return result
 endfunction "delimitMate#SmartQuote }}}
 

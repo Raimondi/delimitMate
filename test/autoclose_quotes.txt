@@ -38,3 +38,5 @@ set cpo=ces$
 "('test'x" "('test'x)"
 # Duplicate whole line when inserting quote at bol #105
 "}\<Home>'" "''}"
+"'\<Del>abc  '" "'abc  '"
+"''abc '" "''abc ''"

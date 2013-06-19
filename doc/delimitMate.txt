@@ -291,9 +291,9 @@ e.g.: >
 Values: String.                                                              ~
 Default: Empty.                                                              ~
 
-The contents of this string will be inserted after the closing matchpair when
-the opening matchapair is inserted at the end of the line. This feature only
-works if the eol marker was inserted on the current insert session.
+The contents of this string will be inserted after the closing matchpair or
+quote when the respective opening matchapair or quote is inserted at the end
+of the line.
 e.g.: >
         au FileType c,perl let b:delimitMate_eol_marker = ";"
 <
@@ -425,11 +425,11 @@ e.g. typing at the "|": >
 ------------------------------------------------------------------------------
    3.4 SMART QUOTES                                   *delimitMateSmartQuotes*
 
-Only one quote will be inserted following a quote, a "\" or, following or
-preceding a keyword character. This should cover closing quotes after a
-string, opening quotes before a string, escaped quotes and apostrophes. Except
-for apostrophes, this feature can be disabled setting the option
-|'delimitMate_smart_quotes'| to 0.
+Only one quote will be inserted following a quote, a "\", following or
+preceding a keyword character, or when the number of quotes in the current
+line is odd. This should cover closing quotes after a string, opening quotes
+before a string, escaped quotes and apostrophes. Except for apostrophes, this
+feature can be disabled setting the option |'delimitMate_smart_quotes'| to 0.
 
 e.g. typing at the "|": >
 

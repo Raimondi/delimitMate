@@ -48,7 +48,7 @@ sub foo {
 call setline(1, '"{bracketed}')
 normal A"x
 ================================================================================
-"{bracketed}"x"
+"{bracketed}"x
 --------------------------------------------------------------------------------
 # Syntax folding enabled by autocmd breaks expansion. But ti can't be tested
 # with :normal
