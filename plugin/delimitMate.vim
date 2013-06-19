@@ -64,7 +64,7 @@ function! s:init() "{{{
 
 	" quotes
 	call s:option_init("quotes", "\" ' `")
-	call s:option_init("quotes_list", split(b:_l_delimitMate_quotes))
+	call s:option_init("quotes_list", split(b:_l_delimitMate_quotes, '\zs'))
 
 	" nesting_quotes
 	call s:option_init("nesting_quotes", [])
