@@ -11,22 +11,42 @@
 "let delimitMate_loaded = 1
 
 if !exists('s:options')
-	let options = {}
+	let s:options = {}
 endif
 function! s:s(name, value, ...) "{{{
-	let scope = (a:0 ? a:1 : 'b') . ':'
-	let prefix = (!a:0 || a:0 && a:1 == 's' ? '_l_' : '') . 'delimitMate_'
-	exec 'let ' . scope . prefix . a:name . ' = a:value'
+	let scope = a:0 ? a:1 : 's'
+	let bufnr = bufnr('%')
+	if !exists('s:options[bufnr]')
+		let s:options[bufnr] = {}
+	endif
+	if scope == 's'
+		let name = 'options.' . bufnr . '.' . a:name
+	else
+		let name = 'delimitMate_' . a:name
+	endif
+	exec 'let ' . scope . ':' . name . ' = a:value'
 endfunction "}}}
 
 function! s:g(name, ...) "{{{
-	let scope = (a:0 ? a:1 : 'b') . ':'
-	let prefix = (!a:0 || a:0 && a:1 == 's' ? '_l_' : '') . 'delimitMate_'
-	return eval(scope . prefix . a:name)
+	let scope = a:0 ? a:1 : 's'
+	if scope == 's'
+		let bufnr = bufnr('%')
+		let name = 'options.' . bufnr . '.' . a:name
+	else
+		let name = 'delimitMate_' . a:name
+	endif
+	return eval(scope . ':' . name)
 endfunction "}}}
 
 function! s:exists(name, ...) "{{{
-	return exists((a:0 ? a:1 : 's') . ':' . a:name)
+	let scope = a:0 ? a:1 : 's'
+	if scope == 's'
+		let bufnr = bufnr('%')
+		let name = 'options.' . bufnr . '.' . a:name
+	else
+		let name = 'delimitMate_' . a:name
+	endif
+	return exists(scope . ':' . name)
 endfunction "}}}
 
 function! delimitMate#Set(...) "{{{
@@ -576,10 +596,9 @@ function! delimitMate#TestMappings() "{{{
 	let optoutput = ['delimitMate Report', '==================', '',
 				\ '* Options: ( ) default, (g) global, (b) buffer','']
 	for option in options
-		exec 'call add(optoutput, ''('.(exists('b:delimitMate_'.option) ? 'b'
-					\ : exists('g:delimitMate_'.option) ? 'g' : ' ')
-					\ .') delimitMate_''.option.'' = ''.string(b:_l_delimitMate_'
-					\ .option.'))'
+		let scope = s:exists(option, 'b') ? 'b'
+					\ : s:exists(option, 'g') ? 'g' : ' '
+		call add(optoutput, '(' . scope . ')' . ' delimitMate_' . option . ' = ' . string(s:g(option)))
 	endfor
 	call append(line('$'), optoutput + ['--------------------',''])
 
@@ -724,11 +743,10 @@ function! delimitMate#OptionsList() "{{{
 				\ 'expand_space'       : 0,
 				\ 'matchpairs'         : &matchpairs,
 				\ 'nesting_quotes'     : [],
-				\ 'offByDefault'       : 0
 				\ 'quotes'             : '" '' `',
 				\ 'smart_matchpairs'   : '\w',
 				\ 'smart_quotes'       : 1,
-	}
+				\}
 endfunction " delimitMate#OptionsList }}}
 "}}}
 
