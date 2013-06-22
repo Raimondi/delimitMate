@@ -25,10 +25,6 @@ function! delimitMate#ShouldJump(...) "{{{
 		return 1
 	endif
 
-	if !b:_l_delimitMate_jump_expansion
-		return 0
-	endif
-
 	" Closing delimiter with space expansion.
 	let nchar = delimitMate#GetCharFromCursor(1)
 	if !a:0 && b:_l_delimitMate_expand_space && char == " "
@@ -37,6 +33,10 @@ function! delimitMate#ShouldJump(...) "{{{
 		endif
 	elseif a:0 && b:_l_delimitMate_expand_space && nchar == a:1
 		return 3
+	endif
+
+	if !s:g('jump_expansion')
+		return 0
 	endif
 
 	" Closing delimiter with CR expansion.
