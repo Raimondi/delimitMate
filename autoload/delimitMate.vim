@@ -10,8 +10,31 @@
 
 "let delimitMate_loaded = 1
 
+if !exists('s:options')
+	let options = {}
+endif
+function! s:s(name, value, ...) "{{{
+	let scope = (a:0 ? a:1 : 'b') . ':'
+	let prefix = (!a:0 || a:0 && a:1 == 's' ? '_l_' : '') . 'delimitMate_'
+	exec 'let ' . scope . prefix . a:name . ' = a:value'
+endfunction "}}}
+
 function! s:g(name, ...) "{{{
-	return eval('b:_l_delimitMate_' . a:name)
+	let scope = (a:0 ? a:1 : 'b') . ':'
+	let prefix = (!a:0 || a:0 && a:1 == 's' ? '_l_' : '') . 'delimitMate_'
+	return eval(scope . prefix . a:name)
+endfunction "}}}
+
+function! s:exists(name, ...) "{{{
+	return exists((a:0 ? a:1 : 's') . ':' . a:name)
+endfunction "}}}
+
+function! delimitMate#Set(...) "{{{
+	return call('s:s', a:000)
+endfunction "}}}
+
+function! delimitMate#Get(...) "{{{
+	return call('s:g', a:000)
 endfunction "}}}
 
 function! delimitMate#ShouldJump(...) "{{{
@@ -205,7 +228,7 @@ function! delimitMate#IsForbidden(char) "{{{
 endfunction "}}}
 
 function! delimitMate#FlushBuffer() " {{{
-	let b:_l_delimitMate_buffer = []
+	call s:s('buffer', [])
 	return ''
 endfunction " }}}
 
@@ -515,7 +538,7 @@ function! delimitMate#Finish(move_back) " {{{
 		let buffer = join(s:g('buffer'), '')
 		let len2 = len(buffer)
 		" Reset buffer:
-		let b:_l_delimitMate_buffer = []
+		call s:s('buffer', [])
 		let line = getline('.')
 		let col = col('.') -2
 		if col < 0
