@@ -59,7 +59,7 @@ function! s:init() "{{{
 
 	" quotes
 	call s:option_init("quotes", "\" ' `")
-	call s:option_init("quotes_list", split(s:g('quotes'), '\zs'))
+	call s:option_init("quotes_list",split(s:g('quotes'), '\s\+'))
 
 	" nesting_quotes
 	call s:option_init("nesting_quotes", [])
@@ -200,30 +200,16 @@ function! s:Unmap() " {{{
 endfunction " }}} s:Unmap()
 
 function! s:TestMappingsDo() "{{{
-	%d
-	if !exists("g:delimitMate_testing")
-		call delimitMate#TestMappings()
-	else
-		let temp_varsDM = [s:g('expand_space'), s:g('expand_cr'), s:g('autoclose')]
-		for i in [0,1]
-			let b:delimitMate_expand_space = i
-			let b:delimitMate_expand_cr = i
-			for a in [0,1]
-				let b:delimitMate_autoclose = a
-				call s:init()
-				call s:Unmap()
-				call s:Map()
-				call delimitMate#TestMappings()
-				call append(line('$'),'')
-			endfor
-		endfor
-		let b:delimitMate_expand_space = temp_varsDM[0]
-		let b:delimitMate_expand_cr = temp_varsDM[1]
-		let b:delimitMate_autoclose = temp_varsDM[2]
-		unlet temp_varsDM
+	if &modified
+		let confirm = input("Modified buffer, type \"yes\" to write and proceed "
+					\ . "with test: ") ==? 'yes'
+		if !confirm
+			return
+		endif
 	endif
-	normal gg
+	call delimitMate#TestMappings()
 	g/\%^$/d
+	0
 endfunction "}}}
 
 function! s:DelimitMateDo(...) "{{{
