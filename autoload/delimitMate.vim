@@ -434,24 +434,22 @@ function! delimitMate#JumpOut(char) "{{{
 	endif
 endfunction " }}}
 
-function! delimitMate#JumpAny(key) " {{{
+function! delimitMate#JumpAny(...) " {{{
 	if delimitMate#IsForbidden('')
-		return a:key
+		return ''
 	endif
 	if !delimitMate#ShouldJump()
-		return a:key
+		return ''
 	endif
 	" Let's get the character on the right.
 	let char = delimitMate#GetCharFromCursor(0)
 	if char == " "
 		" Space expansion.
-		"let char = char . getline('.')[col('.')] . delimitMate#Del()
 		return char . getline('.')[col('.')] . delimitMate#Del() .
 					\ delimitMate#Del()
 		"call delimitMate#RmBuffer(1)
 	elseif char == ""
 		" CR expansion.
-		"let char = "\<CR>" . getline(line('.') + 1)[0] . "\<Del>"
 		call delimitMate#FlushBuffer()
 		return "\<CR>" . getline(line('.') + 1)[0] . delimitMate#Del() . "\<Del>"
 	else

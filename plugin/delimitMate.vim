@@ -347,7 +347,7 @@ function! s:ExtraMappings() "{{{
 		silent! imap <unique> <buffer> <Space> <Plug>delimitMateSpace
 	endif
 	" Jump over any delimiter:
-	inoremap <silent> <Plug>delimitMateS-Tab <C-R>=delimitMate#JumpAny("\<S-Tab>")<CR>
+	inoremap <silent> <Plug>delimitMateS-Tab <C-R>=delimitMate#JumpAny()<CR>
 	if s:g('tab2exit') && !hasmapto('<Plug>delimitMateS-Tab', 'i') && maparg('<S-Tab>', 'i') == ''
 		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
 	endif
