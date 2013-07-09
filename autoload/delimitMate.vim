@@ -74,7 +74,7 @@ function! delimitMate#ShouldJump(...) "{{{
 		if index(list, nchar) > -1
 			return 2
 		endif
-	elseif a:0 && s:g('expand_space') && nchar == a:1
+	elseif a:0 && s:g('expand_space') && nchar == a:1 && char == ' '
 		return 3
 	endif
 
@@ -736,4 +736,4 @@ function! delimitMate#OptionsList() "{{{
 endfunction " delimitMate#OptionsList }}}
 "}}}
 
-" vim:foldmethod=marker:foldcolumn=4
+" vim:foldmethod=marker:foldcolumn=4:ts=2:sw=2
