@@ -315,8 +315,8 @@ function! delimitMate#IsSmartQuote(char) "{{{
 	let escaped = delimitMate#CursorIdx() >= 1
 				\ && delimitMate#GetCharFromCursor(-1) == '\'
 	let noescaped = substitute(getline('.'), '\\.', '', 'g')
-	let even = !(count(split(noescaped, '\zs'), a:char) % 2)
-	let result = word_before || escaped || word_at || !even
+	let odd =  (count(split(noescaped, '\zs'), a:char) % 2)
+	let result = word_before || escaped || word_at || odd
 	return result
 endfunction "delimitMate#SmartQuote }}}
 
