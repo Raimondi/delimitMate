@@ -33,8 +33,9 @@ for item in lines
     exec 'normal i'.eval(input2)."\<Esc>"
     let line = getline('.')
     let passed = line == eval(output2)
-    call vimtap#Ok(passed, input2 . ' => ' . string(line) .
-          \ (passed ? ' =' : ' !') . '= ' . string(eval(output2)))
+    call vimtap#Is(line, eval(output2), input2)
+    ", input2 . ' => ' . string(line) .
+    "      \ (passed ? ' =' : ' !') . '= ' . string(eval(output2)))
     let tcount += 1
   endfor
 endfor

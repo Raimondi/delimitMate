@@ -24,6 +24,7 @@ let g:delimitMate_autoclose = 1
 # Handle backspace gracefully.
 set backspace=
 "(\<Esc>a\<BS>x" "(x)"
+set bs=2
 # closing parens removes characters. #133
 "(a\<Esc>i)" "()a)"
 
@@ -33,4 +34,4 @@ let b:delimitMate_eol_marker = ';'
 "abc(x" "abc(x);"
 %d
 # BS should behave accordingly.
-"abc(\<BS>" "abc"
+"abc(\<BS>" "abc;"
