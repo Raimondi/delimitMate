@@ -205,15 +205,15 @@ function! delimitMate#GetCurrentSyntaxRegionIf(char) "{{{
 endfunction "}}}
 
 function! delimitMate#IsForbidden(char) "{{{
-	if s:g('excluded_regions_enabled') == 0
+	if !s:g('excluded_regions_enabled')
 		return 0
 	endif
 	let region = delimitMate#GetCurrentSyntaxRegion()
-	if index(s:g('excluded_regions_list'), region) >= 0
-		"echom "Forbidden 1!"
-		return 1
-	endif
-	let region = delimitMate#GetCurrentSyntaxRegionIf(a:char)
+	"if index(s:g('excluded_regions_list'), region) >= 0
+	"	"echom "Forbidden 1!"
+	"	return 1
+	"endif
+	"let region = delimitMate#GetCurrentSyntaxRegionIf(a:char)
 	"echom "Forbidden 2!"
 	return index(s:g('excluded_regions_list'), region) >= 0
 endfunction "}}}
