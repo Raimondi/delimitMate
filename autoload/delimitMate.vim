@@ -401,7 +401,8 @@ function! delimitMate#QuoteDelim(char) "{{{
 		" Seems like we have an unbalanced quote, insert one quotation
 		" mark and jump to the middle.
 		call delimitMate#AddToBuffer(a:char)
-		return delimitMate#WriteAfter(a:char)
+		"return delimitMate#WriteAfter(a:char)
+		return a:char . "\<Left>"
 	else
 		" Insert a pair and jump to the middle.
 		let sufix = ''
@@ -412,8 +413,8 @@ function! delimitMate#QuoteDelim(char) "{{{
 			let sufix = !has_marker ? s:g('eol_marker') : ''
 		endif
 		call delimitMate#AddToBuffer(a:char . sufix)
-		call delimitMate#WriteAfter(a:char . sufix)
-		return a:char
+		"call delimitMate#WriteAfter(a:char . sufix)
+		return a:char . a:char . "\<Left>"
 	endif
 endfunction "}}}
 
