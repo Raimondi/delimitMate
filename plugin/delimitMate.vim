@@ -296,7 +296,7 @@ function! s:AutoClose() "{{{
 	while i < len(s:g('matchpairs_list'))
 		let ld = s:g('left_delims')[i] == '|' ? '<bar>' : s:g('left_delims')[i]
 		let rd = s:g('right_delims')[i] == '|' ? '<bar>' : s:g('right_delims')[i]
-		exec 'inoremap <silent> <Plug>delimitMate' . ld . ' ' . ld . '<C-R>=delimitMate#ParenDelim("' . escape(rd, '|') . '")<CR>'
+		exec 'inoremap <silent> <Plug>delimitMate' . ld . ' <C-R>=delimitMate#ParenDelim("' . escape(rd, '|') . '")<CR>'
 		exec 'silent! imap <unique> <buffer> '.ld.' <Plug>delimitMate'.ld
 		let i += 1
 	endwhile

@@ -353,34 +353,31 @@ function! delimitMate#SkipDelim(char) "{{{
 	endif
 endfunction "}}}
 
-function! delimitMate#ParenDelim(char) " {{{
-	if delimitMate#IsForbidden(a:char)
-		return ''
+function! delimitMate#ParenDelim(right) " {{{
+	let left = s:g('left_delims')[index(s:g('right_delims'),a:right)]
+	if delimitMate#IsForbidden(a:right)
+		return left
 	endif
 	" Try to balance matchpairs
 	if s:g('balance_matchpairs') &&
-				\ delimitMate#BalancedParens(a:char) <= 0
-		return ''
+				\ delimitMate#BalancedParens(a:right) < 0
+		return left
 	endif
 	let line = getline('.')
 	let col = col('.')-2
 	let tail = len(line) == (col + 1) ? s:g('eol_marker') : ''
-	let left = s:g('left_delims')[index(s:g('right_delims'),a:char)]
 	let smart_matchpairs = substitute(s:g('smart_matchpairs'), '\\!', left, 'g')
-	let smart_matchpairs = substitute(smart_matchpairs, '\\#', a:char, 'g')
+	let smart_matchpairs = substitute(smart_matchpairs, '\\#', a:right, 'g')
 
 	if s:g('smart_matchpairs') != '' &&
 				\ line[col+1:] =~ smart_matchpairs
-		return ''
-	elseif (col) < 0
-		call setline('.',a:char.line)
-		call delimitMate#AddToBuffer(a:char)
-	else
-		"echom string(col).':'.line[:(col)].'|'.line[(col+1):]
-		call setline('.',line[:(col)].a:char.tail.line[(col+1):])
-		call delimitMate#AddToBuffer(a:char . tail)
+		return left
+	"elseif (col) < 0
+	"	call setline('.',a:right.line)
+	"	call delimitMate#AddToBuffer(a:right)
 	endif
-	return ''
+	call delimitMate#AddToBuffer(a:right . tail)
+	return left . a:right . tail . repeat("\<Left>", len(split(tail, '\zs')) + 1)
 endfunction " }}}
 
 function! delimitMate#QuoteDelim(char) "{{{
