@@ -191,11 +191,6 @@ function! s:Unmap() " {{{
 			exec 'silent! iunmap <buffer> ' . map
 		endif
 	endfor
-
-	if !has('gui_running')
-		silent! iunmap <C-[>OC
-	endif
-
 	let b:delimitMate_enabled = 0
 endfunction " }}} s:Unmap()
 
