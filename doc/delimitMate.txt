@@ -1,4 +1,4 @@
-*delimitMate.txt*   Trying to keep those beasts at bay! v2.6     *delimitMate*
+*delimitMate.txt*   Trying to keep those beasts at bay! v2.7     *delimitMate*
 
 
 
@@ -47,16 +47,12 @@ etc.; besides some other related features that should make your time in insert
 mode a little bit easier.
 
 Most of the features can be modified or disabled permanently, using global
-variables, or on a FileType basis, using autocommands. With a couple of
-exceptions and limitations, this features don't break undo, redo or history.
+variables, or on a FileType basis, using autocommands.
 
 NOTE 1: If you have any trouble with this plugin, please run |:DelimitMateTest|
 in a new buffer to see what is not working.
 
-NOTE 2: |'timeout'| needs to be set when working in the terminal, otherwise you
-might find weird behaviour with mappings including <Esc> or arrow keys.
-
-NOTE 3: Abbreviations set with |:iabbrev| will not be expanded by delimiters
+NOTE 2: Abbreviations set with |:iabbrev| will not be expanded by delimiters
 used on delimitMate, you should use <C-]> (read |i_CTRL-]|) to expand them on
 the go.
 
@@ -123,7 +119,7 @@ autocmd to modify delimitMate's behavior for specific file types, read more in
 |delimitMateFileType|.
 
 Note: Use buffer variables only to set options for specific file types using
-:autocmd, use global variables to set options for every buffer. Read more in
+:autocmd, use global variables to set options for all buffers. Read more in
 |g:var| and |b:var|.
 
 ------------------------------------------------------------------------------
@@ -602,26 +598,12 @@ In order to make custom mappings easier and prevent overwritting existing
 ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 for its mappings.
 
-These are the default mappings:
+These are the default mappings for the extra features:
 
 <BS>         is mapped to <Plug>delimitMateBS
 <S-BS>       is mapped to <Plug>delimitMateS-BS
 <S-Tab>      is mapped to <Plug>delimitMateS-Tab
 <C-G>g       is mapped to <Plug>delimitMateJumpMany
-<Del>        is mapped to <Plug>delimitMateDel
-<Esc>        is mapped to <Plug>delimitMateEsc
-<Left>       is mapped to <Plug>delimitMateLeft
-<Right>      is mapped to <Plug>delimitMateRight
-<Home>       is mapped to <Plug>delimitMateHome
-<End>        is mapped to <Plug>delimitMateEnd
-<Up>         is mapped to <Plug>delimitMateUp
-<Down>       is mapped to <Plug>delimitMateDown
-<PageUp>     is mapped to <Plug>delimitMatePageUp
-<PageDown>   is mapped to <Plug>delimitMatePageDown
-<S-Down>     is mapped to <Plug>delimitMateS-Down
-<S-Up>       is mapped to <Plug>delimitMateS-Up
-<LeftMouse>  is mapped to <Plug>delimitMateMLeftMouse
-<RightMouse> is mapped to <Plug>delimitMateMRightMouse
 
 The rest of the mappings correspond to parens, quotes, CR, Space, etc. and they
 depend on the values of the delimitMate options, they have the following form:
@@ -635,9 +617,9 @@ e.g.: for "(":
 e.g.: If you have <CR> expansion enabled, you might want to skip it on pop-up
 menus:
 
-    imap <expr> <CR> pumvisible() ?
-                     \"\<c-y>" :
-                     \ "<Plug>delimitMateCR"
+    imap <expr> <CR> pumvisible()
+                     \ ? "\<C-Y>"
+                     \ : "<Plug>delimitMateCR"
 
 
 ==============================================================================
@@ -661,13 +643,13 @@ Returns 1 if there is a closing delimiter or a quote to the right of the
 cursor, 0 otherwise.
 
 ------------------------------------------------------------------------------
-delimitMate#JumpAny(key)                               *delimitMate#JumpAny()*
+delimitMate#JumpAny()                               *delimitMate#JumpAny()*
 
 This function returns a mapping that will make the cursor jump to the right
 when delimitMate#ShouldJump() returns 1, returns the argument "key" otherwise.
 e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
-   inoremap <C-Tab> <C-R>=delimitMate#JumpAny("\<C-Tab>")<CR>
+   inoremap <C-Tab> <C-R>=delimitMate#JumpAny()<CR>
 <
 
 ==============================================================================
@@ -726,8 +708,14 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.6     2011-01-14 * Current release:
-                         - Add smart_matchpairs feature.
+    2.7     2013-07-15 * Current release:
+                         - Lots of bug fixes.
+                         - Add delimitMate_offByDefault.
+                         - Add delimitMate_eol_marker.
+                         - Reduce the number of mappings.
+                         - Stop using setline().
+|---------|------------|-----------------------------------------------------|
+    2.6     2011-01-14 * - Add smart_matchpairs feature.
                          - Add mapping to jump over contiguous delimiters.
                          - Fix behaviour of b:loaded_delimitMate.
 |---------|------------|-----------------------------------------------------|
