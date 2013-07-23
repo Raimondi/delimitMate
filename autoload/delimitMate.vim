@@ -111,6 +111,22 @@ function! delimitMate#IsEmptyPair(str) "{{{
 	return 0
 endfunction "}}}
 
+function! delimitMate#RightQ(char) "{{{
+	let i = 0
+	while delimitMate#GetCharFromCursor(i) ==# a:char
+		let i += 1
+	endwhile
+	return i
+endfunction "}}}
+
+function! delimitMate#LeftQ(char) "{{{
+	let i = 0
+	while delimitMate#GetCharFromCursor(i - 1) ==# a:char
+		let i -= 1
+	endwhile
+	return i * -1
+endfunction "}}}
+
 function! delimitMate#GetCharFromCursor(...) "{{{
 	let idx = col('.') - 1
 	if !a:0 || (a:0 && a:1 >= 0)
@@ -334,10 +350,17 @@ function! delimitMate#QuoteDelim(char) "{{{
 	endif
 	let char_at = delimitMate#GetCharFromCursor(0)
 	let char_before = delimitMate#GetCharFromCursor(-1)
-	if char_at == a:char &&
-				\ index(s:g('nesting_quotes'), a:char) < 0
-		" Get out of the string.
-		return "\<Right>"
+	let nesting_on = index(s:g('nesting_quotes'), a:char) > -1
+	let left_q = nesting_on ? delimitMate#LeftQ(a:char) : 0
+	if nesting_on && left_q > 1
+		" Nesting quotes.
+		let right_q =  delimitMate#RightQ(a:char)
+		let quotes = right_q > left_q + 1 ? 0 : left_q - right_q + 2
+		let lefts = quotes - 1
+		return repeat(a:char, quotes) . repeat("\<Left>", lefts)
+	elseif char_at == a:char
+		" Inside an empty pair, jump out
+		return a:char . "\<Del>"
 	elseif delimitMate#IsSmartQuote(a:char)
 		" Seems like a smart quote, insert a single char.
 		return a:char

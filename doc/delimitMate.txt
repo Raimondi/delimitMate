@@ -182,8 +182,10 @@ e.g.: >
 Values: A list of quotes.                                                    ~
 Default: []                                                                  ~
 
-Quotes listed here will not be able to jump out of the empty pair, thus
-allowing the autoclosed quotes to be nested.
+When adding a third quote listed in this option is inserted, three quotes will
+be inserted to the right of the cursor and the cursor will stay in the middle.
+If more quotes are inserted the number of quotes on both sides of the cursor
+will stay balanced.
 e.g.: >
         let delimitMate_nesting_quotes = ['"','`']
         au FileType python let b:delimitMate_nesting_quotes = ['"']
@@ -714,6 +716,7 @@ This script was inspired by the auto-completion of delimiters on TextMate.
                          - Add delimitMate_eol_marker.
                          - Reduce the number of mappings.
                          - Stop using setline().
+                         - Better handling of nested quotes.
 |---------|------------|-----------------------------------------------------|
     2.6     2011-01-14 * - Add smart_matchpairs feature.
                          - Add mapping to jump over contiguous delimiters.
