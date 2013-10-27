@@ -178,7 +178,7 @@ function! s:Unmap() " {{{
 				\ s:g('left_delims') +
 				\ s:g('quotes_list') +
 				\ s:g('apostrophes_list') +
-				\ ['<BS>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
+				\ ['<BS>', '<C-h>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
 				\ ['<C-Left>', '<C-Right>'] +
 				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
@@ -305,8 +305,13 @@ endfunction "}}}
 function! s:ExtraMappings() "{{{
 	" If pair is empty, delete both delimiters:
 	inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
-	if !hasmapto('<Plug>delimitMateBS','i') && maparg('<BS>'. 'i') == ''
-		silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
+	if !hasmapto('<Plug>delimitMateBS','i')
+	  if maparg('<BS>'. 'i') == ''
+      silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
+    endif
+	  if maparg('<C-h>'. 'i') == ''
+      silent! imap <unique> <buffer> <C-h> <Plug>delimitMateBS
+    endif
 	endif
 	" If pair is empty, delete closing delimiter:
 	inoremap <silent> <expr> <Plug>delimitMateS-BS delimitMate#WithinEmptyPair() ? "\<Del>" : "\<S-BS>"
