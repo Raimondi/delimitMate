@@ -290,7 +290,7 @@ Values: String.                                                              ~
 Default: Empty.                                                              ~
 
 The contents of this string will be inserted after the closing matchpair or
-quote when the respective opening matchapair or quote is inserted at the end
+quote when the respective opening matchpair or quote is inserted at the end
 of the line.
 e.g.: >
         au FileType c,perl let b:delimitMate_eol_marker = ";"
