@@ -361,6 +361,10 @@ function! delimitMate#QuoteDelim(char) "{{{
 	elseif char_at == a:char
 		" Inside an empty pair, jump out
 		return a:char . "\<Del>"
+	elseif &ft == "vim" && a:char == '"' && getline('.') =~ '^\s*$'
+		" If we are in a vim file and it looks like we're starting a comment, do
+		" not add a second
+		return a:char
 	elseif delimitMate#IsSmartQuote(a:char)
 		" Seems like a smart quote, insert a single char.
 		return a:char
