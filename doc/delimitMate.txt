@@ -384,11 +384,14 @@ Expand <CR> to: >
                       <CR><CR><Up>  |  You get
                     ============================
                            (|)      |    (
-                                    |    |
+                                    |      |
                                     |    )
 <
 
-NOTE that the expansion of <CR> will break the redo command.
+When you have |'delimitMate_jump_expansion'| enabled, if there is an existing
+closing paren/bracket/etc. on the next line, delimitMate will make the cursor
+jump over any whitespace/<CR> and place it after the existing closing
+delimiter instead of inserting a new one.
 
 Since <Space> and <CR> are used everywhere, I have made the functions involved
 in expansions global, so they can be used to make custom mappings. Read
@@ -398,8 +401,7 @@ in expansions global, so they can be used to make custom mappings. Read
    3.3 BACKSPACE                                        *delimitMateBackspace*
 
 If you press backspace inside an empty pair, both delimiters are deleted. When
-expansions are enabled, <BS> will also delete the expansions. NOTE that
-deleting <CR> expansions will break the redo command.
+expansions are enabled, <BS> will also delete the expansions.
 
 If you type <S-BS> (shift + backspace) instead, only the closing delimiter
 will be deleted. NOTE that this will not usually work when using Vim from the
