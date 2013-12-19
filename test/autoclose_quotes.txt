@@ -4,6 +4,7 @@ let g:delimitMate_autoclose = 1
 "''x" "''x"
 "'\<BS>x" "x"
 "'\<C-G>gx" "''x"
+# This will fail for double quote.
 "'\"x" "'\"x\"'"
 "@'x" "@'x'"
 "@#\<Left>'x" "@'x'#"
