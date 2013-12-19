@@ -35,3 +35,7 @@ let b:delimitMate_eol_marker = ';'
 %d
 # BS should behave accordingly.
 "abc(\<BS>" "abc;"
+# Expand iabbreviations
+unlet b:delimitMate_eol_marker
+iabb def ghi
+"def(" "ghi()"

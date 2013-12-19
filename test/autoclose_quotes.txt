@@ -48,3 +48,6 @@ let g:delimitMate_nesting_quotes = split(g:delimitMate_quotes, '\s\+')
 "''x" "''x"
 "'x" "'x'"
 unlet g:delimitMate_nesting_quotes
+# expand iabbreviations
+iabb def ghi
+"def'" "ghi'"
