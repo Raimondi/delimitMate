@@ -273,15 +273,19 @@ function! s:AutoClose() "{{{
 	while i < len(s:g('matchpairs_list'))
 		let ld = s:g('left_delims')[i] == '|' ? '<bar>' : s:g('left_delims')[i]
 		let rd = s:g('right_delims')[i] == '|' ? '<bar>' : s:g('right_delims')[i]
-		exec 'inoremap <silent> <Plug>delimitMate' . ld . ' <C-R>=delimitMate#ParenDelim("' . escape(rd, '|') . '")<CR>'
-		exec 'silent! imap <unique> <buffer> '.ld.' <Plug>delimitMate'.ld
+		exec 'inoremap <expr><silent> <Plug>delimitMate' . ld
+								\. ' delimitMate#ParenDelim("' . escape(rd, '|') . '")'
+		exec 'silent! imap <unique> <buffer> '.ld
+								\.' <Plug>delimitMate'.ld
 		let i += 1
 	endwhile
 
 	" Exit from inside the matching pair:
 	for delim in s:g('right_delims')
-		exec 'inoremap <silent> <Plug>delimitMate' . delim . ' <C-R>=delimitMate#JumpOut("\' . delim . '")<CR>'
-		exec 'silent! imap <unique> <buffer> ' . delim . ' <Plug>delimitMate'. delim
+		exec 'inoremap <expr><silent> <Plug>delimitMate' . delim
+								\. ' delimitMate#JumpOut("\' . delim . '")'
+		exec 'silent! imap <unique> <buffer> ' . delim
+								\. ' <Plug>delimitMate'. delim
 	endfor
 
 	" Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
