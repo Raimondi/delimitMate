@@ -108,6 +108,9 @@ function! s:init() "{{{
 	endif
 	call s:option_init("expand_cr", 0)
 
+	" expand_in_quotes
+	call s:option_init('expand_inside_quotes', 0)
+
 	" jump_expansion
 	call s:option_init("jump_expansion", 0)
 
@@ -395,4 +398,4 @@ augroup END
 
 let &cpo = save_cpo
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
-" vim:foldmethod=marker:foldcolumn=4
+" vim:foldmethod=marker:foldcolumn=4:ts=2:sw=2

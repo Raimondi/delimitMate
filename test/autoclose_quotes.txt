@@ -22,6 +22,8 @@ let g:delimitMate_autoclose = 0
 "@#\<Left>''x" "@'x'#"
 let g:delimitMate_expand_space = 1
 let g:delimitMate_autoclose = 1
+"'\<Space>x" "' x'"
+let g:delimitMate_expand_inside_quotes = 1
 "'\<Space>x" "' x '"
 "'\<Space>\<BS>x" "'x'"
 "abc\\''\<Space>x" "abc\\' x'"

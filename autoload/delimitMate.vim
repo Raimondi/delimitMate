@@ -192,6 +192,27 @@ function! delimitMate#WithinEmptyPair() "{{{
 	return delimitMate#IsEmptyPair( char1.char2 )
 endfunction "}}}
 
+function! delimitMate#WithinEmptyMatchpair() "{{{
+	" get char before the cursor.
+	let open = delimitMate#GetCharFromCursor(-1)
+	let idx = index(s:g('left_delims'), open)
+	if idx == -1
+		return 0
+	endif
+	let close = get(s:g('right_delims'), idx, '')
+	return close ==# delimitMate#GetCharFromCursor(0)
+endfunction "}}}
+
+function! delimitMate#WithinEmptyQuotes() "{{{
+	" get char before the cursor.
+	let quote = delimitMate#GetCharFromCursor(-1)
+	let idx = index(s:g('quotes_list'), quote)
+	if idx == -1
+		return 0
+	endif
+	return quote ==# delimitMate#GetCharFromCursor(0)
+endfunction "}}}
+
 function! delimitMate#CursorIdx() "{{{
 	let idx = len(split(getline('.')[: col('.') - 1], '\zs')) - 1
 	return idx
@@ -448,10 +469,15 @@ function! delimitMate#ExpandReturn() "{{{
 	if delimitMate#IsForbidden("")
 		return "\<CR>"
 	endif
-	if delimitMate#WithinEmptyPair()
+	let escaped = delimitMate#CursorIdx() >= 2
+				\ && delimitMate#GetCharFromCursor(-2) == '\'
+	if delimitMate#WithinEmptyMatchpair()
+				\ || (s:g('expand_cr') == 2
+				\     && index(s:g('right_delims'), delimitMate#GetCharFromCursor(0)) > -1)
+				\ || (s:g('expand_inside_quotes')
+				\     && delimitMate#WithinEmptyQuotes()
+				\     && !escaped)
 		" Expand:
-		" Not sure why I used the previous combos, but I'm sure somebody will
-		" tell me about it.
 		" XXX zv prevents breaking expansion with syntax folding enabled by
 		" InsertLeave.
 		return "\<Esc>a\<CR>\<Esc>zvO"
@@ -466,7 +492,10 @@ function! delimitMate#ExpandSpace() "{{{
 	endif
 	let escaped = delimitMate#CursorIdx() >= 2
 				\ && delimitMate#GetCharFromCursor(-2) == '\'
-	if delimitMate#WithinEmptyPair() && !escaped
+	if delimitMate#WithinEmptyMatchpair()
+				\ || (s:g('expand_inside_quotes')
+				\     && delimitMate#WithinEmptyQuotes()
+				\     && !escaped)
 		" Expand:
 		return "\<Space>\<Space>\<Left>"
 	else

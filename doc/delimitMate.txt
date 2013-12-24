@@ -193,7 +193,7 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                      *'delimitMate_expand_cr'*
                                                    *'b:delimitMate_expand_cr'*
-Values: 1 or 0                                                               ~
+Values: 0, 1 or 2                                                             ~
 Default: 0                                                                   ~
 
 This option turns on/off the expansion of <CR>. Read |delimitMateExpansion|
@@ -213,6 +213,18 @@ for details.
 e.g.: >
         let delimitMate_expand_space = 1
         au FileType tcl let b:delimitMate_expand_space = 1
+<
+------------------------------------------------------------------------------
+                                          *'delimitMate_expand_inside_quotes'*
+                                        *'b:delimitMate_expand_inside_quotes'*
+Values: 1 or 0                                                                ~
+Default: 0                                                                   ~
+When this option is set to 1 the expansion of space and cr will also be
+applied to quotes. Read |delimitMateExpansion| for details.
+
+e.g.: >
+        let delimitMate_expand_inside_quotes = 1
+        au FileType mail let b:delimitMate_expand_inside_quotes = 1
 <
 ------------------------------------------------------------------------------
                                                 *'delimitMate_jump_expansion'*
@@ -369,21 +381,21 @@ you should use <C-]> (read |i_CTRL-]|) to expand them on the go.
 ------------------------------------------------------------------------------
    3.2 EXPANSION OF SPACE AND CAR RETURN                *delimitMateExpansion*
 
-When the cursor is inside an empty pair of delimiters, <Space> and <CR> can be
+When the cursor is inside an empty pair of any matchpair, <Space> and <CR> can be
 expanded, see |'delimitMate_expand_space'| and
 |'delimitMate_expand_cr'|:
 
 Expand <Space> to: >
 
-                    <Space><Space><Left>  |  You get
-                  ====================================
-                              (|)         |    ( | )
+                    You start with  |  You get
+                  ==============================
+                        (|)         |    ( | )
 <
 Expand <CR> to: >
 
-                      <CR><CR><Up>  |  You get
-                    ============================
-                           (|)      |    (
+                   You start with   |  You get
+                  ==============================
+                        (|)         |    (
                                     |      |
                                     |    )
 <
@@ -392,6 +404,15 @@ When you have |'delimitMate_jump_expansion'| enabled, if there is an existing
 closing paren/bracket/etc. on the next line, delimitMate will make the cursor
 jump over any whitespace/<CR> and place it after the existing closing
 delimiter instead of inserting a new one.
+
+When |'delimitMate_expand_cr'| is set to 2, the following will also happen: >
+
+                    You start with  |  You get
+                  ==============================
+                       (foo|)       |    (foo
+                                    |      |
+                                    |    )
+<
 
 Since <Space> and <CR> are used everywhere, I have made the functions involved
 in expansions global, so they can be used to make custom mappings. Read
