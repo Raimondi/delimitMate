@@ -471,12 +471,13 @@ function! delimitMate#ExpandReturn() "{{{
 	endif
 	let escaped = delimitMate#CursorIdx() >= 2
 				\ && delimitMate#GetCharFromCursor(-2) == '\'
-	if delimitMate#WithinEmptyMatchpair()
+	if !pumvisible() && (
+				\ delimitMate#WithinEmptyMatchpair()
 				\ || (s:g('expand_cr') == 2
 				\     && index(s:g('right_delims'), delimitMate#GetCharFromCursor(0)) > -1)
 				\ || (s:g('expand_inside_quotes')
 				\     && delimitMate#WithinEmptyQuotes()
-				\     && !escaped)
+				\     && !escaped))
 		" Expand:
 		" XXX zv prevents breaking expansion with syntax folding enabled by
 		" InsertLeave.
