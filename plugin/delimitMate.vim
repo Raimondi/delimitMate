@@ -258,19 +258,13 @@ endfunction "}}}
 "}}}
 
 " Mappers: {{{
-function! s:TriggerAbb(expr) "{{{
+function! s:TriggerAbb() "{{{
 	if v:version < 703
 		    \ || ( v:version == 703 && !has('patch489') )
 		    \ || pumvisible()
 		return ''
 	endif
-	if a:expr == 1
-		return '"\<C-]>".'
-	endif
-	if a:expr == 2
-		return "\<C-]>"
-	endif
-	return '<C-]>'
+	return "\<C-]>"
 endfunction "}}}
 
 function! s:NoAutoClose() "{{{
@@ -279,7 +273,7 @@ function! s:NoAutoClose() "{{{
 		if delim == '|'
 			let delim = '<Bar>'
 		endif
-		exec 'inoremap <silent> <Plug>delimitMate' . delim . ' '.s:TriggerAbb(0).'<C-R>=delimitMate#SkipDelim("' . escape(delim,'"') . '")<CR>'
+		exec 'inoremap <silent> <Plug>delimitMate' . delim . ' <C-R>=<SID>TriggerAbb().delimitMate#SkipDelim("' . escape(delim,'"') . '")<CR>'
 		exec 'silent! imap <unique> <buffer> '.delim.' <Plug>delimitMate'.delim
 	endfor
 endfunction "}}}
@@ -292,7 +286,7 @@ function! s:AutoClose() "{{{
 		let ld = s:g('left_delims')[i] == '|' ? '<bar>' : s:g('left_delims')[i]
 		let rd = s:g('right_delims')[i] == '|' ? '<bar>' : s:g('right_delims')[i]
 		exec 'inoremap <expr><silent> <Plug>delimitMate' . ld
-								\. ' '.s:TriggerAbb(1).'delimitMate#ParenDelim("' . escape(rd, '|') . '")'
+								\. ' <SID>TriggerAbb().delimitMate#ParenDelim("' . escape(rd, '|') . '")'
 		exec 'silent! imap <unique> <buffer> '.ld
 								\.' <Plug>delimitMate'.ld
 		let i += 1
@@ -301,7 +295,7 @@ function! s:AutoClose() "{{{
 	" Exit from inside the matching pair:
 	for delim in s:g('right_delims')
 		exec 'inoremap <expr><silent> <Plug>delimitMate' . delim
-								\. ' '.s:TriggerAbb(1).'delimitMate#JumpOut("\' . delim . '")'
+								\. ' <SID>TriggerAbb().delimitMate#JumpOut("\' . delim . '")'
 		exec 'silent! imap <unique> <buffer> ' . delim
 								\. ' <Plug>delimitMate'. delim
 	endfor
@@ -312,8 +306,8 @@ function! s:AutoClose() "{{{
 		if delim == '|'
 			let delim = '<Bar>'
 		endif
-		exec 'inoremap <silent> <Plug>delimitMate' . delim
-								\. ' '.s:TriggerAbb(0).'<C-R>=delimitMate#QuoteDelim("\' . delim . '")<CR>'
+		exec 'inoremap <expr><silent> <Plug>delimitMate' . delim
+								\. ' <SID>TriggerAbb()."<C-R>=delimitMate#QuoteDelim(\"\\\' . delim . '\")<CR>"'
 		exec 'silent! imap <unique> <buffer> ' . delim
 								\. ' <Plug>delimitMate' . delim
 	endfor
@@ -343,22 +337,22 @@ function! s:ExtraMappings() "{{{
 		silent! imap <unique> <buffer> <S-BS> <Plug>delimitMateS-BS
 	endif
 	" Expand return if inside an empty pair:
-	inoremap <expr><silent> <Plug>delimitMateCR <SID>TriggerAbb(2)."\<C-R>=delimitMate#ExpandReturn()\<CR>"
+	inoremap <expr><silent> <Plug>delimitMateCR <SID>TriggerAbb()."\<C-R>=delimitMate#ExpandReturn()\<CR>"
 	if s:g('expand_cr') && !hasmapto('<Plug>delimitMateCR', 'i') && maparg('<CR>', 'i') == ''
 		silent! imap <unique> <buffer> <CR> <Plug>delimitMateCR
 	endif
 	" Expand space if inside an empty pair:
-	inoremap <expr><silent> <Plug>delimitMateSpace <SID>TriggerAbb(2)."\<C-R>=delimitMate#ExpandSpace()\<CR>"
+	inoremap <expr><silent> <Plug>delimitMateSpace <SID>TriggerAbb()."\<C-R>=delimitMate#ExpandSpace()\<CR>"
 	if s:g('expand_space') && !hasmapto('<Plug>delimitMateSpace', 'i') && maparg('<Space>', 'i') == ''
 		silent! imap <unique> <buffer> <Space> <Plug>delimitMateSpace
 	endif
 	" Jump over any delimiter:
-	inoremap <expr><silent> <Plug>delimitMateS-Tab <SID>TriggerAbb(2)."\<C-R>=delimitMate#JumpAny()\<CR>"
+	inoremap <expr><silent> <Plug>delimitMateS-Tab <SID>TriggerAbb()."\<C-R>=delimitMate#JumpAny()\<CR>"
 	if s:g('tab2exit') && !hasmapto('<Plug>delimitMateS-Tab', 'i') && maparg('<S-Tab>', 'i') == ''
 		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
 	endif
 	" Jump over next delimiters
-	inoremap <expr><buffer> <Plug>delimitMateJumpMany <SID>TriggerAbb(2)."\<C-R>=delimitMate#JumpMany()\<CR>"
+	inoremap <expr><buffer> <Plug>delimitMateJumpMany <SID>TriggerAbb()."\<C-R>=delimitMate#JumpMany()\<CR>"
 	if !hasmapto('<Plug>delimitMateJumpMany', 'i') && maparg("<C-G>g", 'i') == ''
 		imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
 	endif
