@@ -259,7 +259,9 @@ endfunction "}}}
 
 " Mappers: {{{
 function! s:TriggerAbb(expr) "{{{
-	if v:version < 703 || ( v:version == 703 && !has('patch489') )
+	if v:version < 703
+		    \ || ( v:version == 703 && !has('patch489') )
+		    \ || pumvisible()
 		return ''
 	endif
 	if a:expr == 1
