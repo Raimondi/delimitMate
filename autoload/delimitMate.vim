@@ -471,13 +471,15 @@ function! delimitMate#ExpandReturn() "{{{
 	endif
 	let escaped = delimitMate#CursorIdx() >= 2
 				\ && delimitMate#GetCharFromCursor(-2) == '\'
-	if !pumvisible() && (
-				\ delimitMate#WithinEmptyMatchpair()
-				\ || (s:g('expand_cr') == 2
-				\     && index(s:g('right_delims'), delimitMate#GetCharFromCursor(0)) > -1)
-				\ || (s:g('expand_inside_quotes')
-				\     && delimitMate#WithinEmptyQuotes()
-				\     && !escaped))
+	let expand_right_matchpair = s:g('expand_cr') == 2
+				\     && index(s:g('right_delims'), delimitMate#GetCharFromCursor(0)) > -1
+	let expand_inside_quotes = s:g('expand_inside_quotes')
+					\     && delimitMate#WithinEmptyQuotes()
+					\     && !escaped
+	if !pumvisible()
+				\ && (delimitMate#WithinEmptyMatchpair()
+				\     || expand_right_matchpair
+				\     || expand_inside_quotes)
 		" Expand:
 		" XXX zv prevents breaking expansion with syntax folding enabled by
 		" InsertLeave.
@@ -493,10 +495,10 @@ function! delimitMate#ExpandSpace() "{{{
 	endif
 	let escaped = delimitMate#CursorIdx() >= 2
 				\ && delimitMate#GetCharFromCursor(-2) == '\'
-	if delimitMate#WithinEmptyMatchpair()
-				\ || (s:g('expand_inside_quotes')
-				\     && delimitMate#WithinEmptyQuotes()
-				\     && !escaped)
+	let expand_inside_quotes = s:g('expand_inside_quotes')
+					\     && delimitMate#WithinEmptyQuotes()
+					\     && !escaped
+	if delimitMate#WithinEmptyMatchpair() || expand_inside_quotes
 		" Expand:
 		return "\<Space>\<Space>\<Left>"
 	else

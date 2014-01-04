@@ -16,13 +16,6 @@ let g:loaded_delimitMate = 1
 let save_cpo = &cpo
 set cpo&vim
 
-if exists("s:loaded_delimitMate") && !exists("g:delimitMate_testing")
-	" Don't define the functions if they already exist: just do the work
-	" (unless we are testing):
-	call s:DelimitMateDo()
-	finish
-endif
-
 if v:version < 700
 	echoerr "delimitMate: this plugin requires vim >= 7!"
 	finish
@@ -294,6 +287,7 @@ function! s:AutoClose() "{{{
 
 	" Exit from inside the matching pair:
 	for delim in s:g('right_delims')
+		let delim = delim == '|' ? '<bar>' : delim
 		exec 'inoremap <expr><silent> <Plug>delimitMate' . delim
 								\. ' <SID>TriggerAbb().delimitMate#JumpOut("\' . delim . '")'
 		exec 'silent! imap <unique> <buffer> ' . delim
@@ -362,8 +356,6 @@ endfunction "}}}
 
 " Commands: {{{
 
-call s:DelimitMateDo()
-
 " Let me refresh without re-loading the buffer:
 command! -bar DelimitMateReload call s:DelimitMateDo(1)
 
@@ -388,6 +380,7 @@ augroup delimitMate
 				\   call <SID>DelimitMateDo() |
 				\   let b:delimitMate_was_here = 1 |
 				\ endif
+	autocmd VimEnter * call <SID>DelimitMateDo()
 augroup END
 
 "}}}
