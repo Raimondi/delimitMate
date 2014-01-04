@@ -35,7 +35,7 @@ function! s:g(name, ...) "{{{
 	else
 		let name = 'delimitMate_' . a:name
 	endif
-	return eval(scope . ':' . name)
+	return deepcopy(eval(scope . ':' . name))
 endfunction "}}}
 
 function! s:exists(name, ...) "{{{
