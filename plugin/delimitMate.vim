@@ -342,6 +342,8 @@ endfunction "}}}
 
 " Commands: {{{
 
+call s:DelimitMateDo()
+
 " Let me refresh without re-loading the buffer:
 command! -bar DelimitMateReload call s:DelimitMateDo(1)
 
@@ -366,7 +368,6 @@ augroup delimitMate
 				\   call <SID>DelimitMateDo() |
 				\   let b:delimitMate_was_here = 1 |
 				\ endif
-	autocmd VimEnter * call <SID>DelimitMateDo()
 augroup END
 
 "}}}
