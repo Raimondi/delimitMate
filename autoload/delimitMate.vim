@@ -352,16 +352,17 @@ function! delimitMate#ParenDelim(right) " {{{
 	endif
 	let line = getline('.')
 	let col = col('.')-2
-	let tail = len(line) == (col + 1) ? s:g('eol_marker') : ''
-	let smart_matchpairs = substitute(s:g('smart_matchpairs'), '\\!', left, 'g')
-	let smart_matchpairs = substitute(smart_matchpairs, '\\#', a:right, 'g')
-
-	if s:g('smart_matchpairs') != '' &&
-				\ line[col+1:] =~ smart_matchpairs
-		return left
-	"elseif (col) < 0
-	"	call setline('.',a:right.line)
+	if s:g('smart_matchpairs') != ''
+		let smart_matchpairs = substitute(s:g('smart_matchpairs'), '\\!', left, 'g')
+		let smart_matchpairs = substitute(smart_matchpairs, '\\#', a:right, 'g')
+		if line[col+1:] =~ smart_matchpairs
+			return left
+		endif
 	endif
+	let tail = len(line) == (col + 1) ? s:g('eol_marker') : ''
+	"if (col) < 0
+	"	call setline('.',a:right.line)
+	"endif
 	return left . a:right . tail . repeat("\<Left>", len(split(tail, '\zs')) + 1)
 endfunction " }}}
 
