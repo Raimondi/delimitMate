@@ -359,8 +359,10 @@ command! -bar DelimitMateSwitch call s:DelimitMateSwitch()
 augroup delimitMate
 	au!
 	" Run on file type change.
+	" This is only necessary if there are filetypes to be excluded. Otherwise
+	" the call via Buf* autocommands is enough.
 	"autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
-	autocmd FileType * call <SID>DelimitMateDo()
+	autocmd FileType * if exists('g:delimitMate_excluded_ft') | call <SID>DelimitMateDo() | endif
 
 	" Run on new buffers.
 	autocmd BufNewFile,BufRead,BufEnter *
