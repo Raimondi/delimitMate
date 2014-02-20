@@ -414,7 +414,10 @@ function! delimitMate#JumpOut(char) "{{{
 	endif
 	let jump = delimitMate#ShouldJump(a:char)
 	if jump == 1
-		return "\<Right>"
+		" HACK: Instead of <Right>, we remove the char to be jumped over and
+		" insert it again. This will trigger re-indenting via 'indentkeys'.
+		" Ref: https://github.com/Raimondi/delimitMate/issues/168
+		return "\<Del>".a:char
 	elseif jump == 3
 		return "\<Right>\<Right>"
 	elseif jump == 5
