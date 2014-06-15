@@ -49,6 +49,15 @@ function! s:exists(name, ...) "{{{
 	return exists(scope . ':' . name)
 endfunction "}}}
 
+function! s:get_left_motion()
+	if get(b:, 'delimitMate_visualmode', '') == ''
+		" Do not leave insert mode when in block-wise visual mode.
+		return "\<Left>"
+	endif
+	" Move left via "Esc" and "i" to keep the undo chain.
+	return "\<Esc>:undojoin\<CR>i"
+endfunction
+
 function! delimitMate#Set(...) "{{{
 	return call('s:s', a:000)
 endfunction "}}}
@@ -333,7 +342,7 @@ function! delimitMate#SkipDelim(char) "{{{
 		return a:char . "\<Del>"
 	elseif delimitMate#IsEmptyPair( pre . a:char )
 		" Add closing delimiter and jump back to the middle.
-		return a:char . "\<Left>"
+		return a:char . s:get_left_motion()
 	else
 		" Nothing special here, return the same character.
 		return a:char
@@ -363,7 +372,7 @@ function! delimitMate#ParenDelim(right) " {{{
 	"if (col) < 0
 	"	call setline('.',a:right.line)
 	"endif
-	return left . a:right . tail . repeat("\<Left>", len(split(tail, '\zs')) + 1)
+	return left . a:right . tail . repeat(s:get_left_motion(), len(split(tail, '\zs')) + 1)
 endfunction " }}}
 
 function! delimitMate#QuoteDelim(char) "{{{
@@ -379,7 +388,7 @@ function! delimitMate#QuoteDelim(char) "{{{
 		let right_q =  delimitMate#RightQ(a:char)
 		let quotes = right_q > left_q + 1 ? 0 : left_q - right_q + 2
 		let lefts = quotes - 1
-		return repeat(a:char, quotes) . repeat("\<Left>", lefts)
+		return repeat(a:char, quotes) . repeat(s:get_left_motion(), lefts)
 	elseif char_at == a:char
 		" Inside an empty pair, jump out
 		return a:char . "\<Del>"
@@ -394,7 +403,7 @@ function! delimitMate#QuoteDelim(char) "{{{
 				\ && s:g('smart_quotes')
 		" Seems like we have an unbalanced quote, insert one quotation
 		" mark and jump to the middle.
-		return a:char . "\<Left>"
+		return a:char . s:get_left_motion()
 	else
 		" Insert a pair and jump to the middle.
 		let sufix = ''
@@ -404,7 +413,7 @@ function! delimitMate#QuoteDelim(char) "{{{
 			let has_marker = marker == s:g('eol_marker')
 			let sufix = !has_marker ? s:g('eol_marker') : ''
 		endif
-		return a:char . a:char . "\<Left>"
+		return a:char . a:char . s:get_left_motion()
 	endif
 endfunction "}}}
 
@@ -504,7 +513,7 @@ function! delimitMate#ExpandSpace() "{{{
 					\     && !escaped
 	if delimitMate#WithinEmptyMatchpair() || expand_inside_quotes
 		" Expand:
-		return "\<Space>\<Space>\<Left>"
+		return "\<Space>\<Space>" . s:get_left_motion()
 	else
 		return "\<Space>"
 	endif

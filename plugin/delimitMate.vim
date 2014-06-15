@@ -368,6 +368,11 @@ augroup delimitMate
 				\   call <SID>DelimitMateDo() |
 				\   let b:delimitMate_was_here = 1 |
 				\ endif
+
+	" Keep track of visualmode(), which is used in s:get_left_motion(),
+	" to skip leaving insert mode in block-wise visual mode.
+	autocmd InsertEnter * let b:delimitMate_visualmode = visualmode()
+	autocmd InsertLeave * unlet! b:delimitMate_visualmode
 augroup END
 
 "}}}
