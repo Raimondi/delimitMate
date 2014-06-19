@@ -332,7 +332,7 @@ function! s:ExtraMappings() "{{{
 		silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
 	endif
 	" Jump over next delimiters
-	inoremap <expr><buffer> <Plug>delimitMateJumpMany <SID>TriggerAbb()."\<C-R>=delimitMate#JumpMany()\<CR>"
+	inoremap <expr><silent> <Plug>delimitMateJumpMany <SID>TriggerAbb()."\<C-R>=delimitMate#JumpMany()\<CR>"
 	if !hasmapto('<Plug>delimitMateJumpMany', 'i') && maparg("<C-G>g", 'i') == ''
 		imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
 	endif
