@@ -658,6 +658,7 @@ function! delimitMate#TestMappings() "{{{
 endfunction "}}}
 
 function! delimitMate#OptionsList() "{{{
+	" Note: only keys are used, via delimitMate#TestMappings.
 	return {
 				\ 'apostrophes'        : '',
 				\ 'autoclose'          : 1,
