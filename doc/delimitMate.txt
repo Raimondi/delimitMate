@@ -300,12 +300,12 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                    *'delimitMate_excluded_ft'*
 Values: A string of file type names separated by single commas.              ~
-Default: Empty.                                                              ~
+Default: "unite".                                                            ~
 
 This options turns delimitMate off for the listed file types, use this option
 only if you don't want any of the features it provides on those file types.
 e.g.: >
-        let delimitMate_excluded_ft = "mail,txt"
+        let delimitMate_excluded_ft = "mail,txt,unite"
 <
 ------------------------------------------------------------------------------
                                                     *'delimitMate_eol_marker'*
