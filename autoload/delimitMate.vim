@@ -20,11 +20,12 @@ function! s:s(name, value, ...) "{{{
 		let s:options[bufnr] = {}
 	endif
 	if scope == 's'
-		let name = 'options.' . bufnr . '.' . a:name
+		let name = 's:options.' . bufnr . '.' . a:name
 	else
-		let name = 'delimitMate_' . a:name
+		let name = scope . ':delimitMate_' . a:name
 	endif
-	exec 'let ' . scope . ':' . name . ' = a:value'
+	exec 'silent! unlet! ' . name
+	exec 'let ' . name . ' = a:value'
 endfunction "}}}
 
 function! s:g(name, ...) "{{{
@@ -293,19 +294,18 @@ function! delimitMate#BalancedParens(char) "{{{
 endfunction "}}}
 
 function! delimitMate#IsSmartQuote(char) "{{{
-	if !s:g('smart_quotes')
+	" TODO: Allow using a:char in the pattern.
+	let tmp = s:g('smart_quotes')
+	if empty(tmp)
 		return 0
 	endif
-	let char_at = delimitMate#GetCharFromCursor(0)
-	let char_before = delimitMate#GetCharFromCursor(-1)
-	let valid_char_re = '\w\|[^[:punct:][:space:]]'
-	let word_before = char_before =~ valid_char_re
-	let word_at = char_at  =~ valid_char_re
-	let escaped = delimitMate#CursorIdx() >= 1
-				\ && delimitMate#GetCharFromCursor(-1) == '\'
+	let regex = matchstr(tmp, '^!\?\zs.*')
+	" Flip matched value if regex starts with !
+	let mod = tmp =~ '^!' ? [1, 0] : [0, 1]
+	let matched = search(regex, 'ncb', line('.')) > 0
 	let noescaped = substitute(getline('.'), '\\.', '', 'g')
 	let odd =  (count(split(noescaped, '\zs'), a:char) % 2)
-	let result = word_before || escaped || word_at || odd
+	let result = mod[matched] || odd
 	return result
 endfunction "delimitMate#SmartQuote }}}
 
@@ -391,7 +391,7 @@ function! delimitMate#QuoteDelim(char) "{{{
 		" Seems like a smart quote, insert a single char.
 		return a:char
 	elseif (char_before == a:char && char_at != a:char)
-				\ && s:g('smart_quotes')
+				\ && !empty(s:g('smart_quotes'))
 		" Seems like we have an unbalanced quote, insert one quotation
 		" mark and jump to the middle.
 		return a:char . "\<Left>"

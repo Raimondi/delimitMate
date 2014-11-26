@@ -240,14 +240,25 @@ e.g.: >
 ------------------------------------------------------------------------------
                                                   *'delimitMate_smart_quotes'*
                                                 *'b:delimitMate_smart_quotes'*
-Values: 1 or 0                                                               ~
-Default: 1                              ~
+Values: String with an optional !  at the beginning followed by a regexp     ~
+Default: '\%(\w\|[^[:punct:][:space:]]\|\%(\\\\\)*\\\)\%#\|\%#\w'                  ~
 
-This option turns on/off the smart quotes feature. Read
-|delimitMateSmartQuotes| for details.
+A bang (!) at the beginning is removed and used to "negate" the pattern. The
+remaining text is used as a regexp to be matched on the current line. A single
+quote is inserted when the pattern matches and a bang is not present. The bang
+changes that, so a single quote is inserted only if the regexp does not match.
+
+This feature is disabled when the variable is set to an empty string, with the
+exception of apostrophes.
+
+Note that you need to use '\%#' to match the position of the cursor.  Keep in
+mind that '\%#' matches with zero width, so if you need to match the char
+under the cursor (which would be the one to the right on insert mode) use
+something like '\%#.'.
+
 e.g.: >
-        let delimitMate_smart_quotes = 0
-        au FileType tcl let b:delimitMate_smart_quotes = 1
+        let delimitMate_smart_quotes = '\w\%#'
+        au FileType tcl let b:delimitMate_smart_quotes = '!\s\%#\w'
 <
 ------------------------------------------------------------------------------
                                               *'delimitMate_smart_matchpairs'*
@@ -449,8 +460,8 @@ e.g. typing at the "|": >
 Only one quote will be inserted following a quote, a "\", following or
 preceding a keyword character, or when the number of quotes in the current
 line is odd. This should cover closing quotes after a string, opening quotes
-before a string, escaped quotes and apostrophes. Except for apostrophes, this
-feature can be disabled setting the option |'delimitMate_smart_quotes'| to 0.
+before a string, escaped quotes and apostrophes. See more details about
+customizing this feature on |'delimitMate_smart_quotes'|.
 
 e.g. typing at the "|": >
 
@@ -740,6 +751,7 @@ This script was inspired by the auto-completion of delimiters on TextMate.
                          - Reduce the number of mappings.
                          - Stop using setline().
                          - Better handling of nested quotes.
+                         - Allow a custom pattern for smart_quotes.
 |---------|------------|-----------------------------------------------------|
     2.6     2011-01-14 * - Add smart_matchpairs feature.
                          - Add mapping to jump over contiguous delimiters.

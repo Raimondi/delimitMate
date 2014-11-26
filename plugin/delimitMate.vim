@@ -107,7 +107,28 @@ function! s:init() "{{{
 	" smart_matchpairs
 	call s:option_init("smart_matchpairs", '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)')
 	" smart_quotes
-	call s:option_init("smart_quotes", 1)
+	" XXX: backward compatibility. Ugly, should go the way of the dodo soon.
+	let default_smart_quotes = '\%(\w\|[^[:punct:][:space:]]\|\%(\\\\\)*\\\)\%#\|\%#\%(\w\|[^[:space:][:punct:]]\)'
+	if exists('g:delimitMate_smart_quotes') && type(g:delimitMate_smart_quotes) == type(0)
+		if g:delimitMate_smart_quotes
+			unlet g:delimitMate_smart_quotes
+		else
+			unlet g:delimitMate_smart_quotes
+			let g:delimitMate_smart_quotes = ''
+		endif
+	endif
+	if exists('b:delimitMate_smart_quotes') && type(b:delimitMate_smart_quotes) == type(0)
+		if b:delimitMate_smart_quotes
+			unlet b:delimitMate_smart_quotes
+			if exists('g:delimitMate_smart_quotes') && type(g:delimitMate_smart_quotes) && g:delimitMate_smart_quotes
+				let b:delimitMate_smart_quotes = default_smart_quotes
+			endif
+		else
+			unlet b:delimitMate_smart_quotes
+			let b:delimitMate_smart_quotes = ''
+		endif
+	endif
+	call s:option_init("smart_quotes", default_smart_quotes)
 	" apostrophes
 	call s:option_init("apostrophes", "")
 	call s:option_init("apostrophes_list", split(s:g('apostrophes'), ":\s*"))

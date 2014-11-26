@@ -38,6 +38,8 @@ set cpo=ces$
 "'x" "'x'"
 # Make sure smart quote works beyond first column.
 " 'x" " 'x'"
+# smart quote, check fo char on the right.
+"a\<space>b\<left>'" "a 'b"
 # Make sure we jump over a quote on the right. #89.
 "('test'x" "('test'x)"
 # Duplicate whole line when inserting quote at bol #105
@@ -54,3 +56,17 @@ unlet g:delimitMate_nesting_quotes
 # expand iabbreviations
 iabb def ghi
 "def'" "ghi'"
+let g:delimitMate_smart_quotes = '\w\%#\_.'
+"xyz'x" "xyz'x"
+"xyz 'x" "xyz 'x'"
+let g:delimitMate_smart_quotes = '\s\%#\_.'
+"abc'x" "abc'x'"
+"abc 'x" "abc 'x"
+# let's try the negated form
+let g:delimitMate_smart_quotes = '!\w\%#\_.'
+"cba'x" "cba'x'"
+"cba 'x" "cba 'x"
+let g:delimitMate_smart_quotes = '!\s\%#\_.'
+"zyx'x" "zyx'x"
+"zyx 'x" "zyx 'x'"
+unlet g:delimitMate_smart_quotes
