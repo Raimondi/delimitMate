@@ -200,8 +200,7 @@ function! s:DelimitMateDo(...) "{{{
 		call s:Unmap()
 	endif
 	" Check if this file type is excluded:
-	if exists("g:delimitMate_excluded_ft") &&
-				\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
+	if index(split(get(g:, 'delimitMate_excluded_ft', 'unite'), ','), &filetype, 0, 1) >= 0
 		" Finish here:
 		return 1
 	endif

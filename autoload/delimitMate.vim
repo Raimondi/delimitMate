@@ -664,7 +664,7 @@ function! delimitMate#OptionsList() "{{{
 				\ 'balance_matchpairs' : 0,
 				\ 'jump_expansion'     : 0,
 				\ 'eol_marker'         : '',
-				\ 'excluded_ft'        : '',
+				\ 'excluded_ft'        : 'unite',
 				\ 'excluded_regions'   : 'Comment',
 				\ 'expand_cr'          : 0,
 				\ 'expand_space'       : 0,
