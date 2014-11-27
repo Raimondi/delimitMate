@@ -186,6 +186,10 @@ function! delimitMate#IsSpaceExpansion() " {{{
 endfunction " }}} IsSpaceExpansion()
 
 function! delimitMate#WithinEmptyPair() "{{{
+	" if cursor is at column 1 return 0
+	if col('.') == 1
+		return 0
+	endif
 	" get char before the cursor.
 	let char1 = delimitMate#GetCharFromCursor(-1)
 	" get char under the cursor.

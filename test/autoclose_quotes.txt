@@ -70,3 +70,4 @@ let g:delimitMate_smart_quotes = '!\s\%#\_.'
 "zyx'x" "zyx'x"
 "zyx 'x" "zyx 'x'"
 unlet g:delimitMate_smart_quotes
+"'\<CR>\<BS>" "''"
