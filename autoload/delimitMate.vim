@@ -538,13 +538,30 @@ endfunction " }}} delimitMate#BS()
 function! delimitMate#TestMappings() "{{{
 	echom 1
 	%d
-	let options = sort(keys(delimitMate#OptionsList()))
+	let options = sort([
+				\ 'apostrophes',
+				\ 'autoclose',
+				\ 'balance_matchpairs',
+				\ 'jump_expansion',
+				\ 'eol_marker',
+				\ 'excluded_ft',
+				\ 'excluded_regions',
+				\ 'expand_cr',
+				\ 'expand_space',
+				\ 'matchpairs',
+				\ 'nesting_quotes',
+				\ 'quotes',
+				\ 'smart_matchpairs',
+				\ 'smart_quotes',
+				\ 'expand_inside_quotes',
+				\])
 	let optoutput = ['delimitMate Report', '==================', '',
 				\ '* Options: ( ) default, (g) global, (b) buffer','']
 	for option in options
 		let scope = s:exists(option, 'b') ? 'b'
 					\ : s:exists(option, 'g') ? 'g' : ' '
-		call add(optoutput, '(' . scope . ')' . ' delimitMate_' . option . ' = ' . string(s:g(option)))
+		call add(optoutput,
+					\'(' . scope . ')' . ' delimitMate_' . option . ' = ' . string(s:g(option)))
 	endfor
 	call append(line('$'), optoutput + ['--------------------',''])
 
@@ -660,25 +677,6 @@ function! delimitMate#TestMappings() "{{{
 	setlocal nowrap
 	call feedkeys("\<Esc>\<Esc>", 'n')
 endfunction "}}}
-
-function! delimitMate#OptionsList() "{{{
-	return {
-				\ 'apostrophes'        : '',
-				\ 'autoclose'          : 1,
-				\ 'balance_matchpairs' : 0,
-				\ 'jump_expansion'     : 0,
-				\ 'eol_marker'         : '',
-				\ 'excluded_ft'        : '',
-				\ 'excluded_regions'   : 'Comment',
-				\ 'expand_cr'          : 0,
-				\ 'expand_space'       : 0,
-				\ 'matchpairs'         : &matchpairs,
-				\ 'nesting_quotes'     : [],
-				\ 'quotes'             : '" '' `',
-				\ 'smart_matchpairs'   : '\w',
-				\ 'smart_quotes'       : 1,
-				\}
-endfunction " delimitMate#OptionsList }}}
 "}}}
 
 " vim:foldmethod=marker:foldcolumn=4:ts=2:sw=2

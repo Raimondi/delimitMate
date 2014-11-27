@@ -241,7 +241,8 @@ e.g.: >
                                                   *'delimitMate_smart_quotes'*
                                                 *'b:delimitMate_smart_quotes'*
 Values: String with an optional !  at the beginning followed by a regexp     ~
-Default: '\%(\w\|[^[:punct:][:space:]]\|\%(\\\\\)*\\\)\%#\|\%#\w'                  ~
+Default:~
+'\%(\w\|[^[:punct:][:space:]]\|\%(\\\\\)*\\\)\%#\|\%#\%(\w\|[^[:space:][:punct:]]\)'                  ~
 
 A bang (!) at the beginning is removed and used to "negate" the pattern. The
 remaining text is used as a regexp to be matched on the current line. A single
