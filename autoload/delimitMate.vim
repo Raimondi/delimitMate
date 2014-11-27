@@ -488,10 +488,21 @@ function! delimitMate#ExpandReturn() "{{{
 				\ && (delimitMate#WithinEmptyMatchpair()
 				\     || expand_right_matchpair
 				\     || expand_inside_quotes)
+		let val = "\<Esc>a\<CR>"
+		if &smartindent && !&cindent && !&indentexpr
+					\ && delimitMate#GetCharFromCursor(0) == '}'
+			" indentation is controlled by 'smartindent', and the first character on
+			" the new line is '}'. If this were typed manually it would reindent to
+			" match the current line. Let's reproduce that behavior.
+			let shifts = indent('.') / &sw
+			let spaces = indent('.') - (shifts * &sw)
+			let val .= "^\<C-D>".repeat("\<C-T>", shifts).repeat(' ', spaces)
+		endif
 		" Expand:
 		" XXX zv prevents breaking expansion with syntax folding enabled by
 		" InsertLeave.
-		return "\<Esc>a\<CR>\<Esc>zvO"
+		let val .= "\<Esc>zvO"
+		return val
 	else
 		return "\<CR>"
 	endif
