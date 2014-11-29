@@ -47,7 +47,7 @@ version:
 	  $(DOC)
 
 test:
-	runVimTests -0 test
+	$(MAKE) -C test
 
 install: $(SOURCES)
 	for dir in $(^D);\
