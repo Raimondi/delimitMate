@@ -182,10 +182,10 @@ endfunction "}}} Map()
 
 function! s:Unmap() " {{{
 	let imaps =
-				\ s:g('right_delims') +
-				\ s:g('left_delims') +
-				\ s:g('quotes_list') +
-				\ s:g('apostrophes_list') +
+				\ s:g('right_delims', []) +
+				\ s:g('left_delims', []) +
+				\ s:g('quotes_list', []) +
+				\ s:g('apostrophes_list', []) +
 				\ ['<BS>', '<C-h>', '<S-BS>', '<Del>', '<CR>', '<Space>', '<S-Tab>', '<Esc>'] +
 				\ ['<Up>', '<Down>', '<Left>', '<Right>', '<LeftMouse>', '<RightMouse>'] +
 				\ ['<C-Left>', '<C-Right>'] +

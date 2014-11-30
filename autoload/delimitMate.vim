@@ -29,14 +29,14 @@ function! s:s(name, value, ...) "{{{
 endfunction "}}}
 
 function! s:g(name, ...) "{{{
-	let scope = a:0 ? a:1 : 's'
-	if scope == 's'
-		let bufnr = bufnr('%')
-		let name = 'options.' . bufnr . '.' . a:name
+	if a:0 == 2
+		return deepcopy(get(a:2, 'delimitMate_' . a:name, a:1))
+	elseif a:0 == 1
+		let bufoptions = get(s:options, bufnr('%'), {})
+		return deepcopy(get(bufoptions, a:name, a:1))
 	else
-		let name = 'delimitMate_' . a:name
+		return deepcopy(eval('s:options.' . bufnr('%') . '.' . a:name))
 	endif
-	return deepcopy(eval(scope . ':' . name))
 endfunction "}}}
 
 function! s:exists(name, ...) "{{{
