@@ -4,7 +4,6 @@ LIB      =  $(wildcard autoload/*.vim)
 SOURCES  += $(LIB)
 DOC      =  $(wildcard doc/*.txt)
 SOURCES  += $(DOC)
-#NAME     =  $(shell basename "$$PWD")
 NAME     =  delimitMate
 VERSION  =  $(shell $(SED) -n -e '/Current \+release/{s/^ \+\([0-9.]\+\).*/\1/;p;}' $(firstword $(DOC)))
 FILENAME =  $(NAME)-$(VERSION)
@@ -28,8 +27,8 @@ clean:
 	rm -f */*.orig *.~* .VimballRecord *.zip *.gz *.vmb
 
 distclean: clean
-	-zsh -c 'setopt extendedglob; rm -f ^(README.md|Makefile)'
-	-zsh -c 'setopt extendedglob; rm -f .^(git|README.md|Makefile)*'
+	-zsh -c 'setopt extendedglob; rm -f ^(README.md|Makefile|basic_vimrc)(.)'
+	-zsh -c 'setopt extendedglob; rm -f .^(git|README.md|Makefile|basic_vimrc)*'
 
 undo:
 	for i in */*.orig; do mv -f "$$i" "$${i%.*}"; done
@@ -74,7 +73,7 @@ done;
 	zip $@ $^
 
 %.vmb.gz: vimball
-	gzip -f $(basename $@)
+	gzip -f < $(basename $@) > $@
 
 %.tar.gz: $(SOURCES)
 	tar -cvzf $@ $^

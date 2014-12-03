@@ -1,6 +1,7 @@
 *.sw?
 *.un?
 *.vba
+*.vmb
 *.zip
 *.gz
 vimball.txt
