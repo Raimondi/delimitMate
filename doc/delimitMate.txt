@@ -61,7 +61,7 @@ the go.
  2. CUSTOMIZATION                                         *delimitMateOptions*
 
 You can create your own mappings for some features using the global functions.
-Read |DelimitMateFunctions| for more info.
+Read |delimitMateFunctions| for more info.
 
 ------------------------------------------------------------------------------
    2.1 OPTIONS SUMMARY                              *delimitMateOptionSummary*
@@ -687,7 +687,7 @@ This function returns a mapping that will make the cursor jump to the right
 when delimitMate#ShouldJump() returns 1, returns the argument "key" otherwise.
 e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
-   inoremap <C-Tab> <C-R>=delimitMate#JumpAny()<CR>
+   inoremap <expr> <C-Tab> delimitMate#JumpAny()
 <
 ==============================================================================
  7. AUTOCOMMANDS                                         *delimitMateAutocmds*
