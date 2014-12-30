@@ -34,10 +34,11 @@
     4. Commands________________________________|delimitMateCommands|
     5. Mappings________________________________|delimitMateMappings|
     6. Functions_______________________________|delimitMateFunctions|
-    7. TODO list_______________________________|delimitMateTodo|
-    8. Maintainer______________________________|delimitMateMaintainer|
-    9. Credits_________________________________|delimitMateCredits|
-   10. History_________________________________|delimitMateHistory|
+    7. Autocommands____________________________|delimitMateAutocmds|
+    8. TODO list_______________________________|delimitMateTodo|
+    9. Maintainer______________________________|delimitMateMaintainer|
+   10. Credits_________________________________|delimitMateCredits|
+   11. History_________________________________|delimitMateHistory|
 
 ==============================================================================
  1.- INTRODUCTION                                           *delimitMateIntro*
@@ -688,15 +689,48 @@ e.g.: You can use this to create your own mapping to jump over any delimiter.
 >
    inoremap <C-Tab> <C-R>=delimitMate#JumpAny()<CR>
 <
+==============================================================================
+ 7. AUTOCOMMANDS                                         *delimitMateAutocmds*
+
+delimitMate emits 2 |User| autocommands to make it easier for users to
+leverage delimitMate's support for per-filetype customization.
+
+------------------------------------------------------------------------------
+delimitMate_map                                              *delimitMate_map*
+
+This |User| event is emittted just prior to delimitMate defining its
+buffer-local key mappings. You can use this command to define your own
+mappings that are disabled when delimitMate is turned off or excludes the
+current filetype.
+>
+    au User delimitMate_map call s:delimitMate_map()
+    function s:delimitMate_map()
+        imap <buffer><expr> <C-Tab> delimitMate#JumpAny()
+    endfunction
+<
+------------------------------------------------------------------------------
+delimitMate_unmap                                          *delimitMate_unmap*
+
+This |User| event is emitted just after delimitMate clears its buffer-local
+key mappings. You can use this command to clear your own mappings that you set
+in response to |delimitMate_map|.
+>
+    au User delimitMate_unmap call s:delimitMate_unmap()
+    function s:delimitMate_unmap()
+        silent! iunmap <buffer> <C-Tab>
+    endfunction
+<
+Note: This event may be emitted before |delimitMate_map|, and may be emitted
+multiple times in a row without any intervening |delimitMate_map| events.
 
 ==============================================================================
- 7. TODO LIST                                                *delimitMateTodo*
+ 8. TODO LIST                                                *delimitMateTodo*
 
 - Automatic set-up by file type.
 - Make block-wise visual wrapping work on un-even regions.
 
 ==============================================================================
- 8. MAINTAINER                                         *delimitMateMaintainer*
+ 9. MAINTAINER                                         *delimitMateMaintainer*
 
 Hi there! My name is Israel Chauca F. and I can be reached at:
     mailto:israelchauca@gmail.com
@@ -705,7 +739,7 @@ Feel free to send me any suggestions and/or comments about this plugin, I'll
 be very pleased to read them.
 
 ==============================================================================
- 9. CREDITS                                               *delimitMateCredits*
+ 10. CREDITS                                              *delimitMateCredits*
 
 Contributors: ~
 
@@ -741,7 +775,7 @@ copied from the following sources:
 This script was inspired by the auto-completion of delimiters on TextMate.
 
 ==============================================================================
- 10. HISTORY                                               *delimitMateHistory*
+ 11. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
