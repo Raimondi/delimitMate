@@ -193,7 +193,7 @@ function! s:Unmap() " {{{
 				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
 
 	for map in imaps
-		if maparg(map, "i") =~? 'delimitMate'
+		if maparg(map, "i") =~# '^<Plug>delimitMate'
 			if map == '|'
 				let map = '<Bar>'
 			endif
