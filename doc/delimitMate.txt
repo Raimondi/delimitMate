@@ -669,7 +669,7 @@ Returns 1 if the cursor is inside an empty pair, 0 otherwise.
 e.g.: >
 
     inoremap <expr> <CR> delimitMate#WithinEmptyPair() ?
-             \ "\<C-R>=delimitMate#ExpandReturn()\<CR>" :
+             \ "<Plug>delimitMateCR" :
              \ "external_mapping"
 <
 
