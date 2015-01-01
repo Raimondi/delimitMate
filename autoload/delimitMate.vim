@@ -23,8 +23,10 @@ function! s:s(name, value, ...) "{{{
 		let name = 's:options.' . bufnr . '.' . a:name
 	else
 		let name = scope . ':delimitMate_' . a:name
+		if exists('name')
+			exec 'unlet! ' . name
+		endif
 	endif
-	exec 'silent! unlet! ' . name
 	exec 'let ' . name . ' = a:value'
 endfunction "}}}
 
