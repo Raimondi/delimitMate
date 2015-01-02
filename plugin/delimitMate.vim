@@ -103,7 +103,7 @@ function! s:init() "{{{
 	" jump_expansion
 	call s:option_init("jump_expansion", 0)
 	" smart_matchpairs
-	call s:option_init("smart_matchpairs", '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)')
+	call s:option_init("smart_matchpairs", '^\%(\w\|\!\|£\|\$\|_\)')
 	" smart_quotes
 	" XXX: backward compatibility. Ugly, should go the way of the dodo soon.
 	let quotes = escape(join(s:g('quotes_list'), ''), '\-^[]')
