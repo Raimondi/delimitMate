@@ -162,6 +162,7 @@ function! s:Map() "{{{
 		let save_cpo = &cpo
 		set keymap=
 		set cpo&vim
+		silent! doautocmd <nomodeline> User delimitMate_map
 		if s:g('autoclose')
 			call s:AutoClose()
 		else
@@ -191,13 +192,14 @@ function! s:Unmap() " {{{
 				\ ['<Home>', '<End>', '<PageUp>', '<PageDown>', '<S-Down>', '<S-Up>', '<C-G>g']
 
 	for map in imaps
-		if maparg(map, "i") =~? 'delimitMate'
+		if maparg(map, "i") =~# '^<Plug>delimitMate'
 			if map == '|'
 				let map = '<Bar>'
 			endif
 			exec 'silent! iunmap <buffer> ' . map
 		endif
 	endfor
+	silent! doautocmd <nomodeline> User delimitMate_unmap
 	let b:delimitMate_enabled = 0
 endfunction " }}} s:Unmap()
 
