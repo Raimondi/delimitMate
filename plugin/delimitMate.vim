@@ -24,6 +24,10 @@ endif
 let s:loaded_delimitMate = 1
 let delimitMate_version = "2.7"
 
+"}}}
+
+" Functions: {{{
+
 function! s:option_init(name, default) "{{{
 	let b = exists("b:delimitMate_" . a:name)
 	let g = exists("g:delimitMate_" . a:name)
@@ -141,10 +145,6 @@ function! s:init() "{{{
 	return 1
 endfunction "}}} Init()
 
-"}}}
-
-" Functions: {{{
-
 function! s:g(...) " {{{
 	return call('delimitMate#Get', a:000)
 endfunction " }}}
@@ -177,7 +177,6 @@ function! s:Map() "{{{
 	endtry
 
 	let b:delimitMate_enabled = 1
-
 endfunction "}}} Map()
 
 function! s:Unmap() " {{{
@@ -216,49 +215,49 @@ function! s:TestMappingsDo() "{{{
 	0
 endfunction "}}}
 
-function! s:DelimitMateDo(...) "{{{
+function! s:setup(...) "{{{
+	let swap = a:0 && a:1 == 2
+	let enable = a:0 && a:1
+	let disable = a:0 && !a:1
 	" First, remove all magic, if needed:
-	if exists("b:delimitMate_enabled") && b:delimitMate_enabled == 1
+	if get(b:, 'delimitMate_enabled', 0)
 		call s:Unmap()
+		" Switch
+		if swap
+			echo "delimitMate is disabled."
+			return
+		endif
 	endif
-	" Check if this file type is excluded:
-	if exists("g:delimitMate_excluded_ft") &&
-				\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
-		" Finish here:
-		return 1
+	if disable
+		" Just disable the mappings.
+		return
 	endif
-	" Check if user tried to disable using b:loaded_delimitMate
-	if exists("b:loaded_delimitMate")
-		return 1
+	if !a:0
+		" Check if this file type is excluded:
+		if exists("g:delimitMate_excluded_ft") &&
+					\ index(split(g:delimitMate_excluded_ft, ','), &filetype, 0, 1) >= 0
+			" Finish here:
+			return 1
+		endif
+		" Check if user tried to disable using b:loaded_delimitMate
+		if exists("b:loaded_delimitMate")
+			return 1
+		endif
 	endif
 	" Initialize settings:
 	if ! s:init()
 		" Something went wrong.
 		return
 	endif
-	" Now, add magic:
-	if !exists("g:delimitMate_offByDefault") || !g:delimitMate_offByDefault
+	if enable || swap || !get(g:, 'delimitMate_offByDefault', 0)
+		" Now, add magic:
 		call s:Map()
-	endif
-	if a:0 > 0
-		echo "delimitMate has been reset."
+		if a:0
+			echo "delimitMate is enabled."
+		endif
 	endif
 endfunction "}}}
 
-function! s:DelimitMateSwitch() "{{{
-	if exists("b:delimitMate_enabled") && b:delimitMate_enabled
-		call s:Unmap()
-		echo "delimitMate has been disabled."
-	else
-		call s:Unmap()
-		call s:init()
-		call s:Map()
-		echo "delimitMate has been enabled."
-	endif
-endfunction "}}}
-"}}}
-
-" Mappers: {{{
 function! s:TriggerAbb() "{{{
 	if v:version < 703
 		    \ || ( v:version == 703 && !has('patch489') )
@@ -364,16 +363,17 @@ endfunction "}}}
 
 " Commands: {{{
 
-call s:DelimitMateDo()
-
 " Let me refresh without re-loading the buffer:
-command! -bar DelimitMateReload call s:DelimitMateDo(1)
-
+command! -bar DelimitMateReload call s:setup(1)
 " Quick test:
 command! -bar DelimitMateTest call s:TestMappingsDo()
-
 " Switch On/Off:
-command! -bar DelimitMateSwitch call s:DelimitMateSwitch()
+command! -bar DelimitMateSwitch call s:setup(2)
+" Enable mappings:
+command! -bar DelimitMateOn call s:setup(1)
+" Disable mappings:
+command! -bar DelimitMateOff call s:setup(0)
+
 "}}}
 
 " Autocommands: {{{
@@ -381,13 +381,14 @@ command! -bar DelimitMateSwitch call s:DelimitMateSwitch()
 augroup delimitMate
 	au!
 	" Run on file type change.
-	"autocmd VimEnter * autocmd FileType * call <SID>DelimitMateDo()
-	autocmd FileType * call <SID>DelimitMateDo()
+	au FileType * call <SID>setup()
+
+	au VimEnter * call <SID>setup()
 
 	" Run on new buffers.
-	autocmd BufNewFile,BufRead,BufEnter *
+	au BufNewFile,BufRead,BufEnter *
 				\ if !exists('b:delimitMate_was_here') |
-				\   call <SID>DelimitMateDo() |
+				\   call <SID>setup() |
 				\   let b:delimitMate_was_here = 1 |
 				\ endif
 augroup END
