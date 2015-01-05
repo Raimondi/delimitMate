@@ -525,147 +525,116 @@ function! delimitMate#BS() " {{{
   return "\<BS>" . extra
 endfunction " }}} delimitMate#BS()
 
-function! delimitMate#TestMappings() "{{{
-  echom 1
-  %d
-  let options = sort([
-        \ 'apostrophes',
-        \ 'autoclose',
-        \ 'balance_matchpairs',
-        \ 'jump_expansion',
-        \ 'eol_marker',
-        \ 'excluded_ft',
-        \ 'excluded_regions',
-        \ 'expand_cr',
-        \ 'expand_space',
-        \ 'matchpairs',
-        \ 'nesting_quotes',
-        \ 'quotes',
-        \ 'smart_matchpairs',
-        \ 'smart_quotes',
-        \ 'expand_inside_quotes',
-        \])
-  let optoutput = ['delimitMate Report', '==================', '',
-        \ '* Options: ( ) default, (g) global, (b) buffer','']
-  for option in options
-    let scope = s:exists(option, 'b') ? 'b'
-          \ : s:exists(option, 'g') ? 'g' : ' '
-    call add(optoutput,
-          \'(' . scope . ')' . ' delimitMate_' . option . ' = ' . string(s:g(option)))
+function! delimitMate#Test() "{{{
+  %d _
+  " Check for script options:
+  let result = [
+        \ 'delimitMate Report',
+        \ '==================',
+        \ '',
+        \ '* Options: ( ) default, (g) global, (b) buffer',
+        \ '']
+  for option in sort(keys(s:options[bufnr('%')]))
+    if s:exists(option, 'b')
+      let scope = '(b)'
+    elseif s:exists(option, 'g')
+      let scope = '(g)'
+    else
+      let scope = '( )'
+    endif
+    call add(result,
+          \ scope . ' delimitMate_' . option
+          \ . ' = '
+          \ . string(s:g(option)))
   endfor
-  call append(line('$'), optoutput + ['--------------------',''])
+  call add(result, '')
 
-  " Check if mappings were set. {{{
-  let imaps = s:g('right_delims')
-  let imaps += ( s:g('autoclose') ? s:g('left_delims') : [] )
-  let imaps +=
-        \ s:g('quotes_list') +
-        \ s:g('apostrophes_list') +
-        \ ['<BS>', '<S-BS>', '<S-Tab>', '<Esc>', '<C-G>g']
-  let imaps += ( s:g('expand_cr') ?  ['<CR>'] : [] )
-  let imaps += ( s:g('expand_space') ?  ['<Space>'] : [] )
+  let option = 'delimitMate_excluded_ft'
+  call add(result,
+        \(exists('g:'.option) ? '(g) ' : '( ) g:') . option . ' = '
+        \. string(get(g:, option, '')))
 
-  let imappings = []
-  for map in imaps
+  call add(result, '--------------------')
+  call add(result, '')
+
+  " Check if mappings were set.
+  let left_delims = s:g('autoclose') ? s:g('left_delims') : []
+  let special_keys = ['<BS>', '<S-BS>', '<S-Tab>', '<C-G>g']
+  if s:g('expand_cr')
+    call add(special_keys, '<CR>')
+  endif
+  if s:g('expand_space')
+    call add(special_keys, '<Space>')
+  endif
+  let maps =
+        \ s:g('right_delims')
+        \ + left_delims
+        \ + s:g('quotes_list')
+        \ + s:g('apostrophes_list')
+        \ + special_keys
+
+  call add(result, '* Mappings:')
+  call add(result, '')
+  for map in maps
     let output = ''
     if map == '|'
       let map = '<Bar>'
     endif
     redir => output | execute "verbose imap ".map | redir END
-    let imappings += split(output, '\n')
+    call extend(result, split(output, '\n'))
   endfor
 
-  unlet! output
-  let output = ['* Mappings:', ''] + imappings + ['--------------------', '']
-  call append('$', output+['* Showcase:', ''])
-  " }}}
-  if s:g('autoclose')
-    " {{{
-    for i in range(len(s:g('left_delims')))
-      exec "normal Go0\<C-D>Open: " . s:g('left_delims')[i]. "|"
-      exec "normal o0\<C-D>Delete: " . s:g('left_delims')[i] . "\<BS>|"
-      exec "normal o0\<C-D>Exit: " . s:g('left_delims')[i] . s:g('right_delims')[i] . "|"
-      if s:g('expand_space') == 1
-        exec "normal o0\<C-D>Space: " . s:g('left_delims')[i] . " |"
-        exec "normal o0\<C-D>Delete space: " . s:g('left_delims')[i]
-              \ . " \<BS>|"
-      endif
-      if s:g('expand_cr') == 1
-        exec "normal o0\<C-D>Car return: " . s:g('left_delims')[i] .
-              \ "\<CR>|"
-        exec "normal Go0\<C-D>Delete car return: " . s:g('left_delims')[i]
-              \ . "\<CR>0\<C-D>\<BS>|"
-      endif
-      call append(line('$'), '')
-    endfor
-    for i in range(len(s:g('quotes_list')))
-      exec "normal Go0\<C-D>Open: " . s:g('quotes_list')[i] . "|"
-      exec "normal o0\<C-D>Delete: " . s:g('quotes_list')[i] . "\<BS>|"
-      exec "normal o0\<C-D>Exit: " . s:g('quotes_list')[i] . s:g('quotes_list')[i] . "|"
-      if s:g('expand_space') == 1
-        exec "normal o0\<C-D>Space: " . s:g('quotes_list')[i] . " |"
-        exec "normal o0\<C-D>Delete space: " . s:g('quotes_list')[i]
-              \ . " \<BS>|"
-      endif
-      if s:g('expand_cr') == 1
-        exec "normal o0\<C-D>Car return: " . s:g('quotes_list')[i]
-              \ . "\<CR>|"
-        exec "normal Go0\<C-D>Delete car return: " . s:g('quotes_list')[i]
-              \ . "\<CR>\<BS>|"
-      endif
-      call append(line('$'), '')
-    endfor
-    "}}}
-  else
-    "{{{
-    for i in range(len(s:g('left_delims')))
-      exec "normal GoOpen & close: " . s:g('left_delims')[i]
-            \ . s:g('right_delims')[i] . "|"
-      exec "normal oDelete: " . s:g('left_delims')[i]
-            \ . s:g('right_delims')[i] . "\<BS>|"
-      exec "normal oExit: " . s:g('left_delims')[i] . s:g('right_delims')[i]
-            \ . s:g('right_delims')[i] . "|"
-      if s:g('expand_space') == 1
-        exec "normal oSpace: " . s:g('left_delims')[i]
-              \ . s:g('right_delims')[i] . " |"
-        exec "normal oDelete space: " . s:g('left_delims')[i]
-              \ . s:g('right_delims')[i] . " \<BS>|"
-      endif
-      if s:g('expand_cr') == 1
-        exec "normal oCar return: " . s:g('left_delims')[i]
-              \ . s:g('right_delims')[i] . "\<CR>|"
-        exec "normal GoDelete car return: " . s:g('left_delims')[i]
-              \ . s:g('right_delims')[i] . "\<CR>\<BS>|"
-      endif
-      call append(line('$'), '')
-    endfor
-    for i in range(len(s:g('quotes_list')))
-      exec "normal GoOpen & close: " . s:g('quotes_list')[i]
-            \ . s:g('quotes_list')[i] . "|"
-      exec "normal oDelete: " . s:g('quotes_list')[i]
-            \ . s:g('quotes_list')[i] . "\<BS>|"
-      exec "normal oExit: " . s:g('quotes_list')[i] . s:g('quotes_list')[i]
-            \ . s:g('quotes_list')[i] . "|"
-      if s:g('expand_space') == 1
-        exec "normal oSpace: " . s:g('quotes_list')[i]
-              \ . s:g('quotes_list')[i] . " |"
-        exec "normal oDelete space: " . s:g('quotes_list')[i]
-              \ . s:g('quotes_list')[i] . " \<BS>|"
-      endif
-      if s:g('expand_cr') == 1
-        exec "normal oCar return: " . s:g('quotes_list')[i]
-              \ . s:g('quotes_list')[i] . "\<CR>|"
-        exec "normal GoDelete car return: " . s:g('quotes_list')[i]
-              \ . s:g('quotes_list')[i] . "\<CR>\<BS>|"
-      endif
-      call append(line('$'), '')
-    endfor
-  endif "}}}
-  redir => setoptions | set | filetype | version | redir END
-  call append(line('$'), split(setoptions,"\n")
-        \ + ['--------------------'])
+  call add(result, '--------------------')
+  call add(result, '')
+  call add(result, '* Showcase:')
+  call add(result, '')
+  call setline(1, result)
+  call s:test_mappings(s:g('left_delims'), 1)
+  call s:test_mappings(s:g('quotes_list'), 0)
+
+  let result = []
+  redir => setoptions
+  echo " * Vim configuration:\<NL>"
+  filetype
+  echo ""
+  set
+  version
+  redir END
+  call extend(result, split(setoptions,"\n"))
+  call add(result, '--------------------')
   setlocal nowrap
+  call append('$', result)
   call feedkeys("\<Esc>\<Esc>", 'n')
+endfunction "}}}
+
+function! s:test_mappings(list, is_matchpair) "{{{
+  let prefix = "normal Go0\<C-D>"
+  let last = "|"
+  let open = s:g('autoclose') ? 'Open: ' : 'Open & close: '
+  for s in a:list
+    if a:is_matchpair
+      let pair = s:g('right_delims')[index(s:g('left_delims'), s)]
+    else
+      let pair = s
+    endif
+    if !s:g('autoclose')
+      let s .= pair
+    endif
+    exec prefix . open . s . last
+    exec prefix . "Delete: " . s . "\<BS>" . last
+    exec prefix . "Exit: " . s . pair . last
+    if s:g('expand_space')
+          \ && (a:is_matchpair || s:g('expand_inside_quotes'))
+      exec prefix . "Space: " . s . " " . last
+      exec prefix . "Delete space: " . s . " \<BS>" . last
+    endif
+    if s:g('expand_cr')
+          \ && (a:is_matchpair || s:g('expand_inside_quotes'))
+      exec prefix . "Car return: " . s . "\<CR>" . last
+      exec prefix . "Delete car return: " . s . "\<CR>0\<C-D>\<BS>" . last
+    endif
+    call append('$', '')
+  endfor
 endfunction "}}}
 
 " vim:foldmethod=marker:foldcolumn=4:ts=2:sw=2

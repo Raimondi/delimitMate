@@ -202,7 +202,7 @@ function! s:Unmap() " {{{
   let b:delimitMate_enabled = 0
 endfunction " }}} s:Unmap()
 
-function! s:TestMappingsDo() "{{{
+function! s:test() "{{{
   if &modified
     let confirm = input("Modified buffer, type \"yes\" to write and proceed "
           \ . "with test: ") ==? 'yes'
@@ -210,7 +210,7 @@ function! s:TestMappingsDo() "{{{
       return
     endif
   endif
-  call delimitMate#TestMappings()
+  call delimitMate#Test()
   g/\%^$/d
   0
 endfunction "}}}
@@ -366,7 +366,7 @@ endfunction "}}}
 " Let me refresh without re-loading the buffer:
 command! -bar DelimitMateReload call s:setup(1)
 " Quick test:
-command! -bar DelimitMateTest call s:TestMappingsDo()
+command! -bar DelimitMateTest call s:test()
 " Switch On/Off:
 command! -bar DelimitMateSwitch call s:setup(2)
 " Enable mappings:
