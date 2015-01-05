@@ -549,6 +549,16 @@ Re-sets all the mappings used for this script, use it if any option has been
 changed or if the filetype option hasn't been set yet.
 
 ------------------------------------------------------------------------------
+:DelimitMateOn                                                *:DelimitMateOn*
+
+Enable delimitMate mappings.
+
+------------------------------------------------------------------------------
+:DelimitMateOff                                              *:DelimitMateOff*
+
+Disable delimitMate mappings.
+
+------------------------------------------------------------------------------
 :DelimitMateSwitch                                        *:DelimitMateSwitch*
 
 Switches the plug-in on and off.
@@ -779,8 +789,10 @@ This script was inspired by the auto-completion of delimiters on TextMate.
 
   Version      Date      Release notes                                       ~
 |---------|------------|-----------------------------------------------------|
-    2.7     2013-07-15 * Current release:
-                         - Lots of bug fixes.
+    2.8     2013-07-15 * Current release:
+                         - Add :DelimitMateOn & :DelimitMateOff.
+|---------|------------|-----------------------------------------------------|
+    2.7     2013-07-15 * - Lots of bug fixes.
                          - Add delimitMate_offByDefault.
                          - Add delimitMate_eol_marker.
                          - Reduce the number of mappings.
