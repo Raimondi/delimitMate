@@ -140,6 +140,7 @@ function! s:init() "{{{
   " balance_matchpairs
   call s:option_init("balance_matchpairs", 0)
   " eol marker
+  call s:option_init("insert_eol_marker", 1)
   call s:option_init("eol_marker", "")
   " Everything is fine.
   return 1

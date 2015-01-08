@@ -310,6 +310,21 @@ e.g.: >
         let delimitMate_excluded_ft = "mail,txt"
 <
 ------------------------------------------------------------------------------
+                                             *'delimitMate_insert_eol_marker'*
+Values: Integer                                                              ~
+Default: 1                                                              ~
+
+Whether to insert the eol marker (EM) or not. The EM is inserted following
+rules:
+
+0 -> never
+1 -> when inserting any matchpair
+2 -> when expanding car return in matchpair
+
+e.g.: >
+        au FileType c,perl let b:delimitMate_insert_eol_marker = 2
+<
+------------------------------------------------------------------------------
                                                     *'delimitMate_eol_marker'*
 Values: String.                                                              ~
 Default: Empty.                                                              ~

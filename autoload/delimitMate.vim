@@ -345,10 +345,11 @@ function! delimitMate#ParenDelim(right) " {{{
       return left
     endif
   endif
-  let tail = len(line) == (col + 1) ? s:get('eol_marker') : ''
-  "if (col) < 0
-  " call setline('.',a:right.line)
-  "endif
+  if len(line) == (col + 1) && s:get('insert_eol_marker') == 1
+    let tail = s:get('eol_marker')
+  else
+    let tail = ''
+  endif
   return left . a:right . tail . repeat("\<Left>", len(split(tail, '\zs')) + 1)
 endfunction " }}}
 
@@ -466,11 +467,17 @@ function! delimitMate#ExpandReturn() "{{{
   let expand_inside_quotes = s:get('expand_inside_quotes')
           \     && s:is_empty_quotes()
           \     && !escaped
-  if !pumvisible()
-        \ && (s:is_empty_matchpair()
+  let is_empty_matchpair = s:is_empty_matchpair()
+  if !pumvisible(  )
+        \ && (   is_empty_matchpair
         \     || expand_right_matchpair
         \     || expand_inside_quotes)
-    let val = "\<Esc>a\<CR>"
+    let val = "\<Esc>a"
+    if is_empty_matchpair && s:get('insert_eol_marker') == 2
+      let repeat = search('\s\%#\s', 'bcnW', '.') ? 2 : 1
+      let val .= repeat("\<Right>", repeat) . s:get('eol_marker') . repeat("\<Left>", repeat + 1)
+    endif
+    let val .= "\<CR>"
     if &smartindent && !&cindent && !&indentexpr
           \ && s:get_char(0) == '}'
       " indentation is controlled by 'smartindent', and the first character on
