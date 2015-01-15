@@ -384,8 +384,6 @@ augroup delimitMate
   " Run on file type change.
   au FileType * call <SID>setup()
 
-  au VimEnter * call <SID>setup()
-
   " Run on new buffers.
   au BufNewFile,BufRead,BufEnter *
         \ if !exists('b:delimitMate_was_here') |
@@ -395,6 +393,9 @@ augroup delimitMate
 augroup END
 
 "}}}
+
+" This is for the default buffer when it does not have a filetype.
+call s:setup()
 
 let &cpo = save_cpo
 " GetLatestVimScripts: 2754 1 :AutoInstall: delimitMate.vim
