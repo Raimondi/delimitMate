@@ -474,8 +474,10 @@ function! delimitMate#ExpandReturn() "{{{
         \     || expand_inside_quotes)
     let val = "\<Esc>a"
     if is_empty_matchpair && s:get('insert_eol_marker') == 2
-      let repeat = search('\s\%#\s', 'bcnW', '.') ? 2 : 1
-      let val .= repeat("\<Right>", repeat) . s:get('eol_marker') . repeat("\<Left>", repeat + 1)
+          \ && !search(escape(s:get('eol_marker'), '[]\.*^$').'$', 'cnW', '.')
+      let tail = getline('.')[col('.') - 1 : ]
+      let times = len(split(tail, '\zs'))
+      let val .= repeat("\<Right>", times) . s:get('eol_marker') . repeat("\<Left>", times + 1)
     endif
     let val .= "\<CR>"
     if &smartindent && !&cindent && !&indentexpr
