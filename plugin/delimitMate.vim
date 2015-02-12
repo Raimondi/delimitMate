@@ -48,7 +48,7 @@ function! s:init() "{{{
   call s:option_init("autoclose", 1)
   " matchpairs
   call s:option_init("matchpairs", string(&matchpairs)[1:-2])
-  call s:option_init("matchpairs_list", map(split(s:get('matchpairs'), ','), 'split(v:val, '':'')'))
+  call s:option_init("matchpairs_list", map(split(s:get('matchpairs'), '.:.\zs,\ze.:.'), 'split(v:val, ''^.\zs:\ze.$'')'))
   let pairs = s:get('matchpairs_list')
   if len(filter(pairs, 'v:val[0] ==# v:val[1]'))
     echohl ErrorMsg

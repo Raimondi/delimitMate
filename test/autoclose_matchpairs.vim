@@ -1,8 +1,8 @@
-let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!'
+let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
 let lines = readfile(expand('<sfile>:t:r').'.txt')
 call vimtest#StartTap()
 let testsnumber = len(filter(copy(lines), 'v:val =~ ''^"'''))
-let itemsnumber = len(split(g:delimitMate_matchpairs, ','))
+let itemsnumber = len(split(g:delimitMate_matchpairs, '.:.\zs,\ze.:.'))
 call vimtap#Plan(testsnumber * itemsnumber)
 let tcount = 1
 let reload = 1
@@ -24,7 +24,7 @@ for item in lines
     let reload = 0
   endif
   let [input, output] = split(item, '"\%(\\.\|[^\\"]\)*"\zs\s*\ze"\%(\\.\|[^\\"]\)*"')
-  for [s:l,s:r] in map(split(g:delimitMate_matchpairs, ','), 'split(v:val, ":")')
+  for [s:l,s:r] in map(split(g:delimitMate_matchpairs, '.:.\zs,\ze.:.'), 'split(v:val, ''.\zs:\ze.'')')
     let input2 = substitute(input, '(', s:l, 'g')
     let input2 = substitute(input2, ')', s:r, 'g')
     let output2 = substitute(output, '(', s:l, 'g')
