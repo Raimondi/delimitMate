@@ -326,10 +326,10 @@ function! s:ExtraMappings() "{{{
   " If pair is empty, delete both delimiters:
   inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
   if !hasmapto('<Plug>delimitMateBS','i')
-    if maparg('<BS>'. 'i') == ''
+    if maparg('<BS>', 'i') == ''
       silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
     endif
-    if maparg('<C-h>'. 'i') == ''
+    if maparg('<C-h>', 'i') == ''
       silent! imap <unique> <buffer> <C-h> <Plug>delimitMateBS
     endif
   endif
