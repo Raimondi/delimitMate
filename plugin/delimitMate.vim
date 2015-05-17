@@ -107,7 +107,7 @@ function! s:init() "{{{
   " jump_expansion
   call s:option_init("jump_expansion", 0)
   " smart_matchpairs
-  call s:option_init("smart_matchpairs", '^\%(\w\|\!\|£\|\$\|_\)')
+  call s:option_init("smart_matchpairs", '^\%(\w\|\!\|[£$]\|[^[:punct:][:space:]]\)')
   " smart_quotes
   " XXX: backward compatibility. Ugly, should go the way of the dodo soon.
   let quotes = escape(join(s:get('quotes_list'), ''), '\-^[]')
@@ -326,10 +326,10 @@ function! s:ExtraMappings() "{{{
   " If pair is empty, delete both delimiters:
   inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
   if !hasmapto('<Plug>delimitMateBS','i')
-    if maparg('<BS>', 'i') == ''
+    if empty(maparg('<BS>', 'i'))
       silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
     endif
-    if maparg('<C-h>', 'i') == ''
+    if empty(maparg('<C-H>', 'i'))
       silent! imap <unique> <buffer> <C-h> <Plug>delimitMateBS
     endif
   endif

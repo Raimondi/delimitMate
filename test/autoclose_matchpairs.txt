@@ -39,3 +39,13 @@ let b:delimitMate_eol_marker = ';'
 unlet b:delimitMate_eol_marker
 iabb def ghi
 "def(" "ghi()"
+iunabb def
+
+"abc а\<Left>(" "abc (а"
+"abc ñ\<Left>(" "abc (ñ"
+"abc $\<Left>(" "abc ($"
+"abc £\<Left>(" "abc (£"
+"abc d\<Left>(" "abc (d"
+"abc \<C-V>(\<Left>(" "abc (("
+"abc .\<Left>(" "abc ()."
+"abc  \<Left>(" "abc () "
