@@ -266,7 +266,7 @@ e.g.: >
                                               *'delimitMate_smart_matchpairs'*
                                             *'b:delimitMate_smart_matchpairs'*
 Values: Regexp                                                               ~
-Default: '^\%(\w\|\!\|£\|\$\|_\|["'']\s*\S\)'                                ~
+Default: '^\%(\w\|\!\|[£$]\|[^[:space:][:punct:]]\)'                                ~
 
 This regex is matched against the text to the right of cursor, if it's not
 empty and there is a match delimitMate will not autoclose the pair. At the
