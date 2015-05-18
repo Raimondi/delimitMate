@@ -196,7 +196,17 @@ function! s:get_syn_name() "{{{
   return synIDattr(synIDtrans(synID(line('.'), col, 1)), 'name')
 endfunction " }}}
 
+function! s:is_excluded_ft(ft) "{{{
+  if !exists("g:delimitMate_excluded_ft")
+    return 0
+  endif
+  return index(split(g:delimitMate_excluded_ft, ','), a:ft, 0, 1) >= 0
+endfunction "}}}
+
 function! s:is_forbidden(char) "{{{
+  if s:is_excluded_ft(&filetype)
+    return 1
+  endif
   if !s:get('excluded_regions_enabled')
     return 0
   endif
