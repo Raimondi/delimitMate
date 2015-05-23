@@ -418,7 +418,7 @@ function! delimitMate#JumpOut(char) "{{{
   elseif jump == 3
     return "\<Right>\<Right>"
   elseif jump == 5
-    return "\<Down>\<C-O>I\<Right>"
+    return "\<Down>\<C-O>^\<Right>"
   else
     return a:char
   endif
@@ -438,7 +438,7 @@ function! delimitMate#JumpAny(...) " {{{
     return "\<Right>\<Right>"
   elseif char == ""
     " CR expansion.
-    return "\<CR>" . getline(line('.') + 1)[0] . "\<Del>\<Del>"
+    return "\<Down>\<C-O>^\<Right>"
   else
     return "\<Right>"
   endif
