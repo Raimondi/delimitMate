@@ -111,7 +111,8 @@ function! s:init() "{{{
   " smart_quotes
   " XXX: backward compatibility. Ugly, should go the way of the dodo soon.
   let quotes = escape(join(s:get('quotes_list'), ''), '\-^[]')
-  let default_smart_quotes = '\%(\w\|[^[:punct:][:space:]' . quotes . ']\|\%(\\\\\)*\\\)\%#\|\%#\%(\w\|[^[:space:][:punct:]' . quotes . ']\)'
+  let word_pat = '\w\|[^[:punct:][:space:]' . quotes . ']\|\%(\\\\\)*\\'
+  let default_smart_quotes = '\%(' . word_pat . '\)\%#\|\%#\%(' . word_pat . '\)'
   if exists('g:delimitMate_smart_quotes') && type(g:delimitMate_smart_quotes) == type(0)
     if g:delimitMate_smart_quotes
       unlet g:delimitMate_smart_quotes
