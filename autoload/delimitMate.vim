@@ -329,7 +329,7 @@ function! delimitMate#SkipDelim(char) "{{{
     return a:char . "\<Del>"
   elseif delimitMate#IsEmptyPair( pre . a:char )
     " Add closing delimiter and jump back to the middle.
-    return a:char . "\<Left>"
+    return a:char . s:joinUndo() . "\<Left>"
   else
     " Nothing special here, return the same character.
     return a:char
@@ -360,7 +360,7 @@ function! delimitMate#ParenDelim(right) " {{{
   else
     let tail = ''
   endif
-  return left . a:right . tail . repeat("\<Left>", len(split(tail, '\zs')) + 1)
+  return left . a:right . tail . repeat(s:joinUndo() . "\<Left>", len(split(tail, '\zs')) + 1)
 endfunction " }}}
 
 function! delimitMate#QuoteDelim(char) "{{{
@@ -376,7 +376,7 @@ function! delimitMate#QuoteDelim(char) "{{{
     let right_q =  s:rquote(a:char)
     let quotes = right_q > left_q + 1 ? 0 : left_q - right_q + 2
     let lefts = quotes - 1
-    return repeat(a:char, quotes) . repeat("\<Left>", lefts)
+    return repeat(a:char, quotes) . repeat(s:joinUndo() . "\<Left>", lefts)
   elseif char_at == a:char
     " Inside an empty pair, jump out
     return a:char . "\<Del>"
@@ -391,7 +391,7 @@ function! delimitMate#QuoteDelim(char) "{{{
         \ && !empty(s:get('smart_quotes'))
     " Seems like we have an unbalanced quote, insert one quotation
     " mark and jump to the middle.
-    return a:char . "\<Left>"
+    return a:char . s:joinUndo() . "\<Left>"
   else
     " Insert a pair and jump to the middle.
     let sufix = ''
@@ -401,7 +401,7 @@ function! delimitMate#QuoteDelim(char) "{{{
       let has_marker = marker == s:get('eol_marker')
       let sufix = !has_marker ? s:get('eol_marker') : ''
     endif
-    return a:char . a:char . "\<Left>"
+    return a:char . a:char . s:joinUndo() . "\<Left>"
   endif
 endfunction "}}}
 
@@ -416,9 +416,9 @@ function! delimitMate#JumpOut(char) "{{{
     " Ref: https://github.com/Raimondi/delimitMate/issues/168
     return "\<Del>".a:char
   elseif jump == 3
-    return "\<Right>\<Right>"
+    return s:joinUndo() . "\<Right>" . s:joinUndo() . "\<Right>"
   elseif jump == 5
-    return "\<Down>\<C-O>I\<Right>"
+    return "\<Down>\<C-O>I" . s:joinUndo() . "\<Right>"
   else
     return a:char
   endif
@@ -435,12 +435,12 @@ function! delimitMate#JumpAny(...) " {{{
   let char = s:get_char(0)
   if char == " "
     " Space expansion.
-    return "\<Right>\<Right>"
+    return s:joinUndo() . "\<Right>" . s:joinUndo() . "\<Right>"
   elseif char == ""
     " CR expansion.
     return "\<CR>" . getline(line('.') + 1)[0] . "\<Del>\<Del>"
   else
-    return "\<Right>"
+    return s:joinUndo() . "\<Right>"
   endif
 endfunction " delimitMate#JumpAny() }}}
 
@@ -451,10 +451,10 @@ function! delimitMate#JumpMany() " {{{
   for char in line
     if index(s:get('quotes_list'), char) >= 0 ||
           \ index(s:get('right_delims'), char) >= 0
-      let rights .= "\<Right>"
+      let rights .= s:joinUndo() . "\<Right>"
       let found = 1
     elseif found == 0
-      let rights .= "\<Right>"
+      let rights .= s:joinUndo() . "\<Right>"
     else
       break
     endif
@@ -487,7 +487,7 @@ function! delimitMate#ExpandReturn() "{{{
           \ && !search(escape(s:get('eol_marker'), '[]\.*^$').'$', 'cnW', '.')
       let tail = getline('.')[col('.') - 1 : ]
       let times = len(split(tail, '\zs'))
-      let val .= repeat("\<Right>", times) . s:get('eol_marker') . repeat("\<Left>", times + 1)
+      let val .= repeat(s:joinUndo() . "\<Right>", times) . s:get('eol_marker') . repeat(s:joinUndo() . "\<Left>", times + 1)
     endif
     let val .= "\<CR>"
     if &smartindent && !&cindent && !&indentexpr
@@ -520,7 +520,7 @@ function! delimitMate#ExpandSpace() "{{{
           \     && !escaped
   if s:is_empty_matchpair() || expand_inside_quotes
     " Expand:
-    return "\<Space>\<Space>\<Left>"
+    return "\<Space>\<Space>" . s:joinUndo() . "\<Left>"
   else
     return "\<Space>"
   endif
@@ -654,6 +654,14 @@ function! s:test_mappings(list, is_matchpair) "{{{
     endif
     call append('$', '')
   endfor
+endfunction "}}}
+
+function! s:joinUndo() "{{{
+  if v:version < 704
+        \ || ( v:version == 704 && !has('patch849') )
+    return ''
+  endif
+  return "\<C-G>U"
 endfunction "}}}
 
 " vim:foldmethod=marker:foldcolumn=4:ts=2:sw=2
