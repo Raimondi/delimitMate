@@ -142,6 +142,13 @@ function! s:init() "{{{
   " eol marker
   call s:option_init("insert_eol_marker", 1)
   call s:option_init("eol_marker", "")
+  if exists("g:delimitMate_jump_over_in_insert_mode") && type(g:delimitMate_jump_over_in_insert_mode) == type("")
+    echom "delimitMate_jump_over_in_insert_mode is '".g:delimitMate_jump_over_in_insert_mode."' but it must be either 1 or 0!"
+    echom "Read :help 'delimitMate_jump_over_in_insert_mode' for more details."
+    unlet g:delimitMate_jump_over_in_insert_mode
+    let g:delimitMate_jump_over_in_insert_mode = 1
+  endif
+  call s:option_init("jump_over_in_insert_mode", 1)
   " Everything is fine.
   return 1
 endfunction "}}} Init()
@@ -355,7 +362,7 @@ function! s:ExtraMappings() "{{{
   endif
   " Jump over next delimiters
   inoremap <expr><buffer> <Plug>delimitMateJumpMany <SID>TriggerAbb()."\<C-R>=delimitMate#JumpMany()\<CR>"
-  if !hasmapto('<Plug>delimitMateJumpMany', 'i') && maparg("<C-G>g", 'i') == ''
+  if s:get('jump_over_in_insert_mode') && !hasmapto('<Plug>delimitMateJumpMany', 'i') && maparg("<C-G>g", 'i') == ''
     imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
   endif
 endfunction "}}}
