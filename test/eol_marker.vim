@@ -1,44 +1,43 @@
-let g:delimitMate_expand_cr = 1
-let g:delimitMate_eol_marker = ';'
+" function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
+" - Runs a single test.
+" - Add 1 to vimtap#Plan().
+"
+" function! DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
+" - Runs one test for every pair.
+" - Add 7 to vimtap#Plan().
+"
+" function! DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
+" - Runs one test for every quote.
+" - Add 5 to vimtap#Plan().
+
 call vimtest#StartTap()
 call vimtap#Plan(8)
+
+let g:delimitMate_expand_cr = 1
+let g:delimitMate_eol_marker = ';'
 " NOTE: Do not forget to update the plan ^
 let g:delimitMate_insert_eol_marker = 0
 DelimitMateReload
-normal i(
-call vimtap#Is(getline(1), '()', 'value = 1, case 1')
-%d _
-exec "normal i(\<CR>x"
-call vimtap#Like(join(getline(1,line('$')), "\<NL>"),
-      \ '^(\n\s*x\n)$', ' "normal i(\<CR>x", Value = 2, case 2')
+
+call DMTest_single('', '(', '()')
+
+call DMTest_single('', "(\<CR>x", ['(', 'x', ')'])
+
 let g:delimitMate_insert_eol_marker = 1
 DelimitMateReload
-%d _
-normal i(
-call vimtap#Is(getline(1), '();', '"normal i(", value = 1, case 1')
-%d _
-exec "normal i(\<CR>x"
-call vimtap#Like(join(getline(1,line('$')), "\<NL>"),
-      \ '^(\n\s*x\n);$', '"normal i(\<CR>x", Value = 2, case 2')
-%d _
+call DMTest_single('', '(', '();')
+
+call DMTest_single('', "(\<CR>x", ['(', 'x', ');'])
+
 let g:delimitMate_insert_eol_marker = 2
 DelimitMateReload
-normal i(
-call vimtap#Is(getline(1), '()', '"normal i(", Value = 2, case 1')
-%d _
-exec "normal i(\<CR>x"
-call vimtap#Like(join(getline(1,line('$')), "\<NL>"),
-      \ '^(\n\s*x\n);$', '"normal i(\<CR>x", Value = 2, case 2')
+call DMTest_single('', '(', '()')
 
-%d _
-exec "normal i{(\<CR>x"
-call vimtap#Like(join(getline(1,line('$')), "\<NL>"),
-      \ '^{(\n\s*x\n)};$', ' "normal i{(\<CR>x", Value = 2, case 3')
+call DMTest_single('', "(\<CR>x", ['(', 'x', ');'])
 
-%d _
-exec "normal i;\<Esc>I{(\<CR>x"
-call vimtap#Like(join(getline(1,line('$')), "\<NL>"),
-      \ '^{(\n\s*x\n)};$', ' "normal i{(\<CR>x", Value = 2, case 4')
+call DMTest_single('', "{(\<CR>x", ['{(', 'x', ')};'])
+
+call DMTest_single('', ";\<Esc>I{(\<CR>x", ['{(', 'x', ')};'])
 
 " End: quit vim.
 call vimtest#Quit()

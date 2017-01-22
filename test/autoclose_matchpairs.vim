@@ -1,42 +1,78 @@
-let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
-let lines = readfile(expand('<sfile>:t:r').'.txt')
+" function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
+" - Runs a single test.
+" - Add 1 to vimtap#Plan().
+"
+" function! DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
+" - Runs one test for every pair.
+" - Add 7 to vimtap#Plan().
+"
+" function! DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
+" - Runs one test for every quote.
+" - Add 5 to vimtap#Plan().
+
 call vimtest#StartTap()
-let testsnumber = len(filter(copy(lines), 'v:val =~ ''^"'''))
-let itemsnumber = len(split(g:delimitMate_matchpairs, '.:.\zs,\ze.:.'))
-call vimtap#Plan(testsnumber * itemsnumber)
-let tcount = 1
-let reload = 1
-for item in lines
-  if item =~ '^#\|^\s*$'
-    " A comment or empty line.
-    continue
-  endif
-  if item !~ '^"'
-    " A command.
-    exec item
-    call vimtap#Diag(item)
-    let reload = 1
-    continue
-  endif
-  if reload
-    DelimitMateReload
-    call vimtap#Diag('DelimitMateReload')
-    let reload = 0
-  endif
-  let [input, output] = split(item, '"\%(\\.\|[^\\"]\)*"\zs\s*\ze"\%(\\.\|[^\\"]\)*"')
-  for [s:l,s:r] in map(split(g:delimitMate_matchpairs, '.:.\zs,\ze.:.'), 'split(v:val, ''.\zs:\ze.'')')
-    let input2 = substitute(input, '(', s:l, 'g')
-    let input2 = substitute(input2, ')', s:r, 'g')
-    let output2 = substitute(output, '(', s:l, 'g')
-    let output2 = substitute(output2, ')', s:r, 'g')
-    %d
-    exec 'normal i'.eval(input2)."\<Esc>"
-    let line = getline('.')
-    let passed = line == eval(output2)
-    call vimtap#Is(line, eval(output2), input2)
-    ", input2 . ' => ' . string(line) .
-    "      \ (passed ? ' =' : ' !') . '= ' . string(eval(output2)))
-    let tcount += 1
-  endfor
-endfor
+call vimtap#Plan(217)
+
+let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
+let g:delimitMate_autoclose = 1
+DelimitMateReload
+call DMTest_pairs('', "(x", "(x)")
+call DMTest_pairs('', "(\<BS>x", "x")
+call DMTest_pairs('', "()x", "()x")
+call DMTest_pairs('', "((\<C-G>gx", "(())x")
+call DMTest_pairs('', "(x\<Esc>u", "")
+call DMTest_pairs('', "@(x", "@(x)")
+call DMTest_pairs('', "@#\<Left>(x", "@(x)#")
+call DMTest_pairs('', "(\<S-Tab>x", "()x")
+let g:delimitMate_autoclose = 0
+DelimitMateReload
+call DMTest_pairs('', "(x", "(x")
+call DMTest_pairs('', "()x", "(x)")
+call DMTest_pairs('', "())x", "()x")
+call DMTest_pairs('', "()\<BS>x", "x")
+call DMTest_pairs('', "@()x", "@(x)")
+call DMTest_pairs('', "@#\<Left>()x", "@(x)#")
+let g:delimitMate_expand_space = 1
+let g:delimitMate_autoclose = 1
+DelimitMateReload
+call DMTest_pairs('', "(\<Space>x", "( x )")
+call DMTest_pairs('', "(\<Space>\<BS>x", "(x)")
+let g:delimitMate_autoclose = 0
+DelimitMateReload
+call DMTest_pairs('', "()\<Space>\<BS>x", "(x)")
+let g:delimitMate_autoclose = 1
+DelimitMateReload
+" Handle backspace gracefully.
+set backspace=
+call DMTest_pairs('', "(\<Esc>a\<BS>x", "(x)")
+set bs=2
+" closing parens removes characters. #133
+call DMTest_pairs('', "(a\<Esc>i)", "()a)")
+
+" Add semicolon next to the closing paren. Issue #77.
+new
+let b:delimitMate_eol_marker = ';'
+DelimitMateReload
+call DMTest_pairs('', "abc(x", "abc(x);")
+" BS should behave accordingly.
+call DMTest_pairs('', "abc(\<BS>", "abc;")
+" Expand iabbreviations
+unlet b:delimitMate_eol_marker
+DelimitMateReload
+iabb def ghi
+call DMTest_pairs('', "def(", "ghi()")
+iunabb def
+
+call DMTest_pairs('', "abc а\<Left>(", "abc (а")
+call DMTest_pairs('', "abc ñ\<Left>(", "abc (ñ")
+call DMTest_pairs('', "abc $\<Left>(", "abc ($")
+call DMTest_pairs('', "abc £\<Left>(", "abc (£")
+call DMTest_pairs('', "abc d\<Left>(", "abc (d")
+call DMTest_pairs('', "abc \<C-V>(\<Left>(", "abc ((")
+call DMTest_pairs('', "abc .\<Left>(", "abc ().")
+call DMTest_pairs('', "abc  \<Left>(", "abc () ")
+
+" Play nice with undo.
+call DMTest_pairs('', "a\<C-G>u(c)b\<C-O>u", "a")
+
 call vimtest#Quit()

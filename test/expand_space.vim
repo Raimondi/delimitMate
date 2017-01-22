@@ -1,42 +1,29 @@
-let g:delimitMate_expand_space = 1
-"DelimitMateReload
-let lines = readfile(expand('<sfile>:t:r').'.txt')
-call vimtest#StartTap()
-let testsnumber = len(filter(copy(lines), 'v:val =~ ''^=\{80}$'''))
-call vimtap#Plan(testsnumber)
-let tcount = 1
-let expect = 0
-let evaluate = 0
-for item in lines
-  if item =~ '^=\{80}$'
-    let expect = 1
-    let expected = []
-    continue
-  endif
+" function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
+" - Runs a single test.
+" - Add 1 to vimtap#Plan().
+"
+" function! DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
+" - Runs one test for every pair.
+" - Add 7 to vimtap#Plan().
+"
+" function! DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
+" - Runs one test for every quote.
+" - Add 5 to vimtap#Plan().
 
-  if item =~ '^#\|^\s*$' && expect == 0
-    " A comment or empty line.
-    continue
-  endif
-  if ! expect
-    " A command.
-    exec item
-    call vimtap#Diag(item)
-    continue
-  endif
-  if item =~ '^-\{80}$'
-    let expect = 0
-  endif
-  if expect
-    call add(expected, item)
-    continue
-  endif
-  let lines = getline(1, line('$'))
-  let passed = lines == expected
-  echom string(lines)
-  echom string(expected)
-  call vimtap#Ok(passed, string(expected) .
-        \ (passed ? ' =' : ' !') . '= ' . string(lines))
-  let tcount += 1
-endfor
+call vimtest#StartTap()
+call vimtap#Plan(12)
+
+let g:delimitMate_expand_space = 1
+DelimitMateReload
+
+" Issue #95
+let b:delimitMate_jump_expansion = 1
+DelimitMateReload
+call DMTest_pairs('', "( test)x", '( test )x')
+
+let delimitMate_expand_inside_quotes = 1
+DelimitMateReload
+
+call DMTest_quotes('', "' x", "' x '")
+
 call vimtest#Quit()
