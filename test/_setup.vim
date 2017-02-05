@@ -13,8 +13,8 @@
 let &rtp = expand('<sfile>:p:h:h') . ',' . &rtp . ',' . expand('<sfile>:p:h:h') . '/after'
 set bs=2
 set hidden
-let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
-let g:delimitMate_quotes = '" '' ` « |'
+let g:delimitMate_pairs = ['()','{}','[]','<>','¿?','¡!',',:']
+let g:delimitMate_quotes = ['"', "'", '`', '«', '|']
 ru plugin/delimitMate.vim
 let runVimTests = expand('<sfile>:p:h').'/build/runVimTests'
 if isdirectory(runVimTests)
@@ -30,7 +30,7 @@ function! s:setup_buffer(buf_content)
   silent %d_
   if !empty(a:buf_content)
     call setline(1, a:buf_content)
-    call feedkeys("\<Esc>gg0", 'ntx')
+    call feedkeys("gg0", 'ntx')
   endif
 endfunction
 
@@ -55,10 +55,15 @@ function! DMTest_single(setup, typed, expected, ...)
     call vimtap#Todo(1)
   endif
   call s:setup_buffer(setup)
-  call feedkeys('i', 'nt')
-  call feedkeys(a:typed, 'mt')
-  call feedkeys('', 'ntx')
-  call vimtap#Is(getline(1,'$'), expected, strtrans(a:typed))
+  for cmd in a:typed
+    echom strtrans(cmd)
+    call feedkeys(cmd, 'mt')
+    call feedkeys('', 'x')
+    doau delimitMate CursorMovedI
+    doau delimitMate TextChangedI
+    call feedkeys('', 'x')
+  endfor
+  call vimtap#Is(getline(1,'$'), expected, string(map(copy(a:typed), 'strtrans(v:val)')))
 endfunction
 
 function! s:do_set(pat, sub, set, setup, typed, expected, ...)
@@ -76,15 +81,17 @@ function! s:do_set(pat, sub, set, setup, typed, expected, ...)
     else
       let expected = [a:expected]
     endif
-    if len(split(elem, '\zs')) > 1
-      let [left, right] = map(split(elem, '\zs'), 'escape(v:val, escaped)')
+    if strchars(elem) > 1
+      "let [left, right] = map(split(elem, '\zs'), 'escape(v:val, escaped)')
+      let left  = escape(strcharpart(elem, 0, 1), escaped)
+      let right = escape(strcharpart(elem, 1, 1), escaped)
       let sub = a:sub
     else
       let quote = escape(elem, escaped)
       let sub = eval(a:sub)
     endif
     call map(setup, "substitute(v:val, a:pat, sub, 'g')")
-    let typed = substitute(a:typed, a:pat, sub, 'g')
+    let typed = map(copy(a:typed), "substitute(v:val, a:pat, sub, 'g')")
     call map(expected, "substitute(v:val, a:pat, sub, 'g')")
     call DMTest_single(setup, typed, expected, skip_expr, todo_expr)
   endfor
