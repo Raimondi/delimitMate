@@ -53,8 +53,13 @@ function! delimitMate#ex_cmd(global, action)
 endfunction
 
 function! delimitMate#InsertCharPre(str)
-  if s:option('disabled')
+  if s:info.skip_icp
     echom 11
+    return 0
+  endif
+  let s:info.skip_icp = 1
+  if s:option('disabled')
+    echom 12
     return 0
   endif
   return map(split(a:str, '\zs'), 's:handle_vchar(v:val)')
@@ -69,8 +74,7 @@ function! s:handle_vchar(str)
     return
   elseif a:str == ' '
     echom 13
-    let [keys, append2vchar] = s:keys4space(s:info, opts)
-    let v:char .= append2vchar
+    let keys = s:keys4space(s:info, opts)
   elseif a:str == "\<C-]>"
     echom 14
     return 0
@@ -80,8 +84,7 @@ function! s:handle_vchar(str)
   elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'))
     echom 16
     let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'), 0, '')
-    let [keys, append2vchar] = s:keys4left(a:str, pair, s:info, opts)
-    let v:char .= append2vchar
+    let keys = s:keys4left(a:str, pair, s:info, opts)
     "echom strtrans(keys)
     "echom string(pair)
   elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 1, 1) ==# a:str'))
@@ -97,18 +100,17 @@ function! s:handle_vchar(str)
 endfunction
 
 function! s:keys4space(info, opts)
-  if !a:opts.expand_space && !empty(filter(copy(a:opts.pairs), 'v:val ==# a:info.cur.around'))
-    return ['', '']
+  if !a:opts.expand_space || empty(filter(copy(a:opts.pairs), 'v:val ==# a:info.cur.around'))
+    return ''
   endif
-  if a:opts.expand_space
-  return ["\<C-G>U\<Left>", ' ']
+  return " \<C-G>U\<Left>"
 endfunction
 
 function! s:keys4left(char, pair, info, opts)
   if a:opts.autoclose
-    return [strcharpart(a:pair, 1, 1) . "\<C-G>U\<Left>", '']
+    return strcharpart(a:pair, 1, 1) . "\<C-G>U\<Left>"
   endif
-  return ['', '']
+  return ''
 endfunction
 
 function! s:keys4right(char, pair, info, opts)
@@ -149,6 +151,7 @@ endfunction
 function! delimitMate#CursorMovedI(...)
   let s:info.prev = s:info.cur
   let s:info.cur = call('s:get_info', a:000)
+  let s:info.skip_icp = 0
   echom 'INFO: ' . string(s:info)
   echom 'CMI: ' . s:info.prev.text
 endfunction
@@ -156,6 +159,7 @@ endfunction
 function! delimitMate#InsertEnter(...)
   let s:info.cur = call('s:get_info', a:000)
   let s:info.prev = {}
+  let s:info.skip_icp = 0
   echom 'IE: ' . s:info.cur.text
 endfunction
 
