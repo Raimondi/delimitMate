@@ -1,11 +1,18 @@
-"let delimitMate_loaded = 1
-
 let s:defaults = {}
 let s:defaults.delimitMate_pairs = ['()', '[]', '{}']
 let s:defaults.delimitMate_quotes = ['"', "'", '`']
 let s:defaults.delimitMate_enabled = 1
 let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
+let s:defaults.delimitMate_smart_pairs = 1
+let s:defaults.delimitMate_smart_pairs_extra = []
+
+" Set smart_pairs expressions:
+let s:exprs = []
+call add(s:exprs, 'next_char =~# "\\w"')
+call add(s:exprs, 'next_char =~# "[".escape(v:char,"\\^]")."€£$]"')
+call add(s:exprs, 'ahead =~# "^[^[:space:][:punct:]]"')
+let s:defaults.delimitMate_smart_pairs_base = s:exprs
 
 function! s:defaults.consolidate()
   let g = filter(copy(g:), 'v:key =~# "^delimitMate_"')
@@ -42,7 +49,6 @@ endfunction
 
 function! delimitMate#ex_cmd(global, action)
   let scope = a:global ? g: : b:
-  endif
   if a:action ==# 'enable'
     let scope.delimitMate_enabled = 1
   elseif a:action ==# 'disable'
@@ -58,7 +64,7 @@ function! delimitMate#InsertCharPre(str)
     return 0
   endif
   let s:info.skip_icp = 1
-  if s:option('disabled')
+  if !s:option('enabled')
     echom 12
     return 0
   endif
@@ -66,7 +72,7 @@ function! delimitMate#InsertCharPre(str)
 endfunction
 
 function! s:handle_vchar(str)
-  echom 'ICP (' . a:str . '): ' . get(s:info, 'cur', {'text': ''}).text
+  echom 'ICP ' . string(a:str) . ': ' . get(s:info, 'cur', {'text': ''}).text
   let s:info.char = a:str
   let opts = s:defaults.consolidate()
   if s:info.cur.is_escaped()
@@ -107,10 +113,14 @@ function! s:keys4space(info, opts)
 endfunction
 
 function! s:keys4left(char, pair, info, opts)
-  if a:opts.autoclose
-    return strcharpart(a:pair, 1, 1) . "\<C-G>U\<Left>"
+  if !a:opts.autoclose
+    return ''
   endif
-  return ''
+  let exprs = a:opts.smart_pairs_base + a:opts.smart_pairs_extra
+  if a:opts.smart_pairs && s:any_is_true(exprs, a:info, a:opts)
+    return ''
+  endif
+  return strcharpart(a:pair, 1, 1) . "\<C-G>U\<Left>"
 endfunction
 
 function! s:keys4right(char, pair, info, opts)
@@ -146,6 +156,22 @@ function! s:get_info(...)
   call extend(d, s:info.template, 'keep')
   echom string(d)
   return d
+endfunction
+
+function! s:any_is_true(expressions, info, options)
+  let info = deepcopy(a:info)
+  let options = deepcopy(a:options)
+  let line = info.cur.text
+  let linenr = info.cur.line
+  let col = info.cur.col
+  let behind = info.cur.behind
+  let ahead = info.cur.ahead
+  let prev_char = info.cur.p_char
+  let next_char = info.cur.n_char
+  let exprs = copy(a:expressions)
+  call filter(exprs, 'eval(v:val)')
+  echom 'any_is_true: ' . string(exprs)
+  return !empty(exprs)
 endfunction
 
 function! delimitMate#CursorMovedI(...)

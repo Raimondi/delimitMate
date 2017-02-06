@@ -58,19 +58,19 @@ call DMTest_pairs('', ["i(", "aa", "i)"], "()a)")
 "unlet b:delimitMate_eol_marker
 " Expand iabbreviations
 iabb def ghi
-" TODO not sure how to make this test work
+" TODO not sure how to make this test actually test if the feature works.
 call DMTest_pairs('', ["idef("], "ghi()", '', 1)
 iunabb def
-"
-"call DMTest_pairs('', "abc а\<Left>(", "abc (а")
-"call DMTest_pairs('', "abc ñ\<Left>(", "abc (ñ")
-"call DMTest_pairs('', "abc $\<Left>(", "abc ($")
-"call DMTest_pairs('', "abc £\<Left>(", "abc (£")
-"call DMTest_pairs('', "abc d\<Left>(", "abc (d")
-"call DMTest_pairs('', "abc \<C-V>(\<Left>(", "abc ((")
-"call DMTest_pairs('', "abc .\<Left>(", "abc ().")
-"call DMTest_pairs('', "abc  \<Left>(", "abc () ")
-"
+
+call DMTest_pairs("abc а", ["A\<Left>", "a("], "abc (а")
+call DMTest_pairs("abc ñ", ["A\<Left>", "a("], "abc (ñ")
+call DMTest_pairs("abc $", ["A\<Left>", "a("], "abc ($")
+call DMTest_pairs("abc £", ["A\<Left>", "a("], "abc (£")
+call DMTest_pairs("abc d", ["A\<Left>", "a("], "abc (d")
+call DMTest_pairs("abc .", ["A\<Left>", "a("], "abc ().")
+call DMTest_pairs("abc  ", ["A\<Left>", "a("], "abc () ")
+call DMTest_pairs("abc (", ["A\<Left>", "a("], "abc ((")
+
 "" Play nice with undo.
 "call DMTest_pairs('', "a\<C-G>u(c)b\<C-O>u", "a")
 "
