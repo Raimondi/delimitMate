@@ -6,6 +6,7 @@ let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
 let s:defaults.delimitMate_smart_pairs = 1
 let s:defaults.delimitMate_smart_pairs_extra = []
+let s:defaults.delimitMate_balance_pairs = 0
 
 " Set smart_pairs expressions:
 let s:exprs = []
@@ -22,6 +23,28 @@ function! s:defaults.consolidate()
   let short_options = {}
   call map(g, 'extend(short_options, {substitute(v:key, "^delimitMate_", "", ""): v:val}, "force")')
   return short_options
+endfunction
+
+function! s:balance_pairs(pair, info, opts)
+  let left = strcharpart(a:pair, 0, 1)
+  let right = strcharpart(a:pair, 1, 1)
+  let behind = matchstr(a:info.cur.behind, '['.escape(left, '\^[]').'].*')
+  let ahead = matchstr(a:info.cur.ahead, '^.*['.escape(right, '\^[]').']')
+  let pat = '[^' . escape(a:pair, '\^[]') . ']'
+  let behind = substitute(behind, pat, '', 'g')
+  let ahead = substitute(ahead, pat, '', 'g')
+  let lefts = 0
+  let rights = 0
+  for c in split(behind, '\zs')
+    if c ==# left
+      let lefts += 1
+    elseif c ==# right
+      let rights += rights < lefts
+    endif
+  endfor
+  let lefts += count(split(ahead, '\zs'), left)
+  let rights += count(split(ahead, '\zs'), right)
+  return lefts - rights
 endfunction
 
 let s:info = {}
@@ -102,7 +125,7 @@ function! s:handle_vchar(str)
     echom 18
     return 0
   endif
-  return feedkeys(keys, 'mt')
+  return feedkeys(keys, 'mti')
 endfunction
 
 function! s:keys4space(info, opts)
@@ -114,12 +137,19 @@ endfunction
 
 function! s:keys4left(char, pair, info, opts)
   if !a:opts.autoclose
+    echom 31
     return ''
   endif
   let exprs = a:opts.smart_pairs_base + a:opts.smart_pairs_extra
   if a:opts.smart_pairs && s:any_is_true(exprs, a:info, a:opts)
+    echom 32
     return ''
   endif
+  if a:opts.balance_pairs && s:balance_pairs(a:pair, a:info, a:opts) < 0
+    echom 33
+    return ''
+  endif
+  echom 34
   return strcharpart(a:pair, 1, 1) . "\<C-G>U\<Left>"
 endfunction
 
@@ -215,7 +245,7 @@ function! s:is_bs()
   let pair = filter(s:option('pairs'), 'v:val ==# (s:info.cur.p_char . matchstr(s:info.cur.ahead, "^\\s\\zs\\S"))')
   if s:option('expand_space') && !empty(pair)
     echom 25
-    return feedkeys("\<Del>", 'tn')
+    return feedkeys("\<Del>", 'tni')
   endif
   let pair = filter(s:option('pairs'), 'v:val ==# s:info.prev.around')
   if empty(pair)
@@ -223,7 +253,7 @@ function! s:is_bs()
     return
   endif
   let keys = "\<Del>"
-  call feedkeys(keys, 'tn')
+  call feedkeys(keys, 'tni')
 endfunction
 
 " vim: sw=2 et

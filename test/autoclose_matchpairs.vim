@@ -74,8 +74,8 @@ call DMTest_pairs("abc (", ["A\<Left>", "a("], "abc ((")
 "" Play nice with undo.
 "call DMTest_pairs('', "a\<C-G>u(c)b\<C-O>u", "a")
 "
-"let g:delimitMate_autoclose = 1
-"let g:delimitMate_balance_matchpairs = 1
-"call DMTest_pairs('', ")\<Left>(x", '(x)')
+let g:delimitMate_autoclose = 1
+let g:delimitMate_balance_pairs = 1
+call DMTest_pairs('ab cd)', ["2|a(", "ax"], 'ab(x cd)')
 
 call vimtest#Quit()
