@@ -11,7 +11,7 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(224)
+call vimtap#Plan(210)
 
 let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
 let g:delimitMate_autoclose = 1

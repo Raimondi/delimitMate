@@ -37,6 +37,9 @@ endfunction
 "function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
 " Runs a single test (add 1 to vimtap#Plan())
 function! DMTest_single(setup, typed, expected, ...)
+  if type(a:typed) != v:t_list
+    return vimtap#Fail('Second argument should be a list: ' . a:typed)
+  end
   if type(a:setup) == v:t_list
     let setup = copy(a:setup)
   else
@@ -67,6 +70,9 @@ function! DMTest_single(setup, typed, expected, ...)
 endfunction
 
 function! s:do_set(pat, sub, set, setup, typed, expected, ...)
+  if type(a:typed) != v:t_list
+    return vimtap#Fail('Second argument should be a list: ' . string(a:typed))
+  end
   let skip_expr = get(a:, '1', '')
   let todo_expr = get(a:, '2', '')
   let escaped = '\.*^$'
@@ -102,7 +108,7 @@ endfunction
 function! DMTest_pairs(setup, typed, expected, ...)
   let skip_expr = get(a:, '1', '')
   let todo_expr = get(a:, '2', '')
-  let pairs = ['()','{}','[]','<>','¿?','¡!',',:'] "delimitMate#options('pairs')
+  let pairs = delimitMate#option('pairs')
   let pat = '[()]'
   let sub = '\=submatch(0) == "(" ? left : right'
   return s:do_set(pat, sub, pairs, a:setup, a:typed, a:expected, skip_expr, todo_expr)
@@ -113,7 +119,7 @@ endfunction
 function! DMTest_quotes(setup, typed, expected, ...)
   let skip_expr = get(a:, '1', '')
   let todo_expr = get(a:, '2', '')
-  let quotes = ['"', "'", '`', '«', '|'] "delimitMate#options('quotes')
+  let quotes = delimitMate#option('quotes')
   let pat = "'"
   let sub = 'quote'
   return s:do_set(pat, sub, quotes, a:setup, a:typed, a:expected, skip_expr, todo_expr)

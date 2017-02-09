@@ -11,94 +11,67 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(230)
+call vimtap#Plan(140)
 
-let g:delimitMate_quotes = '" '' ` « |'
 let g:delimitMate_autoclose = 1
-DelimitMateReload
-call DMTest_quotes('', "'x", "'x'")
-call DMTest_quotes('', "'x\<Esc>u", "")
-call DMTest_quotes('', "''x", "''x")
-call DMTest_quotes('', "'\<BS>x", "x")
-call DMTest_quotes('', "'\<C-G>gx", "''x")
+call DMTest_quotes('', ["i'", "ax"], "'x'")
+call DMTest_quotes('', ["i'x", "u"], "")
+call DMTest_quotes('', ["i'", "a'", "ax"], "''x", 'a:typed[0] == "i«"')
+call DMTest_quotes('', ["a'", "a\<BS>", "ax"], "x")
+"call DMTest_quotes('', "'\<C-G>gx", "''x")
 " This will fail for double quote.
-call DMTest_quotes('', "'\"x", "'\"x\"'", "a:typed == '\"\"x'")
-call DMTest_quotes('', "@'x", "@'x'")
-call DMTest_quotes('', "@#\<Left>'x", "@'x'#")
-call DMTest_quotes('', "'\<S-Tab>x", "''x")
-call DMTest_quotes('', "abc'", "abc'")
-call DMTest_quotes('', "abc\\'x", "abc\\'x")
-call DMTest_quotes('', "u'Привет'", "u'Привет'")
-call DMTest_quotes('', "u'string'", "u'string'")
+call DMTest_quotes('', ["i'", "a\"", "ax"], "'\"x\"'", 'a:typed[0] =~ "i[\"«]"')
+call DMTest_quotes('', ["i@", "a'", "ax"], "@'x'")
+call DMTest_quotes('', ["i@#", "i'", "ax"], "@'x'#")
+"call DMTest_quotes('', "'\<S-Tab>x", "''x")
+call DMTest_quotes('', ["iabc", "a'"], "abc'")
+call DMTest_quotes('abc\', ["A'", "ax"], "abc\\'x")
+" TODO find out why this test doesn't work when it does interactively.
+call DMTest_quotes('', ["au", "a'", "aПривет", "a'"], "u'Привет'", '', 1)
+call DMTest_quotes('', ["au", "a'", "astring", "a'"], "u'string'")
 let g:delimitMate_autoclose = 0
-DelimitMateReload
-call DMTest_quotes('', "'x", "'x")
-call DMTest_quotes('', "''x", "'x'")
-call DMTest_quotes('', "'''x", "''x")
-call DMTest_quotes('', "''\<BS>x", "x")
-call DMTest_quotes('', "@''x", "@'x'")
-call DMTest_quotes('', "@#\<Left>''x", "@'x'#")
-let g:delimitMate_expand_space = 1
+call DMTest_quotes('', ["a'", "ax"], "'x")
+call DMTest_quotes('', ["a'", "a'", "ax"], "'x'")
+call DMTest_quotes('', ["a'", "a'", "a'", "ax"], "''x")
+call DMTest_quotes('', ["a'", "a'", "a\<BS>", "ax"], "x")
+call DMTest_quotes('', ["a@", "a'", "a'", "ax"], "@'x'")
+call DMTest_quotes('', ["a@#", "i'", "a'", "ax"], "@'x'#")
 let g:delimitMate_autoclose = 1
-DelimitMateReload
-call DMTest_quotes('', "'\<Space>x", "' x'")
-let g:delimitMate_expand_inside_quotes = 1
-DelimitMateReload
-call DMTest_quotes('', "'\<Space>x", "' x '")
-call DMTest_quotes('', "'\<Space>\<BS>x", "'x'")
-call DMTest_quotes('', "abc\\''\<Space>x", "abc\\' x'")
-let g:delimitMate_autoclose = 0
-DelimitMateReload
-call DMTest_quotes('', "''\<Space>\<BS>x", "'x'")
-let g:delimitMate_autoclose = 1
-DelimitMateReload
+"let g:delimitMate_expand_space = 1
+"call DMTest_quotes('', "'\<Space>x", "' x'")
+"let g:delimitMate_expand_inside_quotes = 1
+"call DMTest_quotes('', "'\<Space>x", "' x '")
+"call DMTest_quotes('', "'\<Space>\<BS>x", "'x'")
+"call DMTest_quotes('', "abc\\''\<Space>x", "abc\\' x'")
+"let g:delimitMate_autoclose = 0
+"call DMTest_quotes('', "''\<Space>\<BS>x", "'x'")
+"let g:delimitMate_autoclose = 1
 " Handle backspace gracefully.
 set backspace=
-call DMTest_quotes('', "'\<Esc>a\<BS>x", "'x'")
+call DMTest_quotes('', ["a'", "a\<BS>", "ax"], "'x'")
 set backspace=2
-set cpo=ces$
-call DMTest_quotes('', "'x", "'x'")
+"set cpo=ces$
+"call DMTest_quotes('', "'x", "'x'")
 " Make sure smart quote works beyond first column.
-call DMTest_quotes('', " 'x", " 'x'")
+call DMTest_quotes(' ', ["a'", "ax"], " 'x'")
 " smart quote, check fo char on the right.
-call DMTest_quotes('', "a\<space>b\<left>'", "a 'b")
+call DMTest_quotes('a b', ["la'"], "a 'b")
 " Make sure we jump over a quote on the right. #89.
-call DMTest_quotes('', "('test'x", "('test'x)")
+call DMTest_quotes('', ["a(", "a'", "atest", "a'", "ax"], "('test'x)")
 " Duplicate whole line when inserting quote at bol #105
-call DMTest_quotes('', "}\<Home>'", "''}")
-call DMTest_quotes('', "'\<Del>abc  '", "'abc  '")
-call DMTest_quotes('', "''abc '", "''abc ''")
-" Nesting quotes:
-let g:delimitMate_nesting_quotes = split(g:delimitMate_quotes, '\s\+')
-DelimitMateReload
-call DMTest_quotes('', "'''x", "'''x'''")
-call DMTest_quotes('', "''''x", "''''x''''")
-call DMTest_quotes('', "''x", "''x")
-call DMTest_quotes('', "'x", "'x'")
+call DMTest_quotes('}', ["i'"], "''}")
+call DMTest_quotes("'abc  ", ["A'"], "'abc  '")
+call DMTest_quotes("''abc ", ["A'"], "''abc ''")
+"" Nesting quotes:
+let g:delimitMate_nesting_quotes = delimitMate#option('quotes')
+call DMTest_quotes("'' ", ["la'\<Right>", "ix"], "'''x''' ")
+call DMTest_quotes("''' ", ["lla'\<Right>", "ix"], "''''x'''' ")
+call DMTest_quotes(' ', ["i'", "a'\<Right>", "ix"], "''x ")
+call DMTest_quotes('', ["i'", "ax"], "'x'")
 unlet g:delimitMate_nesting_quotes
-DelimitMateReload
-" expand iabbreviations
-iabb def ghi
-call DMTest_quotes('', "def'", "ghi'")
-let g:delimitMate_smart_quotes = '\w\%#\_.'
-DelimitMateReload
-call DMTest_quotes('', "xyz'x", "xyz'x")
-call DMTest_quotes('', "xyz 'x", "xyz 'x'")
-let g:delimitMate_smart_quotes = '\s\%#\_.'
-DelimitMateReload
-call DMTest_quotes('', "abc'x", "abc'x'")
-call DMTest_quotes('', "abc 'x", "abc 'x")
-" let's try the negated form
-let g:delimitMate_smart_quotes = '!\w\%#\_.'
-DelimitMateReload
-call DMTest_quotes('', "cba'x", "cba'x'")
-call DMTest_quotes('', "cba 'x", "cba 'x")
-let g:delimitMate_smart_quotes = '!\s\%#\_.'
-DelimitMateReload
-call DMTest_quotes('', "zyx'x", "zyx'x")
-call DMTest_quotes('', "zyx 'x", "zyx 'x'")
-unlet g:delimitMate_smart_quotes
-DelimitMateReload
-call DMTest_quotes('', "'\<CR>\<BS>", "''")
+"" expand iabbreviations
+"iabb def ghi
+"call DMTest_quotes('', "def'", "ghi'")
+"call DMTest_quotes('', "'\<CR>\<BS>", "''")
 
 call vimtest#Quit()

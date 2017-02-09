@@ -7,6 +7,10 @@ let s:defaults.delimitMate_expand_space = 0
 let s:defaults.delimitMate_smart_pairs = 1
 let s:defaults.delimitMate_smart_pairs_extra = []
 let s:defaults.delimitMate_balance_pairs = 0
+let s:defaults.delimitMate_nesting_quotes = []
+let s:defaults.delimitMate_smart_quotes = 1
+let s:defaults.delimitMate_smart_quotes_extra = []
+let s:defaults.delimitMate_excluded_regions = ['String', 'Comment']
 
 " Set smart_pairs expressions:
 let s:exprs = []
@@ -14,6 +18,19 @@ call add(s:exprs, 'next_char =~# "\\w"')
 call add(s:exprs, 'next_char =~# "[".escape(v:char,"\\^]")."€£$]"')
 call add(s:exprs, 'ahead =~# "^[^[:space:][:punct:]]"')
 let s:defaults.delimitMate_smart_pairs_base = s:exprs
+
+" Set smart_quotes expressions:
+let s:exprs = []
+call add(s:exprs, 'prev_char =~# "\\w"')
+call add(s:exprs, 'prev_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
+call add(s:exprs, 'next_char =~# "\\w"')
+call add(s:exprs, 'next_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
+" Balance quotes
+call add(s:exprs, 'strchars(substitute(substitute(a:info.cur.text, "\\\\.", "", "g"), "[^".escape(char, "\\^[]")."]", "", "g")) % 2')
+
+let s:defaults.delimitMate_smart_quotes_base = s:exprs
+
+unlet s:exprs
 
 function! s:defaults.consolidate()
   let g = filter(copy(g:), 'v:key =~# "^delimitMate_"')
@@ -70,6 +87,14 @@ function! s:option(name, ...)
   return opt
 endfunction
 
+function! delimitMate#option(name)
+  return s:option(a:name)
+endfunction
+
+function! s:synstack(lnum, col)
+  return map(synstack(a:lnum, a:col), 'synIDattr(v:val, "name")') + [synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')]
+endfunction
+
 function! delimitMate#ex_cmd(global, action)
   let scope = a:global ? g: : b:
   if a:action ==# 'enable'
@@ -83,12 +108,17 @@ endfunction
 
 function! delimitMate#InsertCharPre(str)
   if s:info.skip_icp
+    " iabbrev fires this event for every char and the trigger
     echom 11
     return 0
   endif
   let s:info.skip_icp = 1
   if !s:option('enabled')
     echom 12
+    return 0
+  endif
+  if !empty(filter(s:option('excluded_regions'), 'index(s:synstack(line("."), col(".")), v:val) >= 0'))
+    echom 13
     return 0
   endif
   return map(split(a:str, '\zs'), 's:handle_vchar(v:val)')
@@ -109,7 +139,7 @@ function! s:handle_vchar(str)
     return 0
   elseif !empty(filter(copy(opts.quotes), 'v:val ==# a:str'))
     echom 15
-    return 0
+    let keys = s:keys4quote(a:str, s:info, opts)
   elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'))
     echom 16
     let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'), 0, '')
@@ -169,6 +199,40 @@ function! s:keys4right(char, pair, info, opts)
   return ''
 endfunction
 
+function! s:keys4quote(char, info, opts)
+  let quotes_behind = strchars(matchstr(a:info.cur.behind, '['.escape(a:char,  '\^[]').']*$'))
+  let quotes_ahead = strchars(matchstr(a:info.cur.ahead, '^['.escape(a:char,  '\^[]').']*'))
+  echom 'k4q: ' quotes_behind . ' - ' . quotes_ahead
+  echom string(a:opts.nesting_quotes)
+  if a:opts.autoclose && index(a:opts.nesting_quotes, a:char) >= 0
+        \&& quotes_behind > 1
+    let add2right = quotes_ahead > quotes_behind + 1 ? 0 : quotes_behind - quotes_ahead + 1
+    echom 51
+    echom add2right
+    return repeat(a:char, add2right) . repeat("\<C-G>U\<Left>", add2right)
+  endif
+  if a:info.cur.n_char ==# a:char
+    echom 53
+    return "\<Del>"
+  endif
+  let exprs = a:opts.smart_quotes_base + a:opts.smart_quotes_extra
+  if a:opts.autoclose && a:opts.smart_quotes
+        \&& s:any_is_true(exprs, a:info, a:opts)
+    echom 52
+    return ''
+  endif
+  if !a:opts.autoclose && quotes_behind
+    echom 54
+    return "\<Left>"
+  endif
+  if !a:opts.autoclose
+    echom 55
+    return ''
+  endif
+  echom 59
+  return a:char . "\<C-G>U\<Left>"
+endfunction
+
 function! s:get_info(...)
   if a:0
     let d = a:1
@@ -189,6 +253,7 @@ function! s:get_info(...)
 endfunction
 
 function! s:any_is_true(expressions, info, options)
+  let char = a:info.char
   let info = deepcopy(a:info)
   let options = deepcopy(a:options)
   let line = info.cur.text
@@ -248,7 +313,8 @@ function! s:is_bs()
     return feedkeys("\<Del>", 'tni')
   endif
   let pair = filter(s:option('pairs'), 'v:val ==# s:info.prev.around')
-  if empty(pair)
+  let quote = filter(s:option('quotes'), 'v:val . v:val ==# s:info.prev.around')
+  if empty(pair) && empty(quote)
     echom 26
     return
   endif

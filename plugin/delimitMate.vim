@@ -1,16 +1,9 @@
-if exists("g:loaded_delimitMate") || &cp
+if exists("g:loaded_delimitMate") || &cp || v:version < 800
   finish
 endif
 let g:loaded_delimitMate = 1
 let save_cpo = &cpo
 set cpo&vim
-
-if v:version < 800
-  echohl ErrorMsg
-  echom "delimitMate: this plugin requires vim 8.0 or later!"
-  echohl None
-  finish
-endif
 
 command! -bar -bang DelimitMateSwitch call delimitMate#ex_cmd(<bang>0,'switch')
 command! -bar -bang DelimitMateOn     call delimitMate#ex_cmd(<bang>0,'enable')
