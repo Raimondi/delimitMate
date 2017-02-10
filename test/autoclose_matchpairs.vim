@@ -15,39 +15,37 @@ call vimtap#Plan(210)
 
 let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
 let g:delimitMate_autoclose = 1
-call DMTest_pairs('', ["i("], "()")
-call DMTest_pairs('()', ["a\<BS>"], "")
-call DMTest_pairs('()', ["a)", 'ax'], "()x")
+call DMTest_pairs('', "i(", "()")
+call DMTest_pairs('()', "a\<BS>", "")
+call DMTest_pairs('()', "a)x", "()x")
 "call DMTest_pairs('', "((\<C-G>gx", "(())x")
-call DMTest_pairs('', ["i(x\<Esc>u"], "")
-call DMTest_pairs('', ["i@", "a(","ax"], "@(x)")
-call DMTest_pairs('@#', ["a(","ax"], "@(x)#")
-call DMTest_pairs('\', ["a(","ax"], '\(x')
-call DMTest_pairs('', ["a(",'a\', 'a)', "ax"], '(\)x)')
+call DMTest_pairs('', "i(x\<Esc>u", "")
+call DMTest_pairs('', "i@(x", "@(x)")
+call DMTest_pairs('@#', "a(x", "@(x)#")
+call DMTest_pairs('\', "a(x", '\(x')
+call DMTest_pairs('(\)', "la)x", '(\)x)')
 "call DMTest_pairs('', "(\<S-Tab>x", "()x")
 let g:delimitMate_autoclose = 0
-call DMTest_pairs('', ["i(", "ax"], "(x")
-call DMTest_pairs('', ["i(", "a)", "ax"], "(x)")
-call DMTest_pairs('', ["i(", "a)", "a)", "ax"], "()x")
-call DMTest_pairs('', ["i(", "a)", "a\<BS>", "ax"], "x")
-call DMTest_pairs('', ["i@(", "a)", "ax"], "@(x)")
-call DMTest_pairs('@#', ["a(", "a)", "ax"], "@(x)#")
+call DMTest_pairs('', "i(x", "(x")
+call DMTest_pairs('', "i()x", "(x)")
+call DMTest_pairs('', "i())x", "()x")
+call DMTest_pairs('', "i()\<BS>x", "x")
+call DMTest_pairs('', "i@()x", "@(x)")
+call DMTest_pairs('@#', "a()x", "@(x)#")
 let g:delimitMate_expand_space = 1
 let g:delimitMate_autoclose = 1
-call DMTest_pairs('', ['i(', "a\<Space>", 'ax'], "( x )")
-" <Right> needs to be after <BS> so the cursor stays in the expected place for when
-" the :doau commands fire.
-call DMTest_pairs('(  )', ["2|a\<BS>\<Right>", 'ix'], "(x)")
-call DMTest_pairs('', ["iabc ", 'ax'], "abc x")
+call DMTest_pairs('', "i(\<Space>x", "( x )")
+call DMTest_pairs('(  )', "2|a\<BS>x", "(x)")
+call DMTest_pairs('', "iabc x", "abc x")
 let g:delimitMate_autoclose = 0
-call DMTest_pairs('', ["i(", "a)", "a\<Space>", "a\<BS>\<Right>", "ix"], "(x)")
+call DMTest_pairs('', "i()\<Space>\<BS>x", "(x)")
 let g:delimitMate_autoclose = 1
 " Handle backspace gracefully.
 set backspace=
-call DMTest_pairs('', ["i(", "a\<BS>\<Right>", "ix"], "(x)")
+call DMTest_pairs('', "i(\<Esc>a\<BS>x", "(x)")
 set backspace=2
 " closing parens removes characters. #133
-call DMTest_pairs('', ["i(", "aa", "i)"], "()a)")
+call DMTest_pairs('(a)', "a)", "()a)")
 
 " Add semicolon next to the closing paren. Issue #77.
 "new
@@ -59,23 +57,23 @@ call DMTest_pairs('', ["i(", "aa", "i)"], "()a)")
 " Expand iabbreviations
 iabb def ghi
 " TODO not sure how to make this test actually test if the feature works.
-call DMTest_pairs('', ["idef("], "ghi()", '', 1)
+call DMTest_pairs('', "idef(", "ghi()") ", '', 1)
 iunabb def
 
-call DMTest_pairs("abc а", ["A\<Left>", "a("], "abc (а")
-call DMTest_pairs("abc ñ", ["A\<Left>", "a("], "abc (ñ")
-call DMTest_pairs("abc $", ["A\<Left>", "a("], "abc ($")
-call DMTest_pairs("abc £", ["A\<Left>", "a("], "abc (£")
-call DMTest_pairs("abc d", ["A\<Left>", "a("], "abc (d")
-call DMTest_pairs("abc .", ["A\<Left>", "a("], "abc ().")
-call DMTest_pairs("abc  ", ["A\<Left>", "a("], "abc () ")
-call DMTest_pairs("abc (", ["A\<Left>", "a("], "abc ((")
+call DMTest_pairs("abc а", "$i(", "abc (а")
+call DMTest_pairs("abc ñ", "$i(", "abc (ñ")
+call DMTest_pairs("abc $", "$i(", "abc ($")
+call DMTest_pairs("abc £", "$i(", "abc (£")
+call DMTest_pairs("abc d", "$i(", "abc (d")
+call DMTest_pairs("abc .", "$i(", "abc ().")
+call DMTest_pairs("abc  ", "$i(", "abc () ")
+call DMTest_pairs("abc (", "$i(", "abc ((")
 
 "" Play nice with undo.
 "call DMTest_pairs('', "a\<C-G>u(c)b\<C-O>u", "a")
 "
 let g:delimitMate_autoclose = 1
 let g:delimitMate_balance_pairs = 1
-call DMTest_pairs('ab cd)', ["2|a(", "ax"], 'ab(x cd)')
+call DMTest_pairs('ab cd)', "2|a(x", 'ab(x cd)')
 
 call vimtest#Quit()

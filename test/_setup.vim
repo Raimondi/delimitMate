@@ -37,9 +37,6 @@ endfunction
 "function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
 " Runs a single test (add 1 to vimtap#Plan())
 function! DMTest_single(setup, typed, expected, ...)
-  if type(a:typed) != v:t_list
-    return vimtap#Fail('Second argument should be a list: ' . a:typed)
-  end
   if type(a:setup) == v:t_list
     let setup = copy(a:setup)
   else
@@ -58,21 +55,16 @@ function! DMTest_single(setup, typed, expected, ...)
     call vimtap#Todo(1)
   endif
   call s:setup_buffer(setup)
-  for cmd in a:typed
-    echom strtrans(cmd)
-    call feedkeys(cmd, 'mt')
-    call feedkeys('', 'x')
-    doau delimitMate CursorMovedI
-    doau delimitMate TextChangedI
-    call feedkeys('', 'x')
-  endfor
-  call vimtap#Is(getline(1,'$'), expected, string(map(copy(a:typed), 'strtrans(v:val)')))
+  echom strtrans(a:typed)
+  call feedkeys(a:typed, 'mt')
+  call test_disable_char_avail(1)
+  call feedkeys('', 'x')
+  call feedkeys('', 'x')
+  call test_disable_char_avail(0)
+  call vimtap#Is(getline(1,'$'), expected, strtrans(a:typed))
 endfunction
 
 function! s:do_set(pat, sub, set, setup, typed, expected, ...)
-  if type(a:typed) != v:t_list
-    return vimtap#Fail('Second argument should be a list: ' . string(a:typed))
-  end
   let skip_expr = get(a:, '1', '')
   let todo_expr = get(a:, '2', '')
   let escaped = '\.*^$'
@@ -97,7 +89,7 @@ function! s:do_set(pat, sub, set, setup, typed, expected, ...)
       let sub = eval(a:sub)
     endif
     call map(setup, "substitute(v:val, a:pat, sub, 'g')")
-    let typed = map(copy(a:typed), "substitute(v:val, a:pat, sub, 'g')")
+    let typed = substitute(a:typed, a:pat, sub, 'g')
     call map(expected, "substitute(v:val, a:pat, sub, 'g')")
     call DMTest_single(setup, typed, expected, skip_expr, todo_expr)
   endfor
