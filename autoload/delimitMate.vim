@@ -5,6 +5,7 @@ let s:defaults.delimitMate_quotes = ['"', "'", '`']
 let s:defaults.delimitMate_enabled = 1
 let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
+let s:defaults.delimitMate_expand_inside_quotes = 0
 let s:defaults.delimitMate_smart_pairs = 1
 let s:defaults.delimitMate_smart_pairs_extra = []
 let s:defaults.delimitMate_balance_pairs = 0
@@ -179,7 +180,8 @@ function! delimitMate#TextChangedI(...) "{{{1
   endif
   echom s:info.prev.around
   let pair = filter(s:option('pairs'), 'v:val ==# (s:info.cur.p_char . matchstr(s:info.cur.ahead, "^\\s\\zs\\S"))')
-  if s:option('expand_space') && !empty(pair)
+  let quotes = filter(s:option('quotes'), 'v:val . v:val ==# (s:info.cur.p_char . matchstr(s:info.cur.ahead, "^\\s\\zs\\S"))')
+  if s:option('expand_space') && (!empty(pair) || (s:option('expand_inside_quotes') && !empty(quotes)))
     echom 25
     return feedkeys("\<Del>", 'tni')
   endif
@@ -189,6 +191,7 @@ function! delimitMate#TextChangedI(...) "{{{1
     echom 26
     return
   endif
+  echom 29
   let keys = "\<Del>"
   call feedkeys(keys, 'tni')
 endfunction
@@ -197,20 +200,21 @@ endfunction
 function! delimitMate#InsertCharPre(str) "{{{1
   if s:info.skip_icp
     " iabbrev fires this event for every char and the trigger
-    echom 11
+    echom 01
     return 0
   endif
   if s:info.nesting
+    echom 02
     let s:info.nesting -= 1
     return 0
   endif
   let s:info.skip_icp = 1
   if !s:option('enabled')
-    echom 12
+    echom 03
     return 0
   endif
   if !empty(filter(s:option('excluded_regions'), 'index(s:synstack(line("."), col(".")), v:val) >= 0'))
-    echom 13
+    echom 04
     return 0
   endif
   return map(split(a:str, '\zs'), 's:handle_vchar(v:val)')
@@ -233,6 +237,7 @@ function! s:handle_vchar(str) "{{{1
     echom 15
     let keys = s:keys4quote(a:str, s:info, opts)
     let s:info.nesting = strchars(matchstr(keys, '^[^[:cntrl:]]*'))
+    let s:info.nesting = s:info.nesting < 3 ? 0 : s:info.nesting
   elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'))
     echom 16
     let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'), 0, '')
@@ -252,10 +257,19 @@ function! s:handle_vchar(str) "{{{1
 endfunction
 
 function! s:keys4space(info, opts) "{{{1
-  if !a:opts.expand_space || empty(filter(copy(a:opts.pairs), 'v:val ==# a:info.cur.around'))
-    return ''
+  echom string(a:opts)
+  let empty_pair = !empty(filter(copy(a:opts.pairs), 'v:val ==# a:info.cur.around'))
+  if a:opts.expand_space && empty_pair
+    echom 61
+    return " \<C-G>U\<Left>"
   endif
-  return " \<C-G>U\<Left>"
+  let empty_quotes = !empty(filter(copy(a:opts.quotes), 'v:val.v:val ==# a:info.cur.around'))
+  if a:opts.expand_space && a:opts.expand_inside_quotes && empty_quotes
+    echom 62
+    return " \<C-G>U\<Left>"
+  endif
+  echom 69
+  return ''
 endfunction
 
 function! s:keys4left(char, pair, info, opts) "{{{1

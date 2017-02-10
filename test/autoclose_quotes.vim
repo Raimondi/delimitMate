@@ -11,7 +11,7 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(145)
+call vimtap#Plan(170)
 
 let g:delimitMate_autoclose = 1
 call DMTest_quotes('', "i'x", "'x'")
@@ -36,15 +36,17 @@ call DMTest_quotes('', "a''\<BS>x", "x")
 call DMTest_quotes('', "a@''x", "@'x'")
 call DMTest_quotes('@#', "a''x", "@'x'#")
 let g:delimitMate_autoclose = 1
-"let g:delimitMate_expand_space = 1
-"call DMTest_quotes('', "'\<Space>x", "' x'")
-"let g:delimitMate_expand_inside_quotes = 1
-"call DMTest_quotes('', "'\<Space>x", "' x '")
-"call DMTest_quotes('', "'\<Space>\<BS>x", "'x'")
-"call DMTest_quotes('', "abc\\''\<Space>x", "abc\\' x'")
-"let g:delimitMate_autoclose = 0
-"call DMTest_quotes('', "''\<Space>\<BS>x", "'x'")
-"let g:delimitMate_autoclose = 1
+let g:delimitMate_expand_space = 1
+call DMTest_quotes('', "i' x", "' x'")
+let g:delimitMate_expand_inside_quotes = 1
+call DMTest_quotes('', "i' x", "' x '")
+call DMTest_quotes('', "i' \<BS>x", "'x'")
+call DMTest_quotes('abc\', "A'' x", "abc\\'' x '")
+let g:delimitMate_autoclose = 0
+call DMTest_quotes('', "i'' \<BS>x", "'x'")
+unlet g:delimitMate_expand_space
+unlet g:delimitMate_expand_inside_quotes
+let g:delimitMate_autoclose = 1
 " Handle backspace gracefully.
 set backspace=
 call DMTest_quotes('', "a'\<Esc>a\<BS>x", "'x'")
