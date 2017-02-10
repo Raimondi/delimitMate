@@ -35,6 +35,7 @@ unlet s:exprs
 
 let s:info = {}
 let s:info.char = ''
+let s:info.nesting = 0
 let s:info.template = {}
 
 function! s:defaults.consolidate() "{{{1
@@ -199,6 +200,10 @@ function! delimitMate#InsertCharPre(str) "{{{1
     echom 11
     return 0
   endif
+  if s:info.nesting
+    let s:info.nesting -= 1
+    return 0
+  endif
   let s:info.skip_icp = 1
   if !s:option('enabled')
     echom 12
@@ -227,6 +232,7 @@ function! s:handle_vchar(str) "{{{1
   elseif !empty(filter(copy(opts.quotes), 'v:val ==# a:str'))
     echom 15
     let keys = s:keys4quote(a:str, s:info, opts)
+    let s:info.nesting = strchars(matchstr(keys, '^[^[:cntrl:]]*'))
   elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'))
     echom 16
     let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'), 0, '')
