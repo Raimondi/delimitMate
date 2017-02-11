@@ -186,7 +186,8 @@ function! delimitMate#TextChangedI(...) "{{{1
     echom 23
     if s:option('expand_cr') && !empty(pair)
       echom "23.1"
-      return feedkeys("\<Del>")
+      let spaces = strchars(s:info.cur.next_line, '^\s*')
+      return feedkeys(repeat("\<Del>", spaces), 'nti')
     endif
     let quote = filter(s:option('quotes'), 's:info.cur.p_char . matchstr(s:info.cur.next_line, "^\\s*\\zs\\S") ==# v:val.v:val')
     if s:option('expand_cr') && s:option('expand_inside_quotes') && !empty(quote)
@@ -322,6 +323,15 @@ function! s:keys4left(char, pair, info, opts) "{{{1
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
+  if a:opts.jump_expansion
+    echom 40
+    let around = matchstr(a:info.cur.prev_line, "\\S$") . matchstr(a:info.cur.next_line, "^\\s*\zs\\S")
+    if  empty(a:info.cur.ahead) && a:char ==# matchstr(a:info.cur.next_line, "^\\s*\\zs\\S")
+      let rights = strchars(matchstr(a:info.cur.next_line, '^\s*')) + 2
+      echom "40.1"
+      return "\<Esc>s" . repeat("\<Right>", rights)
+    endif
+  endif
   if !a:opts.autoclose
     if s:info.cur.around == a:pair
       echom 41
@@ -383,9 +393,12 @@ endfunction
 function! s:keys4cr(info, opts) "{{{1
   if a:opts.expand_cr
         \&& !empty(filter(copy(a:opts.pairs), 'v:val ==# a:info.prev.around'))
+        \|| (a:opts.expand_cr == 2 && !empty(filter(copy(a:opts.pairs), 'strcharpart(v:val, 1, 1) == a:info.cur.n_char')))
     " Empty pair
     echom 71
-    return "\<Up>\<End>\<CR>"
+    let right = a:info.cur.line
+    let rm_spaces = empty(a:info.cur.behind) ? '' : "\<C-U>"
+    return rm_spaces . "\<Del>x\<C-G>U\<Left>\<BS>\<CR>" . a:info.cur.n_char . "\<Del>\<Up>\<End>\<CR>"
   endif
   if a:opts.expand_cr && a:opts.expand_inside_quotes
         \&& !empty(filter(copy(a:opts.quotes), 'v:val.v:val ==# a:info.prev.around'))

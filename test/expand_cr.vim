@@ -11,7 +11,8 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(25)
+call vimtap#Plan(26)
+
 
 let g:delimitMate_expand_cr = 1
 "let g:delimitMate_eol_marker = ';'
@@ -36,26 +37,37 @@ call DMTest_single('', "i(  \<CR>\<BS>\<BS>x",  '(x)')
 
 " Conflict with indentation settings (cindent). Issue #95
 se cindent
+
 call DMTest_single(
       \ ['sub foo {',
       \  '    while (1) {',
-      \  '        ',
+      \  '',
       \  '    }',
       \  '}'],
-      \ "i\<Esc>3G8|a}x",
+      \ "3Gi\<BS>x",
+      \ ['sub foo {',
+      \  '    while (1) {x}',
+      \  '}'])
+
+call DMTest_single(
       \ ['sub foo {',
       \  '    while (1) {',
-      \  '        ',
+      \  '        bar',
+      \  '    }',
+      \  '}'],
+      \ "3GA}x",
+      \ ['sub foo {',
+      \  '    while (1) {',
+      \  '        bar',
       \  '    }x',
       \  '}'])
 
 call DMTest_single('"{bracketed}', "\<Esc>A\"x", '"{bracketed}"x')
 
-" Syntax folding enabled by autocmd breaks expansion. But ti can't be tested
-" with :normal
+" Syntax folding enabled by autocmd breaks expansion.
 new
-autocmd InsertEnter * let w:fdm=&foldmethod | setl foldmethod=manual
-autocmd InsertLeave * let &foldmethod = w:fdm
+autocmd InsertEnter <buffer> let w:fdm=&foldmethod | setl foldmethod=manual
+autocmd InsertLeave <buffer> let &foldmethod = w:fdm
 set foldmethod=marker
 set foldmarker={,}
 set foldlevel=0
@@ -64,7 +76,7 @@ call DMTest_single('', "iabc {\<CR>x",
       \['abc {',
       \ '    x',
       \ '}'])
-
+:bp
 " expand_cr != 2
 call DMTest_single('abc(def)', "i\<Esc>$i\<CR>x",
       \ ['abc(def',
@@ -72,12 +84,14 @@ call DMTest_single('abc(def)', "i\<Esc>$i\<CR>x",
 
 " expand_cr == 2
 let delimitMate_expand_cr = 2
-call DMTest_single('abc(def)', "i\<Esc>$i\<CR>x", ['abc(def', '        x', '        )'])
+call DMTest_single('abc(def)', "$i\<CR>x", ['abc(def', '        x', '   )'])
 
 " Play nice with smartindent
 set all&
+set whichwrap=[]
+set bs=2
 set smartindent
-call DMTest_single('', "i\<Esc>$i{\<CR>x", ['{', '	x', '}'])
+call DMTest_single('', "i{\<CR>x", ['{', '	x', '}'])
 
 call DMTest_quotes('', "i' x", "' x'")
 

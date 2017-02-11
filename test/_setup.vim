@@ -13,6 +13,7 @@
 let &rtp = expand('<sfile>:p:h:h') . ',' . &rtp . ',' . expand('<sfile>:p:h:h') . '/after'
 set bs=2
 set hidden
+set whichwrap=[]
 let g:delimitMate_pairs = ['()','{}','[]','<>','¿?','¡!',',:']
 let g:delimitMate_quotes = ['"', "'", '`', '«', '|']
 ru plugin/delimitMate.vim
