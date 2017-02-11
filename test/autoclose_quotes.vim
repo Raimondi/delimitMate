@@ -74,6 +74,10 @@ unlet g:delimitMate_nesting_quotes
 iabb def ghi
 call DMTest_quotes('', "idef'", "ghi'", 'a:typed =~ "^idef[''`«|]"')
 iunabb def
-""call DMTest_quotes('', "'\<CR>\<BS>", "''")
+""call DMTest_quotes('', "i'\<CR>\<BS>", "''")
+" Double quote starts a comment in viml
+set ft=vim
+call DMTest_single('', 'i"', '"')
+set ft=
 
 call vimtest#Quit()

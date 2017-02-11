@@ -27,6 +27,7 @@ let s:exprs = []
 call add(s:exprs, 'prev_char =~# "\\w"')
 call add(s:exprs, 'prev_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
 call add(s:exprs, 'next_char =~# "\\w"')
+call add(s:exprs, 'char == "\"" && &filetype =~? "\\<vim\\>" && line =~ "^\\s*$"')
 call add(s:exprs, 'next_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
 " Balance quotes
 call add(s:exprs, 'strchars(substitute(substitute(a:info.cur.text, "\\\\.", "", "g"), "[^".escape(char, "\\^[]")."]", "", "g")) % 2')
