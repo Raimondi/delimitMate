@@ -5,6 +5,7 @@ let s:defaults.delimitMate_quotes = ['"', "'", '`']
 let s:defaults.delimitMate_enabled = 1
 let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
+let s:defaults.delimitMate_jump_expansion = 0
 let s:defaults.delimitMate_expand_inside_quotes = 0
 let s:defaults.delimitMate_smart_pairs = 1
 let s:defaults.delimitMate_smart_pairs_extra = []
@@ -293,16 +294,25 @@ endfunction
 function! s:keys4right(char, pair, info, opts) "{{{1
   if !a:opts.autoclose
     if s:info.cur.around == a:pair
+      echom 41
       return "\<Del>"
     elseif s:info.cur.p_char == strcharpart(a:pair, 0, 1)
+      echom 42
       return "\<C-G>U\<Left>"
     endif
+    echom 43
     return ""
   endif
   if strcharpart(a:info.cur.text[a:info.cur.col - 1 :], 0, 1) ==# a:char
-    echom 41
+    echom 44
     return "\<Del>"
   endif
+  if a:opts.expand_space && a:opts.jump_expansion
+        \ && matchstr(a:info.cur.ahead, '^ ['.escape(a:char, '\^[]').']') ==# ' ' . a:char
+    echom 45
+    return "\<Del>\<Del>\<C-G>U\<Left> \<C-G>U\<Right>"
+  endif
+  echom 49
   return ''
 endfunction
 

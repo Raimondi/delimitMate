@@ -14,16 +14,13 @@ call vimtest#StartTap()
 call vimtap#Plan(12)
 
 let g:delimitMate_expand_space = 1
-DelimitMateReload
 
 " Issue #95
 let b:delimitMate_jump_expansion = 1
-DelimitMateReload
-call DMTest_pairs('', "( test)x", '( test )x')
+call DMTest_pairs('', "i( test)x", '( test )x')
 
 let delimitMate_expand_inside_quotes = 1
-DelimitMateReload
 
-call DMTest_quotes('', "' x", "' x '")
+call DMTest_quotes('', "i' x", "' x '")
 
 call vimtest#Quit()
