@@ -5,6 +5,7 @@ let s:defaults.delimitMate_quotes = ['"', "'", '`']
 let s:defaults.delimitMate_enabled = 1
 let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
+let s:defaults.delimitMate_expand_cr = 0
 let s:defaults.delimitMate_jump_expansion = 0
 let s:defaults.delimitMate_expand_inside_quotes = 0
 let s:defaults.delimitMate_smart_pairs = 1
@@ -104,6 +105,8 @@ function! s:get_info(...) "{{{1
     let d.line = getline('.')
     let d.col = col('.')
     let d.lnum = line('.')
+    let d.prev_line = line('.') == 1 ? '' : getline(line('.') - 1)
+    let d.next_line = line('.') == line('$') ? '' : getline(line('.') + 1)
   endif
   let d.ahead = len(d.line) >= d.col ? d.line[d.col - 1 : ] : ''
   let d.behind = d.col >= 2 ? d.line[: d.col - 2] : ''
@@ -168,29 +171,53 @@ function! delimitMate#TextChangedI(...) "{{{1
     echom 21
     return
   endif
-  if s:info.cur.lnum != s:info.prev.lnum
+  if s:info.cur.lnum == s:info.prev.lnum + 1
+        \&& s:info.prev.behind ==# s:info.cur.prev_line
+        \&& s:info.prev.ahead ==# s:info.cur.ahead
+        \&& s:info.cur.behind =~ '^\s*$'
+    " CR
     echom 22
+    return feedkeys(s:keys4cr(s:info, s:defaults.consolidate()), 'tni')
+  endif
+  if s:info.cur.lnum == s:info.prev.lnum - 1
+        \&& s:info.prev.prev_line ==# s:info.cur.line
+        \&& s:info.prev.next_line ==# s:info.cur.next_line
+    let pair = filter(s:option('pairs'), 's:info.cur.p_char . matchstr(s:info.cur.next_line, "^\\s*\\zs\\S") ==# v:val')
+    echom 23
+    if s:option('expand_cr') && !empty(pair)
+      echom "23.1"
+      return feedkeys("\<Del>")
+    endif
+    let quote = filter(s:option('quotes'), 's:info.cur.p_char . matchstr(s:info.cur.next_line, "^\\s*\\zs\\S") ==# v:val.v:val')
+    if s:option('expand_cr') && s:option('expand_inside_quotes') && !empty(quote)
+      echom "23.2"
+      return feedkeys("\<Del>")
+    endif
+    return
+  endif
+  if s:info.cur.lnum != s:info.prev.lnum
+    echom 24
     return
   endif
   if s:info.prev.col - s:info.cur.col != len(s:info.prev.p_char)
-    echom 23
+    echom 25
     return
   endif
   if len(s:info.prev.line) == len(s:info.cur.line)
-    echom 24
+    echom 26
     return
   endif
   echom s:info.prev.around
   let pair = filter(s:option('pairs'), 'v:val ==# (s:info.cur.p_char . matchstr(s:info.cur.ahead, "^\\s\\zs\\S"))')
   let quotes = filter(s:option('quotes'), 'v:val . v:val ==# (s:info.cur.p_char . matchstr(s:info.cur.ahead, "^\\s\\zs\\S"))')
   if s:option('expand_space') && (!empty(pair) || (s:option('expand_inside_quotes') && !empty(quotes)))
-    echom 25
+    echom 27
     return feedkeys("\<Del>", 'tni')
   endif
   let pair = filter(s:option('pairs'), 'v:val ==# s:info.prev.around')
   let quote = filter(s:option('quotes'), 'v:val . v:val ==# s:info.prev.around')
   if empty(pair) && empty(quote)
-    echom 26
+    echom 28
     return
   endif
   echom 29
@@ -233,8 +260,10 @@ function! s:handle_vchar(str) "{{{1
     echom 13
     let keys = s:keys4space(s:info, opts)
   elseif a:str == "\<C-]>"
+    let prev_line = line('.') == 1 ? '' : getline(line('.') - 1)
+    let next_line = line('.') == line('$') ? '' : getline(line('.') + 1)
     echom 14
-    return 0
+    let keys = s:keys4cr(prev_line, next_line, s:info, opts)
   elseif !empty(filter(copy(opts.quotes), 'v:val ==# a:str'))
     echom 15
     let keys = s:keys4quote(a:str, s:info, opts)
@@ -352,6 +381,18 @@ function! s:keys4quote(char, info, opts) "{{{1
 endfunction
 
 function! s:keys4cr(info, opts) "{{{1
+  if a:opts.expand_cr
+        \&& !empty(filter(copy(a:opts.pairs), 'v:val ==# a:info.prev.around'))
+    " Empty pair
+    echom 71
+    return "\<Up>\<End>\<CR>"
+  endif
+  if a:opts.expand_cr && a:opts.expand_inside_quotes
+        \&& !empty(filter(copy(a:opts.quotes), 'v:val.v:val ==# a:info.prev.around'))
+    " Empty pair
+    echom 72
+    return "\<Up>\<End>\<CR>"
+  endif
   echom 79
   return ''
 endfunction
