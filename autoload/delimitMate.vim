@@ -30,7 +30,7 @@ call add(s:exprs, 'next_char =~# "\\w"')
 call add(s:exprs, 'char == "\"" && &filetype =~? "\\<vim\\>" && line =~ "^\\s*$"')
 call add(s:exprs, 'next_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
 " Balance quotes
-call add(s:exprs, 'strchars(substitute(substitute(a:info.cur.text, "\\\\.", "", "g"), "[^".escape(char, "\\^[]")."]", "", "g")) % 2')
+call add(s:exprs, 'strchars(substitute(substitute(a:info.cur.line, "\\\\.", "", "g"), "[^".escape(char, "\\^[]")."]", "", "g")) % 2')
 
 let s:defaults.delimitMate_smart_quotes_base = s:exprs
 
@@ -101,12 +101,12 @@ function! s:get_info(...) "{{{1
     let d = a:1
   else
     let d = {}
-    let d.text = getline('.')
+    let d.line = getline('.')
     let d.col = col('.')
-    let d.line = line('.')
+    let d.lnum = line('.')
   endif
-  let d.ahead = len(d.text) >= d.col ? d.text[d.col - 1 : ] : ''
-  let d.behind = d.col >= 2 ? d.text[: d.col - 2] : ''
+  let d.ahead = len(d.line) >= d.col ? d.line[d.col - 1 : ] : ''
+  let d.behind = d.col >= 2 ? d.line[: d.col - 2] : ''
   let d.p_char = strcharpart(d.behind, strchars(d.behind) - 1, 1)
   let d.n_char = strcharpart(d.ahead, 0, 1)
   let d.around = d.p_char . d.n_char
@@ -119,8 +119,8 @@ function! s:any_is_true(expressions, info, options) "{{{1
   let char = a:info.char
   let info = deepcopy(a:info)
   let options = deepcopy(a:options)
-  let line = info.cur.text
-  let linenr = info.cur.line
+  let line = info.cur.line
+  let lnum = info.cur.lnum
   let col = info.cur.col
   let behind = info.cur.behind
   let ahead = info.cur.ahead
@@ -152,23 +152,23 @@ function! delimitMate#CursorMovedI(...) "{{{1
   let s:info.cur = call('s:get_info', a:000)
   let s:info.skip_icp = 0
   echom 'INFO: ' . string(s:info)
-  echom 'CMI: ' . s:info.prev.text
+  echom 'CMI: ' . s:info.prev.line
 endfunction
 
 function! delimitMate#InsertEnter(...) "{{{1
   let s:info.cur = call('s:get_info', a:000)
   let s:info.prev = {}
   let s:info.skip_icp = 0
-  echom 'IE: ' . s:info.cur.text
+  echom 'IE: ' . s:info.cur.line
 endfunction
 
 function! delimitMate#TextChangedI(...) "{{{1
-  echom 'TCI: ' . s:info.cur.text
+  echom 'TCI: ' . s:info.cur.line
   if !s:option('enabled')
     echom 21
     return
   endif
-  if s:info.cur.line != s:info.prev.line
+  if s:info.cur.lnum != s:info.prev.lnum
     echom 22
     return
   endif
@@ -176,7 +176,7 @@ function! delimitMate#TextChangedI(...) "{{{1
     echom 23
     return
   endif
-  if len(s:info.prev.text) == len(s:info.cur.text)
+  if len(s:info.prev.line) == len(s:info.cur.line)
     echom 24
     return
   endif
@@ -223,7 +223,7 @@ function! delimitMate#InsertCharPre(str) "{{{1
 endfunction
 
 function! s:handle_vchar(str) "{{{1
-  echom 'ICP ' . string(a:str) . ': ' . get(s:info, 'cur', {'text': ''}).text
+  echom 'ICP ' . string(a:str) . ': ' . get(s:info, 'cur', {'line': ''}).line
   let s:info.char = a:str
   let opts = s:defaults.consolidate()
   if s:info.cur.is_escaped()
@@ -304,7 +304,7 @@ function! s:keys4right(char, pair, info, opts) "{{{1
     echom 43
     return ""
   endif
-  if strcharpart(a:info.cur.text[a:info.cur.col - 1 :], 0, 1) ==# a:char
+  if strcharpart(a:info.cur.line[a:info.cur.col - 1 :], 0, 1) ==# a:char
     echom 44
     return "\<Del>"
   endif
@@ -351,3 +351,7 @@ function! s:keys4quote(char, info, opts) "{{{1
   return a:char . "\<C-G>U\<Left>"
 endfunction
 
+function! s:keys4cr(info, opts) "{{{1
+  echom 79
+  return ''
+endfunction
