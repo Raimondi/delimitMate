@@ -413,3 +413,4 @@ function! s:keys4cr(info, opts) "{{{1
   echom 79
   return ''
 endfunction
+" vim: sw=2 et

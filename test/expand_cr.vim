@@ -1,12 +1,12 @@
-" function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
+" call DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
 " - Runs a single test.
 " - Add 1 to vimtap#Plan().
 "
-" function! DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
+" call DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
 " - Runs one test for every pair.
 " - Add 7 to vimtap#Plan().
 "
-" function! DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
+" call DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
 " - Runs one test for every quote.
 " - Add 5 to vimtap#Plan().
 
@@ -25,11 +25,13 @@ call DMTest_single('$(document).ready(function() {})',
 " Issue #95
 new
 let b:delimitMate_jump_expansion = 1
-call DMTest_single('', "i(\<CR>test)x",
+call DMTest_single('',
+      \ "i(\<CR>test)x",
       \ ['(', 'test', ')x'])
 
 " Remove CR expansion on BS
-call DMTest_single('', "i(\<CR>\<BS>x",
+call DMTest_single('',
+      \ "i(\<CR>\<BS>x",
       \ ['(x)'])
 
 " Consider indentation with BS inside an empty CR expansion.
@@ -72,19 +74,26 @@ set foldmethod=marker
 set foldmarker={,}
 set foldlevel=0
 set backspace=2
-call DMTest_single('', "iabc {\<CR>x",
-      \['abc {',
-      \ '    x',
-      \ '}'])
+call DMTest_single('',
+      \ "iabc {\<CR>x",
+      \ ['abc {',
+      \  '    x',
+      \  '}'])
 :bp
+
 " expand_cr != 2
-call DMTest_single('abc(def)', "i\<Esc>$i\<CR>x",
+call DMTest_single('abc(def)',
+      \ "i\<Esc>$i\<CR>x",
       \ ['abc(def',
       \  '        x)'])
 
 " expand_cr == 2
 let delimitMate_expand_cr = 2
-call DMTest_single('abc(def)', "$i\<CR>x", ['abc(def', '        x', '   )'])
+call DMTest_single('abc(def)',
+      \ "$i\<CR>x",
+      \ ['abc(def',
+      \  '        x',
+      \  '   )'])
 
 " Play nice with smartindent
 set all&
@@ -102,3 +111,4 @@ let delimitMate_expand_inside_quotes = 1
 call DMTest_quotes('', "i'\<CR>x", ["'", "x", "'"])
 
 call vimtest#Quit()
+" vim: sw=2 et

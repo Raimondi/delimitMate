@@ -117,3 +117,4 @@ function! DMTest_quotes(setup, typed, expected, ...)
   let sub = 'quote'
   return s:do_set(pat, sub, quotes, a:setup, a:typed, a:expected, skip_expr, todo_expr)
 endfunction
+" vim: sw=2 et

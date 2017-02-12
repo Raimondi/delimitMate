@@ -1,12 +1,12 @@
-" function! DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
+" call DMTest_single(setup, typed, expected[, skip_expr[, todo_expr]])
 " - Runs a single test.
 " - Add 1 to vimtap#Plan().
 "
-" function! DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
+" call DMTest_pairs(setup, typed, expected, [skip_expr[, todo_expr]])
 " - Runs one test for every pair.
 " - Add 7 to vimtap#Plan().
 "
-" function! DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
+" call DMTest_quotes(setup, typed, expected, [skip_expr[, todo_expr]])
 " - Runs one test for every quote.
 " - Add 5 to vimtap#Plan().
 
@@ -40,3 +40,4 @@ call DMTest_single('', "i;\<Left>{(\<CR>x", ['{(', 'x', ')};'])
 
 " End: quit vim.
 call vimtest#Quit()
+" vim: sw=2 et
