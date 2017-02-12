@@ -22,16 +22,17 @@ let s:defaults.delimitMate_excluded_regions = ['String', 'Comment']
 let s:exprs = []
 call add(s:exprs, 'next_char =~# "\\w"')
 call add(s:exprs, 'next_char =~# "[".escape(v:char,"\\^]")."€£$]"')
+call add(s:exprs, 'next_char =~# "[".escape(join(s:option("quotes"),""),"\\^]")."]"')
 call add(s:exprs, 'ahead =~# "^[^[:space:][:punct:]]"')
 let s:defaults.delimitMate_smart_pairs_base = s:exprs
 
 " Set smart_quotes expressions:
 let s:exprs = []
 call add(s:exprs, 'prev_char =~# "\\w"')
-call add(s:exprs, 'prev_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
+call add(s:exprs, 'prev_char =~# "[^[:space:][:punct:]".escape(join(options.quotes, ""), "\\^[]")."]"')
 call add(s:exprs, 'next_char =~# "\\w"')
 call add(s:exprs, 'char == "\"" && &filetype =~? "\\<vim\\>" && line =~ "^\\s*$"')
-call add(s:exprs, 'next_char =~# "[^[:space:][:punct]".escape(join(options.quotes, ""), "\\^[]")."]"')
+call add(s:exprs, 'next_char =~# "[^[:space:][:punct:]".escape(join(options.quotes, ""), "\\^[]")."]"')
 " Balance quotes
 call add(s:exprs, 'strchars(substitute(substitute(a:info.cur.line, "\\\\.", "", "g"), "[^".escape(char, "\\^[]")."]", "", "g")) % 2')
 
