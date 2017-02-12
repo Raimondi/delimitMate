@@ -85,6 +85,13 @@ let g:delimitMate_autoclose = 1
 let g:delimitMate_balance_pairs = 1
 call DMTest_pairs('ab cd)', "la(x", 'ab(x cd)')
 
+" Disable on syntax groups
+new
+syntax on
+set ft=vim
+call DMTest_pairs('echo "  "', "f\"la(", 'echo " ( "')
+syntax off
+bp
 
 call vimtest#Quit()
 " vim: sw=2 et

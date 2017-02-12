@@ -245,7 +245,8 @@ function! delimitMate#InsertCharPre(str) "{{{1
     echom 03
     return 0
   endif
-  if !empty(filter(s:option('excluded_regions'), 'index(s:synstack(line("."), col(".")), v:val) >= 0'))
+  let synstack = join(map(synstack(line('.'), col('.')), 'tolower(synIDattr(v:val, "name"))'), ',')
+  if !empty(filter(s:option('excluded_regions'), 'stridx(synstack, tolower(v:val)) >= 0'))
     echom 04
     return 0
   endif
