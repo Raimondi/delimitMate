@@ -11,33 +11,32 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(8)
+call vimtap#Plan(9)
 
 let g:delimitMate_expand_cr = 1
 let g:delimitMate_eol_marker = ';'
 " NOTE: Do not forget to update the plan ^
 let g:delimitMate_insert_eol_marker = 0
-DelimitMateReload
 
-call DMTest_single('', '(', '()')
+call DMTest_single('', 'i(', '()')
 
-call DMTest_single('', "(\<CR>x", ['(', 'x', ')'])
+call DMTest_single('', "i(\<CR>x", ['(', 'x', ')'])
 
 let g:delimitMate_insert_eol_marker = 1
-DelimitMateReload
-call DMTest_single('', '(', '();')
+call DMTest_single('', 'i(', '();')
 
-call DMTest_single('', "(\<CR>x", ['(', 'x', ');'])
+call DMTest_single(' a', 'i(', '() a')
+
+call DMTest_single('', "i(\<CR>x", ['(', 'x', ');'])
 
 let g:delimitMate_insert_eol_marker = 2
-DelimitMateReload
-call DMTest_single('', '(', '()')
+call DMTest_single('', 'i(', '()')
 
-call DMTest_single('', "(\<CR>x", ['(', 'x', ');'])
+call DMTest_single('', "i(\<CR>x", ['(', 'x', ');'])
 
-call DMTest_single('', "{(\<CR>x", ['{(', 'x', ')};'])
+call DMTest_single('', "i{(\<CR>x", ['{(', 'x', ')}'])
 
-call DMTest_single('', ";\<Esc>I{(\<CR>x", ['{(', 'x', ')};'])
+call DMTest_single('', "i;\<Left>{(\<CR>x", ['{(', 'x', ')};'])
 
 " End: quit vim.
 call vimtest#Quit()

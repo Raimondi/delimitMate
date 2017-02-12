@@ -7,6 +7,8 @@ let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
 let s:defaults.delimitMate_expand_cr = 0
 let s:defaults.delimitMate_jump_expansion = 0
+let s:defaults.delimitMate_insert_eol_marker = 0
+let s:defaults.delimitMate_eol_marker = ';'
 let s:defaults.delimitMate_expand_inside_quotes = 0
 let s:defaults.delimitMate_smart_pairs = 1
 let s:defaults.delimitMate_smart_pairs_extra = []
@@ -318,8 +320,9 @@ function! s:keys4left(char, pair, info, opts) "{{{1
     echom 33
     return ''
   endif
+  let eol_marker = a:opts.insert_eol_marker == 1 && empty(a:info.cur.ahead) ? a:opts.eol_marker . "\<C-G>U\<Left>" : ''
   echom 34
-  return strcharpart(a:pair, 1, 1) . "\<C-G>U\<Left>"
+  return strcharpart(a:pair, 1, 1) . eol_marker . "\<C-G>U\<Left>"
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
@@ -398,7 +401,8 @@ function! s:keys4cr(info, opts) "{{{1
     echom 71
     let right = a:info.cur.line
     let rm_spaces = empty(a:info.cur.behind) ? '' : "\<C-U>"
-    return rm_spaces . "\<Del>x\<C-G>U\<Left>\<BS>\<CR>" . a:info.cur.n_char . "\<Del>\<Up>\<End>\<CR>"
+    let eol_marker = a:opts.insert_eol_marker == 2 && strchars(a:info.cur.ahead) == 1 ? a:opts.eol_marker : ''
+    return rm_spaces . "\<Del>x\<C-G>U\<Left>\<BS>\<CR>" . a:info.cur.n_char . "\<Del>" . eol_marker . "\<Up>\<End>\<CR>"
   endif
   if a:opts.expand_cr && a:opts.expand_inside_quotes
         \&& !empty(filter(copy(a:opts.quotes), 'v:val.v:val ==# a:info.prev.around'))
