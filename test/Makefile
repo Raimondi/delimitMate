@@ -1,5 +1,5 @@
 all: build/runVimTests
-	build/runVimTests/bin/runVimTests.sh -0 .
+	time build/runVimTests/bin/runVimTests.sh -0 .
 
 build/runVimTests: build/VimTAP
 	git clone https://github.com/inkarkat/runVimTests $@
@@ -13,4 +13,4 @@ test_files := $(filter-out _setup.vim,$(wildcard *.vim))
 .PHONY: $(test_files)
 
 $(test_files):
-	build/runVimTests/bin/runVimTests.sh -0 $@
+	time build/runVimTests/bin/runVimTests.sh -0 $@

@@ -11,7 +11,7 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(9)
+call vimtap#Plan(10)
 
 let g:delimitMate_expand_cr = 1
 let g:delimitMate_eol_marker = ';'
@@ -34,9 +34,14 @@ call DMTest_single('', 'i(', '()')
 
 call DMTest_single('', "i(\<CR>x", ['(', 'x', ');'])
 
+" Issue #195
 call DMTest_single('', "i{(\<CR>x", ['{(', 'x', ')}'])
 
+" Issue #195
 call DMTest_single('', "i;\<Left>{(\<CR>x", ['{(', 'x', ')};'])
+
+" Issue #195
+call DMTest_single('', "i\<Left>{(\<CR>x", ['{(', 'x', ')};'], 0, 1)
 
 " End: quit vim.
 call vimtest#Quit()

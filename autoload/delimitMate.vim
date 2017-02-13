@@ -412,10 +412,8 @@ function! s:keys4cr(info, opts) "{{{1
         \|| (a:opts.expand_cr == 2 && !empty(filter(copy(a:opts.pairs), 'strcharpart(v:val, 1, 1) == a:info.cur.n_char')))
     " Empty pair
     echom 71
-    let right = a:info.cur.line
-    let rm_spaces = empty(a:info.cur.behind) ? '' : "\<C-U>"
     let eol_marker = a:opts.insert_eol_marker == 2 && strchars(a:info.cur.ahead) == 1 ? a:opts.eol_marker : ''
-    return rm_spaces . "\<Del>x\<C-G>U\<Left>\<BS>\<CR>" . a:info.cur.n_char . "\<Del>" . eol_marker . "\<Up>\<End>\<CR>"
+    return "0\<C-D>\<Del>x\<C-G>U\<Left>\<BS>\<CR>" . a:info.cur.n_char . "\<Del>" . eol_marker . "\<Up>\<End>\<CR>"
   endif
   if a:opts.expand_cr && a:opts.expand_inside_quotes
         \&& !empty(filter(copy(a:opts.quotes), 'v:val.v:val ==# a:info.prev.around'))

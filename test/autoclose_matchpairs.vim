@@ -12,7 +12,7 @@
 
 call vimtest#StartTap()
 
-call vimtap#Plan(189)
+call vimtap#Plan(205)
 
 
 let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
@@ -34,7 +34,10 @@ call DMTest_pairs('\', "a(x", '\(x')
 
 call DMTest_pairs('(\)', "la)x", '(\)x)')
 
+call DMTest_pairs('"abc"', "ifoo(", 'foo("abc"')
+
 "call DMTest_pairs('', "(\<S-Tab>x", "()x")
+
 let g:delimitMate_autoclose = 0
 call DMTest_pairs('', "i(x", "(x")
 
@@ -59,7 +62,7 @@ call DMTest_pairs('(a)', "a)", "()a)")
 
 " Expand iabbreviations
 iabb def ghi
-call DMTest_pairs('', "idef(", "ghi()")
+call DMTest_single('', "idef(", "ghi()")
 iunabb def
 
 call DMTest_pairs("abc а", "$i(", "abc (а")
@@ -81,17 +84,44 @@ call DMTest_pairs("abc (", "$i(", "abc ((")
 " Play nice with undo.
 call DMTest_pairs('', "ia\<C-G>u(c)b\<Esc>u", "a")
 
-let g:delimitMate_autoclose = 1
+" TODO: way to jump over one or several closing chars
+call DMTest_single('()', 'a\<magic>x', '()x', 0, 1)
+
+call DMTest_single('{()}', 'la\<magic>x', '{()}x', 0, 1)
+
 let g:delimitMate_balance_pairs = 1
 call DMTest_pairs('ab cd)', "la(x", 'ab(x cd)')
+" Issue #229
+call DMTest_single('((ab cd)', "A)", '((abx cd))', 0, 1)
+unlet g:delimitMate_balance_pairs
+
+" Issue #220
+let g:delimitMate_jump_over = 0
+call DMTest_single('()', ')', '())', 0, 1)
+unlet g:delimitMate_jump_over
+
+" Issues #207 and #223
+call DMTest_single('{[(foobar)]}', 'fbi]x', '{[(foobar)]x}', 0, 1)
+
+" Issues #207 and #223
+call DMTest_single('{[(foobar)]}', 'fbi\<magic>x', '{[(foobar)]}x', 0, 1)
 
 " Disable on syntax groups
 new
 syntax on
 set ft=vim
 call DMTest_pairs('echo "  "', "f\"la(", 'echo " ( "')
+
+filetype indent plugin on
+set ft=php
+" Issue #160
+call DMTest_single('<?php incl', "A\<C-X>\<C-O>\<C-Y>", '<?php include()', 0, 1)
 syntax off
 bp
+
+" This breaks Vim for now, so let's put it at the end
+" Play nice with redo
+call DMTest_single('abc ', "Afoo(x\<Esc>.", 'abc foo(x)foo(x)', 0, 1)
 
 call vimtest#Quit()
 " vim: sw=2 et
