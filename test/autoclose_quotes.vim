@@ -12,7 +12,7 @@
 
 call vimtest#StartTap()
 
-call vimtap#Plan(142)
+call vimtap#Plan(147)
 
 
 let g:delimitMate_autoclose = 1
@@ -98,6 +98,10 @@ iunabb def
 " Double quote starts a comment in viml
 set ft=vim
 call DMTest_single('', 'i"', '"')
+
+syntax on
+" Allow quote to exit from string when disabled by syntax group.
+call DMTest_quotes("'abc'", "$i'x", "'abc'x")
 
 set ft=
 

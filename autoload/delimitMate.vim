@@ -170,6 +170,10 @@ endfunction
 
 function! delimitMate#TextChangedI(...) "{{{1
   echom 'TCI: ' . s:info.cur.line
+  if pumvisible()
+    echom 20
+    return 0
+  endif
   if !s:option('enabled')
     echom 21
     return
@@ -231,65 +235,69 @@ endfunction
 
 " vim: sw=2 et
 function! delimitMate#InsertCharPre(str) "{{{1
+  echom 'ICP ' . string(a:str) . ': ' . get(s:info, 'cur', {'line': ''}).line
   if s:info.skip_icp
     " iabbrev fires this event for every char and the trigger
     echom 01
     return 0
   endif
+  if pumvisible()
+    echom 2
+    return 0
+  endif
   if s:info.nesting
-    echom 02
+    echom 03
     let s:info.nesting -= 1
     return 0
   endif
   let s:info.skip_icp = 1
   if !s:option('enabled')
-    echom 03
-    return 0
-  endif
-  let synstack = join(map(synstack(line('.'), col('.')), 'tolower(synIDattr(v:val, "name"))'), ',')
-  if !empty(filter(s:option('excluded_regions'), 'stridx(synstack, tolower(v:val)) >= 0'))
     echom 04
     return 0
   endif
-  return map(split(a:str, '\zs'), 's:handle_vchar(v:val)')
-endfunction
-
-function! s:handle_vchar(str) "{{{1
-  echom 'ICP ' . string(a:str) . ': ' . get(s:info, 'cur', {'line': ''}).line
-  let s:info.char = a:str
-  let opts = s:defaults.consolidate()
-  if s:info.cur.is_escaped()
-    echom 12
-    return
-  elseif a:str == ' '
-    echom 13
-    let keys = s:keys4space(s:info, opts)
-  elseif a:str == "\<C-]>"
-    let prev_line = line('.') == 1 ? '' : getline(line('.') - 1)
-    let next_line = line('.') == line('$') ? '' : getline(line('.') + 1)
-    echom 14
-    let keys = s:keys4cr(prev_line, next_line, s:info, opts)
-  elseif !empty(filter(copy(opts.quotes), 'v:val ==# a:str'))
-    echom 15
-    let keys = s:keys4quote(a:str, s:info, opts)
-    let s:info.nesting = strchars(matchstr(keys, '^[^[:cntrl:]]*'))
-    let s:info.nesting = s:info.nesting < 3 ? 0 : s:info.nesting
-  elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'))
-    echom 16
-    let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# a:str'), 0, '')
-    let keys = s:keys4left(a:str, pair, s:info, opts)
-    "echom strtrans(keys)
-    "echom string(pair)
-  elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 1, 1) ==# a:str'))
-    let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 1, 1) ==# a:str'), 0, '')
-    let keys = s:keys4right(a:str, pair, s:info, opts)
-    echom 17
-    echom keys
-  else
-    echom 18
-    return 0
-  endif
-  return feedkeys(keys, 'mti')
+  let synstack = join(map(synstack(line('.'), col('.')), 'tolower(synIDattr(v:val, "name"))'), ',')
+  let s:info.is_ignored_syn = !empty(filter(s:option('excluded_regions'), 'stridx(synstack, tolower(v:val)) >= 0'))
+  echom 9
+  for char in split(a:str, '\zs')
+    let keys = ''
+    let s:info.char = char
+    let opts = s:defaults.consolidate()
+    if s:info.cur.is_escaped()
+      echom 12
+      return
+    elseif !empty(filter(copy(opts.quotes), 'v:val ==# char'))
+      echom 15
+      let keys = s:keys4quote(char, s:info, opts)
+      let s:info.nesting = strchars(matchstr(keys, '^[^[:cntrl:]]*'))
+      let s:info.nesting = s:info.nesting < 3 ? 0 : s:info.nesting
+    elseif s:info.is_ignored_syn
+      echom 9
+      return
+    elseif char == ' '
+      echom 13
+      let keys = s:keys4space(s:info, opts)
+    elseif char == "\<C-]>"
+      let prev_line = line('.') == 1 ? '' : getline(line('.') - 1)
+      let next_line = line('.') == line('$') ? '' : getline(line('.') + 1)
+      echom 14
+      let keys = s:keys4cr(prev_line, next_line, s:info, opts)
+    elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# char'))
+      echom 16
+      let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# char'), 0, '')
+      let keys = s:keys4left(char, pair, s:info, opts)
+      "echom strtrans(keys)
+      "echom string(pair)
+    elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 1, 1) ==# char'))
+      let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 1, 1) ==# char'), 0, '')
+      let keys = s:keys4right(char, pair, s:info, opts)
+      echom 17
+      echom keys
+    else
+      echom 18
+      return 0
+    endif
+    call feedkeys(keys, 'mti')
+  endfor
 endfunction
 
 function! s:keys4space(info, opts) "{{{1
@@ -376,6 +384,9 @@ function! s:keys4quote(char, info, opts) "{{{1
   if a:info.cur.n_char ==# a:char
     echom 53
     return "\<Del>"
+  endif
+  if a:info.is_ignored_syn
+    return ''
   endif
   let exprs = a:opts.smart_quotes_base + a:opts.smart_quotes_extra
   if a:opts.autoclose && a:opts.smart_quotes
