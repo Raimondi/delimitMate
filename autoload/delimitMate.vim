@@ -8,6 +8,7 @@ let s:defaults.delimitMate_autoclose = 1
 let s:defaults.delimitMate_expand_space = 0
 let s:defaults.delimitMate_expand_cr = 0
 let s:defaults.delimitMate_jump_expansion = 0
+let s:defaults.delimitMate_jump_over = 1
 let s:defaults.delimitMate_insert_eol_marker = 0
 let s:defaults.delimitMate_eol_marker = ';'
 let s:defaults.delimitMate_expand_inside_quotes = 0
@@ -361,6 +362,10 @@ function! s:keys4left(char, pair, info, opts) "{{{1
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
+  if !a:opts.jump_over
+    3DMDebug "A2"
+    return ''
+  endif
   if a:opts.balance_pairs && s:balance_pairs(a:pair, a:info, a:opts) > 0
     3DMDebug "A1"
     return ''

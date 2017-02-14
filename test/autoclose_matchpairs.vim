@@ -12,7 +12,7 @@
 
 call vimtest#StartTap()
 
-call vimtap#Plan(205)
+call vimtap#Plan(217)
 
 
 let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
@@ -97,7 +97,7 @@ unlet g:delimitMate_balance_pairs
 
 " Issue #220
 let g:delimitMate_jump_over = 0
-call DMTest_single('()', ')', '())', 0, 1)
+call DMTest_pairs('()', 'a)', '())')
 unlet g:delimitMate_jump_over
 
 " Issues #207 and #223
