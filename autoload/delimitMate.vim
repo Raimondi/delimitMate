@@ -77,16 +77,30 @@ function! s:balance_pairs(pair, info, opts) "{{{1
   let ahead = substitute(ahead, pat, '', 'g')
   let lefts = 0
   let rights = 0
-  for c in split(behind, '\zs')
-    if c ==# left
+  for char in split(behind, '\zs')
+    if char ==# left
       let lefts += 1
-    elseif c ==# right
+    elseif char ==# right
       let rights += rights < lefts
     endif
   endfor
-  let lefts += count(split(ahead, '\zs'), left)
-  let rights += count(split(ahead, '\zs'), right)
-  return lefts - rights
+  let balance1 = lefts - rights
+  let lefts = 0
+  let rights = 0
+  let balance2 = 0
+  for char in split(ahead, '\zs')
+    if char ==# left
+      let lefts += 1
+    elseif char ==# right
+      let rights += 1
+    endif
+    if lefts < rights
+      let balance2 -= 1
+      let lefts = 0
+      let rights = 0
+    endif
+  endfor
+  return balance1 + balance2
 endfunction
 
 function! s:info.template.is_escaped(...) "{{{1
@@ -347,6 +361,10 @@ function! s:keys4left(char, pair, info, opts) "{{{1
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
+  if a:opts.balance_pairs && s:balance_pairs(a:pair, a:info, a:opts) > 0
+    3DMDebug "A1"
+    return ''
+  endif
   if a:opts.jump_expansion
     3DMDebug "40"
     let around = matchstr(a:info.cur.prev_line, "\\S$") . matchstr(a:info.cur.next_line, "^\\s*\zs\\S")

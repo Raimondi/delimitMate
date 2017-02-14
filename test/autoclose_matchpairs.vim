@@ -92,7 +92,7 @@ call DMTest_single('{()}', 'la\<magic>x', '{()}x', 0, 1)
 let g:delimitMate_balance_pairs = 1
 call DMTest_pairs('ab cd)', "la(x", 'ab(x cd)')
 " Issue #229
-call DMTest_single('((ab cd)', "A)", '((abx cd))', 0, 1)
+call DMTest_pairs('((ab cd)', "A)", '((ab cd))')
 unlet g:delimitMate_balance_pairs
 
 " Issue #220
