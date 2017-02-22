@@ -48,10 +48,10 @@ let s:info.nesting = 0
 let s:info.typeahead = ''
 let s:info.template = {}
 
-function! s:debug(debug_level, ...) "{{{
+function! s:debug(debug_level, ...) "{{{1
   if s:option('debug') >= a:debug_level
     let trail = expand('<sfile>')
-    let trail = substitute(trail, '\.\.<SNR>\d\+_debug$', '', '')
+    let trail = substitute(trail, '\%(\.\.<SNR>\d\+_debug\)\+$', '', '')
     let trail = substitute(trail, '^function\s\+\%(delimitMate\)\?', '', '')
     let message = get(a:, 1, '')
     echom printf('%s: %s', trail, message)
@@ -145,7 +145,7 @@ function! s:get_info(...) "{{{1
   let d.n_char = strcharpart(d.ahead, 0, 1)
   let d.around = d.p_char . d.n_char
   call extend(d, s:info.template, 'keep')
-  3DMDebug string(d)
+  "3DMDebug string(d)
   return d
 endfunction
 
@@ -168,6 +168,10 @@ endfunction
 
 function! delimitMate#option(name) "{{{1
   return s:option(a:name)
+endfunction
+
+function! delimitMate#call(function, ...) "{{{1
+  return call(a:function, get(a:, 1, []))
 endfunction
 
 function! delimitMate#ex_cmd(global, action) "{{{1
@@ -309,11 +313,6 @@ function! delimitMate#InsertCharPre(str) "{{{1
     elseif char == ' '
       3DMDebug "13"
       let keys = s:keys4space(s:info, opts)
-    elseif char == "\<C-]>"
-      let prev_line = line('.') == 1 ? '' : getline(line('.') - 1)
-      let next_line = line('.') == line('$') ? '' : getline(line('.') + 1)
-      3DMDebug "14"
-      let keys = s:keys4cr(prev_line, next_line, s:info, opts)
     elseif !empty(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# char'))
       3DMDebug "16"
       let pair = get(filter(copy(opts.pairs), 'strcharpart(v:val, 0, 1) ==# char'), 0, '')

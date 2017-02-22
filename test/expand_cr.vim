@@ -101,7 +101,7 @@ call DMTest_single('abc(def)',
       \  '        x)'])
 
 " expand_cr == 2
-let delimitMate_expand_cr = 2
+let g:delimitMate_expand_cr = 2
 call DMTest_single('abc(def)',
       \ "$i\<CR>x",
       \ ['abc(def',
@@ -119,7 +119,7 @@ call DMTest_quotes('', "i' x", "' x'")
 
 call DMTest_quotes('', "i'\<CR>x", ["'", "x'"])
 
-let delimitMate_expand_inside_quotes = 1
+let g:delimitMate_expand_inside_quotes = 1
 
 call DMTest_quotes('', "i'\<CR>x", ["'", "x", "'"])
 
