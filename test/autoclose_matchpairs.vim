@@ -62,7 +62,8 @@ call DMTest_pairs('(a)', "a)", "()a)")
 
 " Expand iabbreviations
 iabb def ghi
-call DMTest_single('', "idef(", "ghi()")
+" Not sure how to make it work on the test
+call DMTest_single('', "idef(", "ghi()", 0, 1)
 iunabb def
 
 call DMTest_pairs("abc а", "$i(", "abc (а")

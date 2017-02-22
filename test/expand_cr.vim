@@ -11,7 +11,7 @@
 " - Add 5 to vimtap#Plan().
 
 call vimtest#StartTap()
-call vimtap#Plan(26)
+call vimtap#Plan(27)
 
 
 let g:delimitMate_expand_cr = 1
@@ -62,6 +62,19 @@ call DMTest_single(
       \  '    while (1) {',
       \  '        bar',
       \  '    }x',
+      \  '}'])
+
+call DMTest_single(
+      \ ['sub foo {',
+      \  '    while (1) {',
+      \  '        bar',
+      \  '    }',
+      \  '}'],
+      \ "3GA{x",
+      \ ['sub foo {',
+      \  '    while (1) {',
+      \  '        bar{x}',
+      \  '    }',
       \  '}'])
 
 call DMTest_single('"{bracketed}', "\<Esc>A\"x", '"{bracketed}"x')

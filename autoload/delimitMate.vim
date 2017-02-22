@@ -365,7 +365,7 @@ function! s:keys4left(char, pair, info, opts) "{{{1
   endif
   let eol_marker = a:opts.insert_eol_marker == 1 && empty(a:info.cur.ahead) ? a:opts.eol_marker . "\<C-G>U\<Left>" : ''
   3DMDebug "34"
-  return strcharpart(a:pair, 1, 1) . eol_marker . "\<C-G>U\<Left>"
+  return "\<C-V>" . strcharpart(a:pair, 1, 1) . eol_marker . "\<C-G>U\<Left>"
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
