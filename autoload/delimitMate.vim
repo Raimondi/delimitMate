@@ -45,6 +45,7 @@ unlet s:exprs
 let s:info = {}
 let s:info.char = ''
 let s:info.nesting = 0
+let s:info.typeahead = ''
 let s:info.template = {}
 
 function! s:debug(debug_level, ...) "{{{
@@ -200,6 +201,12 @@ function! delimitMate#TextChangedI(...) "{{{1
     3DMDebug "20"
     return 0
   endif
+  if !empty(s:info.typeahead)
+    3DMDebug "B1"
+    call feedkeys(s:info.typeahead, 'tmi')
+    let s:info.typeahead = ''
+    return
+  endif
   if !s:option('enabled')
     3DMDebug "21"
     return
@@ -322,7 +329,7 @@ function! delimitMate#InsertCharPre(str) "{{{1
       return 0
     endif
     3DMDebug keys
-    call feedkeys(keys, 'mti')
+    let s:info.typeahead .= keys
   endfor
 endfunction
 
