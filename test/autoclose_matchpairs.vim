@@ -111,7 +111,9 @@ call DMTest_single('{[(foobar)]}', 'fbi\<magic>x', '{[(foobar)]}x', 0, 1)
 new
 syntax on
 set ft=vim
+let g:delimitMate_excluded_regions = ['String']
 call DMTest_pairs('echo "  "', "f\"la(", 'echo " ( "')
+let g:delimitMate_excluded_regions = []
 
 filetype indent plugin on
 set ft=php
