@@ -97,15 +97,22 @@ call DMTest_pairs('((ab cd)', "A)", '((ab cd))')
 unlet g:delimitMate_balance_pairs
 
 " Issue #220
-let g:delimitMate_jump_over = 0
+let g:delimitMate_jump_next = 0
 call DMTest_pairs('()', 'a)', '())')
-unlet g:delimitMate_jump_over
+unlet g:delimitMate_jump_next
 
 " Issues #207 and #223
-call DMTest_single('{[(foobar)]}', 'fbi]x', '{[(foobar)]x}', 0, 1)
+let g:delimitMate_jump_long = 1
+call DMTest_single('{[(foobar)]}', 'fbi)x', '{[(foobar)x]}')
 
 " Issues #207 and #223
-call DMTest_single('{[(foobar)]}', 'fbi\<magic>x', '{[(foobar)]}x', 0, 1)
+call DMTest_single('{[(foobar)]}', 'fbi]x', '{[(foobar)]x}')
+unlet g:delimitMate_jump_long
+
+" Issues #207 and #223
+let g:delimitMate_jump_all = 1
+call DMTest_single('{[(foobar)]}', 'fbi)x', '{[(foobar)]}x', 0, 1)
+unlet g:delimitMate_jump_all
 
 " Disable on syntax groups
 new
@@ -113,7 +120,7 @@ syntax on
 set ft=vim
 let g:delimitMate_excluded_regions = ['String']
 call DMTest_pairs('echo "  "', "f\"la(", 'echo " ( "')
-let g:delimitMate_excluded_regions = []
+unlet g:delimitMate_excluded_regions
 
 filetype indent plugin on
 set ft=php

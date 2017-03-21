@@ -8,7 +8,8 @@ let s:defaults.autoclose = 1
 let s:defaults.expand_space = 0
 let s:defaults.expand_cr = 0
 let s:defaults.jump_expansion = 0
-let s:defaults.jump_over = 1
+let s:defaults.jump_next = 1
+let s:defaults.jump_long = 0
 let s:defaults.insert_eol_marker = 0
 let s:defaults.eol_marker = ';'
 let s:defaults.expand_inside_quotes = 0
@@ -184,6 +185,25 @@ function! s:any_is_true(expressions, info, options) "{{{1
   return !empty(exprs)
 endfunction
 
+function! s:rights2jump(char, pair, info, opts) "{{{1
+  let line = a:info.cur.ahead
+  3DMDebug 'ahead: ' . line
+  let pair_pat = '[' . escape(a:pair, '[]^\-') . ']'
+  let char_pat = '[' . escape(a:char, '[]^\-') . ']'
+  let idx = match(line, pair_pat)
+  let balance = 0
+  while idx >= 0 && balance >= 0 && line[idx : ] !~# char_pat
+    if line[idx : ] =~# char_pat
+      let balance -= 1
+    else
+      let balance += 1
+    endif
+    let idx = match(line, pair_pat, idx + 1)
+  endwhile
+  3DMDebug 'idx: ' . idx
+  return idx + 1
+endfunction
+
 function! s:keys4space(info, opts) "{{{1
   2DMDebug string(a:opts)
   let empty_pair = !empty(filter(copy(a:opts.pairs),
@@ -224,47 +244,69 @@ function! s:keys4left(char, pair, info, opts) "{{{1
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
-  if !a:opts.jump_over
-    2DMDebug "don't jump over delimiter"
+  "  cases  |          variables        |      jump options
+  "         | next prev bal space close | next exp long to back
+  "------------------------------------------------------------
+  "1 x(|)x  | 1    1    0   0     1     | 1    1   1    1  0
+  "2 (|))   | 1    1    -1  0     1     | 1    1   1    1  0
+  "3 ((|)   | 1    1    1   0     1     | 1    1   1    1  0
+  "4 x|)    | 1    0    -1  0     1     | 1    1   1    1  0
+  "5 (|     | 0    1    1   0     0     | 0    0   0    0  1
+  "6 |x)    | 0    0    -1  0     1     | 0    1   1    1  0
+  "7 ( | )  | 0    0    0   1     1     | 0    1   1    1  0
+  "8 (x|x)  | 0    0    0   0     1     | 0    0   1    1  0
+  "9 x|     | 0    0    0   0     0     | 0    0   0    0  0
+  "10 (x|   | 0    0    1   0     0     | 0    0   0    0  0
+  let previous = strcharpart(a:pair, 0, 1) ==# a:info.cur.prev_char
+  let next = a:char ==# a:info.cur.next_char
+  let balance = s:balance_pairs(a:pair, a:info, a:opts)
+  let has_space = a:info.cur.next_char == ' '
+  let has_closing = s:rights2jump(a:char, a:pair, a:info, a:opts)
+  let jump_opts = a:opts.jump_next + (a:opts.jump_expansion * 2)
+        \ + (a:opts.jump_long * 4)
+  2DMDebug 'previous: ' . previous
+  2DMDebug 'next: ' . next
+  2DMDebug 'balance: ' . balance
+  2DMDebug 'has_space: ' . has_space
+  2DMDebug 'has_closing: ' . has_closing
+  2DMDebug 'jump_opts: ' . jump_opts
+  if next
+    2DMDebug "next"
+    if previous && !has_space && has_closing && jump_opts
+      2DMDebug "cases 1, 2, 3"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+    elseif !previous && balance < 0 && !has_space && has_closing && jump_opts
+      2DMDebug "case 4"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+    endif
+    2DMDebug "Nothing to do"
     return ''
   endif
-  if a:opts.balance_pairs && s:balance_pairs(a:pair, a:info, a:opts) > 0
-    2DMDebug "balance pairs"
-    return ''
-  endif
-  if a:opts.jump_expansion
-    2DMDebug "maybe jump over expansion"
-    let around = matchstr(a:info.cur.prev_line, "\\S$")
-          \. matchstr(a:info.cur.next_line, "^\\s*\zs\\S")
-    if a:char ==# matchstr(a:info.cur.next_line, "^\\s*\\zs\\S")
-          \&& empty(a:info.cur.ahead)
-      let rights = strchars(matchstr(a:info.cur.next_line, '^\s*')) + 2
-      2DMDebug "jump over CR expansion"
-      return "\<Esc>s" . repeat("\<Right>", rights)
-    endif
-    if a:opts.expand_space
-          \&& a:info.cur.ahead =~# '^ ['.escape(a:char, '\^[]').']'
-      2DMDebug "jump over space expansion"
-      return "\<Del>\<Del>\<C-G>U\<Left> \<C-G>U\<Right>"
-    endif
-  endif
-  if !a:opts.autoclose
-    2DMDebug "no autoclose"
-    if s:info.cur.around == a:pair
-      2DMDebug "jump over right delimiter"
-      return "\<Del>"
-    elseif s:info.cur.prev_char == strcharpart(a:pair, 0, 1)
-      2DMDebug "jump back"
+  " !next
+  if previous
+    2DMDebug "!next && previous"
+    if balance > 0 && a:opts.jump_back
+      2DMDebug "case 5"
       return "\<C-G>U\<Left>"
     endif
-    2DMDebug "do nothing"
-    return ""
+    2DMDebug "Nothing to do"
+    return ''
   endif
-  if strcharpart(a:info.cur.line[a:info.cur.col - 1 :], 0, 1) ==# a:char
-    2DMDebug "jump over delimiter"
-    return "\<Del>"
+  " !next && !previous
+  if balance < 0 && !has_space && has_closing && jump_opts >= 2
+    2DMDebug "case 6"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+  elseif balance == 0
+    2DMDebug "!next && !previous && balance == 0"
+    if has_space && has_closing && jump_opts >= 2
+      2DMDebug "case 7"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+    elseif !has_space && has_closing && jump_opts >= 4
+      2DMDebug "case 8"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+    endif
   endif
-  2DMDebug "do nothing"
+  2DMDebug "Nothing to do"
   return ''
 endfunction
 
