@@ -110,10 +110,12 @@ endfunction
 function! s:balance_pairs(pair, info, opts) "{{{1
   let left = strcharpart(a:pair, 0, 1)
   let right = strcharpart(a:pair, 1, 1)
-  let behind = matchstr(a:info.cur.behind, '['.escape(left, '\^[]').'].*')
-  let ahead = matchstr(a:info.cur.ahead, '^.*['.escape(right, '\^[]').']')
   let pat = '[^' . escape(a:pair, '\^[]') . ']'
+  let behind = substitute(a:info.cur.behind, '\\.', '', 'g')
+  let behind = matchstr(behind, '['.escape(left, '\^[]').'].*')
   let behind = substitute(behind, pat, '', 'g')
+  let ahead = substitute(a:info.cur.ahead, '\\.', '', 'g')
+  let ahead = matchstr(ahead, '^.*['.escape(right, '\^[]').']')
   let ahead = substitute(ahead, pat, '', 'g')
   let lefts = 0
   let rights = 0
@@ -185,14 +187,32 @@ function! s:any_is_true(expressions, info, options) "{{{1
   return !empty(exprs)
 endfunction
 
-function! s:rights2jump(char, pair, info, opts) "{{{1
+function! s:rights2jump_pair(char, pair, info, opts, go_next) "{{{1
+  " TODO consider escaped characters
+  let go_next = a:go_next
+        \ && empty(a:info.cur.ahead)
+        \ && a:info.cur.next_line =~# '^\s*['.escape(a:char, '[]^-\').']'
   let line = a:info.cur.ahead
   3DMDebug 'ahead: ' . line
   let pair_pat = '[' . escape(a:pair, '[]^\-') . ']'
   let char_pat = '[' . escape(a:char, '[]^\-') . ']'
   let idx = match(line, pair_pat)
   let balance = 0
-  while idx >= 0 && balance >= 0 && line[idx : ] !~# char_pat
+  while go_next || idx >= 0 && balance >= 0 && line[idx : ] !~# char_pat
+    if idx == -1
+      let idx = strchars(matchstr(a:info.cur.next_line, '^\s*\S'))
+      break
+    endif
+    if line[idx : ] =~# char_pat
+      let balance -= 1
+    else
+      let balance += 1
+    endif
+    let idx = match(line, pair_pat, idx + 1)
+  endwhile
+  3DMDebug 'idx: ' . idx
+  return idx + 1
+endfunction
     if line[idx : ] =~# char_pat
       let balance -= 1
     else
@@ -223,6 +243,14 @@ function! s:keys4space(info, opts) "{{{1
 endfunction
 
 function! s:keys4left(char, pair, info, opts) "{{{1
+  "| cases  | criteria |  action options             |   action
+  "|        | balance  | auto balance back smart     | close back
+  "|--------|----------|-----------------------------|------------
+  "| any    | any      | 0    0       1    1         | 0     0
+  "| any    | any      | 0    0       1    0         | 0     0
+  "| (|))   | -1       | 1    1       1    0         | 0     0
+  "| (|)    | 0        | 1    1       1    0         | 1     1
+  "| ((|)   | 1        | 1    1       1    0         | 1     0
   if !a:opts.autoclose
     2DMDebug "No autoclose"
     return ''
@@ -240,44 +268,53 @@ function! s:keys4left(char, pair, info, opts) "{{{1
         \&& empty(a:info.cur.ahead) ? a:opts.eol_marker
         \  . "\<C-G>U\<Left>" : ''
   2DMDebug "add right delimiter"
-  return "\<C-V>" . strcharpart(a:pair, 1, 1) . eol_marker . "\<C-G>U\<Left>"
+  let jump_back = a:opts.jump_back ? "\<C-G>U\<Left>" : ''
+  return "\<C-V>" . strcharpart(a:pair, 1, 1) . eol_marker . jump_back
 endfunction
 
 function! s:keys4right(char, pair, info, opts) "{{{1
-  "  cases  |          variables        |      jump options
-  "         | next prev bal space close | next exp long to back
-  "------------------------------------------------------------
-  "1 x(|)x  | 1    1    0   0     1     | 1    1   1    1  0
-  "2 (|))   | 1    1    -1  0     1     | 1    1   1    1  0
-  "3 ((|)   | 1    1    1   0     1     | 1    1   1    1  0
-  "4 x|)    | 1    0    -1  0     1     | 1    1   1    1  0
-  "5 (|     | 0    1    1   0     0     | 0    0   0    0  1
-  "6 |x)    | 0    0    -1  0     1     | 0    1   1    1  0
-  "7 ( | )  | 0    0    0   1     1     | 0    1   1    1  0
-  "8 (x|x)  | 0    0    0   0     1     | 0    0   1    1  0
-  "9 x|     | 0    0    0   0     0     | 0    0   0    0  0
-  "10 (x|   | 0    0    1   0     0     | 0    0   0    0  0
+  "| cases  |       criteria      | action options |   action
+  "|        | next prev close bal | next long bal  | jump back
+  "|--------|---------------------|----------------|-----------
+  "| (|))   | 1    1    1     -1  | 1    1    0    | 1    0
+  "| (|)    | 1    1    1      0  | 1    1    0    | 1    0
+  "| ((|)   | 1    1    1      1  | 1    1    0    | 1    0
+  "| x|)    | 1    0    1     -1  | 1    1    0    | 1    0
+  "| (x|)   | 1    0    1      0  | 1    1    0    | 1    0
+  "| ((x|)  | 1    0    1      1  | 1    1    1    | 1    0
+  "| (|     | 0    1    0      1  | 0    0    1    | 0    1
+  "| |x)    | 0    0    1     -1  | 0    1    0    | 1    0
+  "| (x|x)) | 0    0    1     -1  | 0    1    0    | 1    0
+  "| (x|x)  | 0    0    1      0  | 0    1    0    | 1    0
+  "| ((x|x) | 0    0    1      1  | 0    0    1    | 0    1
+  "| x|     | 0    0    0      0  | 0    0    0    | 0    0
+  "|  (x|   | 0    0    0      1  | 0    0    0    | 0    0
   let previous = strcharpart(a:pair, 0, 1) ==# a:info.cur.prev_char
-  let next = a:char ==# a:info.cur.next_char
+  let is_cr_exp = a:opts.expand_cr
+        \ && empty(a:info.cur.ahead)
+        \ && matchstr(a:info.cur.next_line, '^\s*\zs\S') ==# a:char
+  let is_space_exp = a:opts.expand_space
+        \ && matchstr(a:info.cur.ahead, '^\s\zs\S') ==# a:char
+  let next = a:char ==# a:info.cur.next_char || is_cr_exp || is_space_exp
   let balance = s:balance_pairs(a:pair, a:info, a:opts)
-  let has_space = a:info.cur.next_char == ' '
-  let has_closing = s:rights2jump(a:char, a:pair, a:info, a:opts)
-  let jump_opts = a:opts.jump_next + (a:opts.jump_expansion * 2)
-        \ + (a:opts.jump_long * 4)
-  2DMDebug 'previous: ' . previous
+        \ - is_cr_exp
+  let next_line = a:opts.jump_expansion && a:opts.expand_cr
+  let closing = s:rights2jump_pair(a:char, a:pair, a:info, a:opts, next_line)
+  let jump_opts = a:opts.jump_next + (a:opts.jump_long * 2)
+  2DMDebug 'is_cr_exp: ' . is_cr_exp
+  2DMDebug 'is_space_exp: ' . is_space_exp
   2DMDebug 'next: ' . next
+  2DMDebug 'previous: ' . previous
+  2DMDebug 'closing: ' . closing
   2DMDebug 'balance: ' . balance
-  2DMDebug 'has_space: ' . has_space
-  2DMDebug 'has_closing: ' . has_closing
+  2DMDebug 'next_line: ' . next_line
   2DMDebug 'jump_opts: ' . jump_opts
   if next
     2DMDebug "next"
-    if previous && !has_space && has_closing && jump_opts
-      2DMDebug "cases 1, 2, 3"
-      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
-    elseif !previous && balance < 0 && !has_space && has_closing && jump_opts
-      2DMDebug "case 4"
-      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+    if closing && jump_opts && (!a:opts.balance_pairs || balance <= 0)
+      2DMDebug "cases: '(|)', '(|))' or '((|)'"
+      2DMDebug "cases: 'x|)', '(x|)' or '((x|)'"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", closing)
     endif
     2DMDebug "Nothing to do"
     return ''
@@ -285,26 +322,25 @@ function! s:keys4right(char, pair, info, opts) "{{{1
   " !next
   if previous
     2DMDebug "!next && previous"
-    if balance > 0 && a:opts.jump_back
-      2DMDebug "case 5"
+    if (!a:opts.balance_pairs || balance > 0) && a:opts.jump_back
+      2DMDebug "case: '(|'"
       return "\<C-G>U\<Left>"
     endif
     2DMDebug "Nothing to do"
     return ''
   endif
   " !next && !previous
-  if balance < 0 && !has_space && has_closing && jump_opts >= 2
-    2DMDebug "case 6"
-      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
-  elseif balance == 0
-    2DMDebug "!next && !previous && balance == 0"
-    if has_space && has_closing && jump_opts >= 2
-      2DMDebug "case 7"
-      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
-    elseif !has_space && has_closing && jump_opts >= 4
-      2DMDebug "case 8"
-      return "\<BS>" . repeat("\<C-G>U\<Right>", has_closing)
+  if closing
+    2DMDebug "!next && !previous && closing"
+    if (!a:opts.balance_pairs || balance <= 0) && jump_opts >= 2
+      2DMDebug "case: '(x|x))' or '(x|x)'"
+      return "\<BS>" . repeat("\<C-G>U\<Right>", closing)
+    elseif (!a:opts.balance_pairs || balance > 0) && a:opts.jump_back
+      2DMDebug "case: '((x|x)'"
+      return "\<C-G>U\<Left>"
     endif
+    2DMDebug "Nothing to do"
+    return ''
   endif
   2DMDebug "Nothing to do"
   return ''

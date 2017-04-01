@@ -12,7 +12,7 @@
 
 call vimtest#StartTap()
 
-call vimtap#Plan(217)
+call vimtap#Plan(239)
 
 
 let g:delimitMate_matchpairs = '(:),{:},[:],<:>,¿:?,¡:!,,::'
@@ -90,10 +90,15 @@ call DMTest_single('()', 'a\<magic>x', '()x', 0, 1)
 
 call DMTest_single('{()}', 'la\<magic>x', '{()}x', 0, 1)
 
+let g:delimitMate_balance_pairs = 0
+call DMTest_pairs('ab cd)', "la(x", 'ab(x) cd)')
+" Issue #229
+call DMTest_pairs('((ab cd)', "$i)x", '((ab cd)x')
+
 let g:delimitMate_balance_pairs = 1
 call DMTest_pairs('ab cd)', "la(x", 'ab(x cd)')
 " Issue #229
-call DMTest_pairs('((ab cd)', "A)", '((ab cd))')
+call DMTest_pairs('((ab cd)', "$i)x", '((ab cd)x)')
 unlet g:delimitMate_balance_pairs
 
 " Issue #220
@@ -111,8 +116,12 @@ unlet g:delimitMate_jump_long
 
 " Issues #207 and #223
 let g:delimitMate_jump_all = 1
-call DMTest_single('{[(foobar)]}', 'fbi)x', '{[(foobar)]}x', 0, 1)
+call DMTest_single('{[(foobar)]}', 'fbi<magic>x', '{[(foobar)]}x', 0, 1)
 unlet g:delimitMate_jump_all
+
+let g:delimitMate_jump_back = 1
+call DMTest_pairs('', 'i()x', '()x')
+unlet g:delimitMate_jump_back
 
 " Disable on syntax groups
 new
