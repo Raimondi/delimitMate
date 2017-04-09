@@ -1,0 +1,107 @@
+# singleTest name desc setup input result vimCmds? skipScript?
+#
+# - desc can be empty and input would be used.
+# - vimCmds is a list of ex commands.
+# - skipScript will be evaluated in the scope of the function "single" and it
+#   should return a keywowd such as toDo, badTest or other as listed in the
+#   docs for tcltest. e.g.:
+#     {expr "[string first {i'} \"${input}\"] > -1 ? {emptyTest} : {}"}
+# see tcltest documentation for other values.
+
+# Get some help:
+source helper.tcl
+
+quotes autoclose-1 {} {} "i'x" "'x'"
+
+quotes autoclose-2 {} {} "i'x\033u" {}
+
+quotes autoclose-3 {} {} {i''x} {''x}
+
+quotes autoclose-4 {} {''} "a\bx" {x}
+
+set skipScript {expr "[string first {i\"} \"${input}\"] > -1 ? {badTest} : {}"}
+quotes autoclose-5 {} "" "i'x\"" "'x\"'" {} ${skipScript}
+
+quotes autoclose-6 {} {} "i@'x" "@'x'"
+
+quotes autoclose-7 {} {@#} "a'x" "@'x'#"
+
+#quotes autoclose-8 {} {} "'\<S-Tab>x" "''x"
+
+single autoclose-8 {} {abc'} "A'" "abc'" {} {string cat toDo}
+
+quotes autoclose-9 {} "abc\\" "A'x" {abc\'x}
+
+quotes autoclose-10 {} {} "au'Привет'" "u'Привет'"
+
+quotes autoclose-11 {} {} "au'string'" "u'string'"
+
+set vimCmds [list {let g:delimitMate_autoclose = 0}]
+quotes noautoclose-1 {} {} "a'x" "'x" ${vimCmds}
+
+quotes noautoclose-2 {} {} "a''x" "'x'" ${vimCmds}
+
+quotes noautoclose-3 {} {} "a'''x" "''x" ${vimCmds}
+
+quotes noautoclose-4 {} {} "a''\bx" "x" ${vimCmds}
+
+quotes noautoclose-5 {} {} "a@''x" "@'x'" ${vimCmds}
+
+quotes noautoclose-6 {} "@#" "a''x" "@'x'#" ${vimCmds}
+
+set vimCmds [list {let g:delimitMate_autoclose = 1}]
+# Handle backspace gracefully.
+lappend vimCmds {set backspace=}
+quotes badBS-1 {} {} "a'\033a\bx" "'x'" ${vimCmds}
+
+set vimCmds [list {set cpo=ces$}]
+quotes cpo {} {} "a'x" "'x'" ${vimCmds}
+
+# Make sure smart quote works beyond first column.
+quotes beyond_first_column {} { } "a'x" " 'x'"
+
+# smart quote, check fo char on the right.
+quotes smart_quote-1 {} "a b" "la'" "a 'b"
+
+# Make sure we jump over a quote on the right. #89.
+quotes autoclose-12 {} {} "a('test'x" "('test'x)"
+
+# Duplicate whole line when inserting quote at bol #105
+quotes autoclose-13 {} "}" "i'" "''}"
+
+quotes autoclose-14 {} "'abc  " "A'" "'abc  '"
+
+quotes autoclose-15 {} "''abc " "A'" "''abc ''"
+
+# Nesting quotes:
+set vimCmds [list {let g:delimitMate_nesting_quotes = delimitMate#option('quotes')}]
+quotes nesting-1 {} "''" "A'x" "'''x'''" ${vimCmds}
+
+quotes nesting-2 {} "'''" "A'x" "''''x''''" ${vimCmds}
+
+quotes nesting-3 {} {} "i''x" "''x" ${vimCmds}
+
+quotes nesting-4 {} {} "i'x" "'x'" ${vimCmds}
+
+set vimCmds [list]
+
+# expand iabbreviations
+set vimCmds [list {iabb def ghi}]
+single iabbr {} {} {idef"} {ghi"} ${vimCmds}
+
+set vimCmds [list]
+
+quotes autoclose-16 {} {} "i'\n\b" "''"
+
+# Double quote starts a comment in viml
+set vimCmds [list {set ft=vim}]
+single vim_comment {} {} {i"} {"} ${vimCmds}
+
+#" Allow quote to exit from string when disabled by syntax group.
+set vimCmds [list {syntax on}]
+quotes disabled_syntax {} "'abc'" "\$i'x" "'abc'x" ${vimCmds}
+
+# --------
+# This gives nice statistics and cleans up the mess left behind.
+cleanupTests
+# vim: set filetype=tcl et sw=2 sts=0 ts=8:

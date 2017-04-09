@@ -1,0 +1,48 @@
+# singleTest name desc setup input result vimCmds? skipScript?
+#
+# - desc can be empty and input would be used.
+# - vimCmds is a list of ex commands.
+# - skipScript will be evaluated in the scope of the function "single" and it
+#   should return a keywowd such as toDo, badTest or other as listed in the
+#   docs for tcltest. e.g.:
+#     {expr "[string first {i'} \"${input}\"] > -1 ? {emptyTest} : {}"}
+# see tcltest documentation for other values.
+
+# Get some help:
+source helper.tcl
+
+set vimCmds [list {let g:delimitMate_expand_space = 1}]
+lappend vimCmds {let g:delimitMate_autoclose = 1}
+
+pairs pairs-1 {} "" "i( x" "( x )" ${vimCmds}
+
+pairs pairs-2 {} "(  )" "la\bx" "(x)" ${vimCmds}
+
+pairs pairs-3 {} "" "iabc x" "abc x" ${vimCmds}
+
+quotes quotes-1 {} "" "i' x" "' x'" ${vimCmds}
+
+lappend vimCmds {let g:delimitMate_expand_inside_quotes = 1}
+quotes quotes-2 {} "" "i' x" "' x '" ${vimCmds}
+
+quotes quotes-3 {} "" "i' \bx" "'x'" ${vimCmds}
+
+set skipScript {string cat quoteBug}
+lappend vimCmds {let g:delimitMate_autoclose = 0}
+quotes quotes-4 {} "abc\\" "A'' x" "abc\\'' x '" ${vimCmds} ${skipScript}
+
+# Issue #95
+lappend vimCmds {let b:delimitMate_jump_expansion = 1}
+set skipScript {string cat toDo}
+pairs issue_95 {} "" "i( test)x" "( test )x" ${vimCmds} ${skipScript}
+
+pairs pairs-4 {} "" "i() \bx" "(x)" ${vimCmds}
+
+quotes quotes-5 {} "" "i'' \bx" "'x'" ${vimCmds}
+
+
+
+################################################################
+# This gives nice statistics and cleans up the mess left behind.
+cleanupTests
+# vim: set filetype=tcl et sw=2 sts=0 ts=8:

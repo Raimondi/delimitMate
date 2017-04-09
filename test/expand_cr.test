@@ -1,0 +1,92 @@
+# singleTest name desc setup input result vimCmds? skipScript?
+#
+# - desc can be empty and input would be used.
+# - vimCmds is a list of ex commands.
+# - skipScript will be evaluated in the scope of the function "single" and it
+#   should return a keywowd such as toDo, badTest or other as listed in the
+#   docs for tcltest. e.g.:
+#     {expr "[string first {i'} \"${input}\"] > -1 ? {emptyTest} : {}"}
+# see tcltest documentation for other values.
+
+# Get some help:
+source helper.tcl
+
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+#"let g:delimitMate_eol_marker = ';'
+lappend vimCmds {filetype indent on}
+lappend vimCmds {set bs=2 et sts=4 sw=4 ft=javascript}
+single javascript-1 {} "\$(document).ready(function() {})" "f{a\rx" \
+    "\$(document).ready(function() {\n    x\n})" ${vimCmds}
+
+# Issue #95
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+lappend vimCmds {let b:delimitMate_jump_expansion = 1}
+set skipScript {string cat toDo}
+single issue_95 {} "" "i(\rtest)x" "(\ntest\n)x" ${vimCmds} ${skipScript}
+
+# Remove CR expansion on BS
+set skipScript {string cat toDo}
+single bs {} "" "i(\r\bx" "(x)" ${vimCmds} ${skipScript}
+
+# Consider indentation with BS inside an empty CR expansion.
+single bs_indentation {} "" "i( \r\b\bx"  "(x)" ${vimCmds}
+
+# Conflict with indentation settings (cindent). Issue #95
+lappend vimCmds {se cindent}
+single issue_95 {} "sub foo {\n    while (1) {\n\n    }\n}" "3Gi\bx" \
+      "sub foo {\n    while (1) {x}\n}" ${vimCmds}
+
+single nested_expansion-1 {} "sub foo {\n    while (1) {\n        bar\n    }\n}" \
+      "3GA}x" "sub foo {\n    while (1) {\n        bar\n    }x\n}" ${vimCmds}
+
+single nested_expansion-2 {} "sub foo {\n    while (1) {\n        bar\n    }\n}" \
+      "3GA{x" "sub foo {\n    while (1) {\n        bar{x}\n    }\n}" ${vimCmds}
+
+single bracketed {} "\"{bracketed}" "\033A\"x" "\"{bracketed}\"x" ${vimCmds}
+
+# Syntax folding enabled by autocmd breaks expansion.
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+lappend vimCmds {se cindent}
+lappend vimCmds {set bs=2 et sts=4 sw=4}
+lappend vimCmds {autocmd InsertEnter <buffer> let w:fdm=&foldmethod \
+    | setl foldmethod=manual}
+lappend vimCmds {autocmd InsertLeave <buffer> let &foldmethod = w:fdm}
+lappend vimCmds {set foldmethod=marker}
+lappend vimCmds {set foldmarker={,}}
+lappend vimCmds {set foldlevel=0}
+lappend vimCmds {set backspace=2}
+single folding {} "" "iabc {\rx" "abc {\n    x\n}" ${vimCmds}
+
+# expand_cr != 2}
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+lappend vimCmds {se cindent}
+lappend vimCmds {set bs=2 et sts=4 sw=4 ft=javascript}
+lappend vimCmds {let b:delimitMate_jump_expansion = 1}
+single axpand_cr_no_2 {} "abc(def)" "\$i\rx" "abc(def\n        x)" ${vimCmds}
+
+# expand_cr == 2
+set vimCmds [list {let g:delimitMate_expand_cr = 2}]
+lappend vimCmds {se cindent}
+lappend vimCmds {set bs=2 et sts=4 sw=4 ft=javascript}
+lappend vimCmds {let b:delimitMate_jump_expansion = 1}
+single expand_cr_2 {} "abc(def)" "\$i\rx" "abc(def\n        x\n   )" ${vimCmds}
+
+# Play nice with smartindent
+set vimCmds [list {let g:delimitMate_expand_cr = 2}]
+lappend vimCmds {let b:delimitMate_jump_expansion = 1}
+lappend vimCmds {set smartindent}
+single smartindent-1 {} "" "i{\rx" "{\n	x\n}" ${vimCmds}
+
+single quotes-1 {} "" "i\" x" {" x"} ${vimCmds}
+
+single quotes-2 {} "" "i\"\rx" "\"\nx\"" ${vimCmds}
+
+lappend vimCmds {let g:delimitMate_expand_inside_quotes = 1}
+single quotes-3 {} "" "i\"\nx" "\"\nx\n\"" ${vimCmds}
+
+
+
+################################################################
+# This gives nice statistics and cleans up the mess left behind.
+cleanupTests
+# vim: set filetype=tcl et sw=2 sts=0 ts=8:

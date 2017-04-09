@@ -1,0 +1,153 @@
+# singleTest name desc setup input result vimCmds? skipScript?
+#
+# - desc can be empty and input would be used.
+# - vimCmds is a list of ex commands.
+# - skipScript will be evaluated in the scope of the function "single" and it
+#   should return a keywowd such as toDo, badTest or other as listed in the
+#   docs for tcltest. e.g.:
+#     {expr "[string first {i'} \"${input}\"] > -1 ? {emptyTest} : {}"}
+# see tcltest documentation for other values.
+
+# Get some help:
+source helper.tcl
+
+set vimCmds [list ]
+pairs autoclose-1 {} {} "i(" "()"
+
+pairs autoclose-2 {} {()} "a\b" ""
+
+pairs autoclose-3 {} "()" "a)x" "()x"
+
+set skipScript {string cat {toDo}}
+single jump_all {} "" "((<magic>x" "(())x" {} ${skipScript}
+
+pairs undo {} "" "i(x\033u" ""
+
+pairs autoclose-4 {} "" "i@(x" "@(x)"
+
+pairs autoclose-5 {} "@#" "a(x" "@(x)#"
+
+pairs autoclose-6 {} "\\" "a(x" "\\(x"
+
+pairs autoclose-7 {} "(\\)" "la)x" "(\\)x)"
+
+pairs autoclose-8 {} {"abc"} "ifoo(" "foo(\"abc\""
+
+set vimCmds [list {let g:delimitMate_autoclose = 0}]
+pairs noautoclose-1 {} "" "i(x" "(x" ${vimCmds}
+
+pairs noautoclose-2 {} "" "i()x" "(x)" ${vimCmds}
+
+pairs noautoclose-3 {} "" "i())x" "()x" ${vimCmds}
+
+pairs noautoclose-4 {} "" "i()\bx" "x" ${vimCmds}
+
+pairs noautoclose-5 {} "" "i@()x" "@(x)" ${vimCmds}
+
+pairs noautoclose-6 {} "@#" "a()x" "@(x)#" ${vimCmds}
+
+#" Handle backspace gracefully.
+set vimCmds [list {set backspace=}]
+pairs bad_bs {} "" "i(\033a\bx" "(x)" ${vimCmds}
+
+set vimCmds [list ]
+
+# closing parens removes characters. #133
+pairs autoclose-9 {} "(a)" "a)" "()a)" ${vimCmds}
+
+# Expand iabbreviations
+set vimCmds [list {iabb def ghi}]
+# Not sure how to make it work on the test
+pairs iabbr {} "" "idef(" "ghi()" ${vimCmds}
+
+set vimCmds [list ]
+
+pairs autoclose-10 {} {abc а} {$i(} {abc (а} ${vimCmds}
+
+pairs autoclose-11 {} "abc ñ" "\$i(" "abc (ñ" ${vimCmds}
+
+pairs autoclose-12 {} "abc \$" "\$i(" "abc (\$" ${vimCmds}
+
+pairs autoclose-13 {} "abc £" "\$i(" "abc (£" ${vimCmds}
+
+pairs autoclose-14 {} "abc d" "\$i(" "abc (d" ${vimCmds}
+
+pairs autoclose-15 {} "abc ." "\$i(" "abc ()." ${vimCmds}
+
+pairs autoclose-16 {} "abc  " "\$i(" "abc () " ${vimCmds}
+
+pairs autoclose-17 {} "abc (" "\$i(" "abc ((" ${vimCmds}
+
+# Play nice with undo.
+pairs undo {} "" "ia\007u(c)b\033u" "a" ${vimCmds}
+
+# TODO: way to jump over one or several closing chars
+set skipScript {string cat {toDo}}
+single jump_to {} "()" "a\<magic>x" "()x" ${vimCmds} ${skipScript}
+
+single jump_to {} "{()}" "la\\<magic>x" "{()}x" ${vimCmds} ${skipScript}
+
+set vimCmds [list {let g:delimitMate_balance_pairs = 0}]
+pairs no_balance_pairs-1 {} "ab cd)" "la(x" "ab(x) cd)" ${vimCmds}
+
+# Issue #229
+pairs issue_229-1 {} "((ab cd)" "\$i)x" "((ab cd)x" ${vimCmds}
+
+set vimCmds [list ]
+
+set vimCmds [list {let g:delimitMate_balance_pairs = 1}]
+pairs issue_229-2 {} "ab cd)" "la(x" "ab(x cd)" ${vimCmds}
+
+# Issue #229
+pairs issue_229-3 {} "((ab cd)" "\$i)x" "((ab cd)x)" ${vimCmds}
+
+# Issue #220
+set vimCmds [list {let g:delimitMate_jump_next = 0}]
+pairs issue_220-1 {} "()" "a)" "())" ${vimCmds}
+
+# Issues #207 and #223
+set vimCmds [list {let g:delimitMate_jump_long = 1}]
+pairs jump_long-1 {} "{\[(foobar)\]}" "fbi)x" "{\[(foobar)x\]}" ${vimCmds}
+
+# Issues #207 and #223
+set skipScript {expr "[string first {[[foobar]]} \"${setup}\"] > -1 \
+    ? {badTest} : {}"}
+single jump_long-2 {} "{\[(foobar)\]}" "fbi\]x" "{\[(foobar)\]x}" ${vimCmds} ${skipScript}
+
+# Issues #207 and #223
+set skipScript {string cat {toDo}}
+set vimCmds [list {let g:delimitMate_jump_all = 1}]
+single issues_207_223 {} "{\[(foobar)\]}" "fbi<magic>x" "{\[(foobar)\]}x" \
+    ${vimCmds} ${skipScript}
+
+set vimCmds [list {let g:delimitMate_jump_back = 1}]
+pairs jump_back {} "" "i()x" "()x" ${vimCmds}
+
+# Disable on syntax groups
+set vimCmds [list {syntax on}]
+lappend vimCmds {set ft=vim}
+lappend vimCmds {let g:delimitMate_excluded_regions = ['String']}
+pairs ignore_syntax {} {echo "  "} "f\"la(" {echo " ( "} ${vimCmds}
+
+#" Issue #160
+set vimCmds [list {filetype indent plugin on}]
+lappend vimCmds {set ft=php}
+set skipScript {string cat {toDo}}
+single issue_160 {} "<?php incl" "A\x18\x0F\x19" "<?php include()" \
+    ${vimCmds} ${skipScript}
+
+set vimCmds [list ]
+
+# Play nice with redo
+pairs redo {} "abc " "Afoo(x\033." "abc foo(x)foo(x)" ${vimCmds}
+
+pairs smart {} {""} "0a(x" {"(x"}
+
+pairs smart {} {""} "0a()x" {"(x)"}
+
+
+
+################################################################
+# This gives nice statistics and cleans up the mess left behind.
+cleanupTests
+# vim: set filetype=tcl et sw=2 sts=0 ts=8:

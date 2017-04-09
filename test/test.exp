@@ -1,0 +1,20 @@
+#!/usr/bin/env expect -f
+
+set testName [lindex $argv 0]
+set filein "${testName}.in"
+set fileout "${testName}.out"
+set input [lindex $argv 1]
+
+set timeout 2
+spawn env TERM=dumb vim -N -i NONE -u _setup.vim -S "${testName}.vim" -- ${filein}
+match_max 100000
+expect -exact "Start test"
+foreach char [split ${input} {}] {
+	send -- "${char}"
+	sleep .01
+}
+send -- " "
+sleep .01
+send -- ":w! ${fileout}\r"
+send -- ":qa!\r"
+expect eof

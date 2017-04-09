@@ -1,0 +1,49 @@
+# singleTest name desc setup input result vimCmds? skipScript?
+#
+# - desc can be empty and input would be used.
+# - vimCmds is a list of ex commands.
+# - skipScript will be evaluated in the scope of the function "single" and it
+#   should return a keywowd such as toDo, badTest or other as listed in the
+#   docs for tcltest. e.g.:
+#     {expr "[string first {i'} \"${input}\"] > -1 ? {emptyTest} : {}"}
+# see tcltest documentation for other values.
+
+# Get some help:
+source helper.tcl
+
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+lappend vimCmds {let g:delimitMate_eol_marker = ';'}
+lappend vimCmds {let g:delimitMate_insert_eol_marker = 0}
+
+single ins_eol_marker_0-1 {} "" "i(" "()" ${vimCmds}
+
+single ins_eol_marker_0-2 {} "" "i(\rx" "(\nx\n)" ${vimCmds}
+
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+lappend vimCmds {let g:delimitMate_eol_marker = ';'}
+lappend vimCmds {let g:delimitMate_insert_eol_marker = 1}
+single ins_eol_marker_1-1 {} "" "i(" "();" ${vimCmds}
+
+single ins_eol_marker_1-2 {} " a" "0i(" "() a" ${vimCmds}
+
+single ins_eol_marker_1-3 {} "" "i(\rx" "(\nx\n);" ${vimCmds}
+
+set vimCmds [list {let g:delimitMate_expand_cr = 1}]
+lappend vimCmds {let g:delimitMate_eol_marker = ';'}
+lappend vimCmds {let g:delimitMate_insert_eol_marker = 2}
+single ins_eol_marker_2-1 {} "" "i(" "()" ${vimCmds}
+
+single ins_eol_marker_2-2 {} "" "i(\rx" "(\nx\n);" ${vimCmds}
+
+# Issue #195
+single issue_195-1 {} "" "i{(\rx" "{(\nx\n)}" ${vimCmds}
+
+# Issue #195
+single issue_195-2 {} ";" "I{(\rx" "{(\nx\n)};" ${vimCmds}
+
+
+
+################################################################
+# This gives nice statistics and cleans up the mess left behind.
+cleanupTests
+# vim: set filetype=tcl et sw=2 sts=0 ts=8:

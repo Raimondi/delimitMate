@@ -1,16 +1,14 @@
-all: build/runVimTests
-	time build/runVimTests/bin/runVimTests.sh -0 .
+test_files := $(wildcard *.test)
 
-build/runVimTests: build/VimTAP
-	git clone https://github.com/inkarkat/runVimTests $@
+.PHONY: all monitor $(test_files)
 
-# Use VimTAP as directory name, as used with runVimTestsSetup.vim.
-build/VimTAP:
-	git clone https://github.com/inkarkat/vimtap $@
-
-test_files := $(filter-out _setup.vim,$(wildcard *.vim))
-
-.PHONY: $(test_files)
+all:
+	time tclsh all.tcl
 
 $(test_files):
-	time build/runVimTests/bin/runVimTests.sh -0 $@
+	time tclsh $@
+	printf "\a"
+
+monitor:
+	fswatch -o ../autoload/*.vim ../plugin/*.vim *.test \
+		| xargs -n1 -I\{\} time tclsh all.tcl || printf "\a"
