@@ -385,7 +385,7 @@ augroup delimitMate
   au FileType * call <SID>setup()
 
   " Run on new buffers.
-  au BufNewFile,BufRead,BufEnter *
+  au BufNewFile,BufRead,BufEnter,CmdwinEnter *
         \ if !exists('b:delimitMate_was_here') |
         \   call <SID>setup() |
         \   let b:delimitMate_was_here = 1 |
