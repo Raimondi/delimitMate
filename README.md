@@ -23,8 +23,52 @@ Plug 'Raimondi/delimitMate'
 
 ### Expansion of space and CR
 
+| You start with | You get |
+| -------------- | ------- |
+| `(|)`          | `( | )` |
+
+after press `<Cr>` in `(|)`, you will get:
+
+```
+(
+    |
+)
+```
+
 ### Backspace
+
+```
+  What  |      Before       |      After
+==============================================
+  <BS>  |  call expand(|)   |  call expand|
+--------|-------------------|-----------------
+  <BS>  |  call expand( | ) |  call expand(|)
+--------|-------------------|-----------------
+  <BS>  |  call expand(     |  call expand(|)
+        |  |                |
+        |  )                |
+--------|-------------------|-----------------
+ <S-BS> |  call expand(|)   |  call expand(|
+```
 
 ### Smart Quotes
 
+```
+ What |    Before    |     After
+=======================================
+  "   |  Text |      |  Text "|"
+  "   |  "String|    |  "String"|
+  "   |  let i = "|  |  let i = "|"
+  'm  |  I|          |  I'm|
+```
+
 ### BALANCING MATCHING PAIRS
+
+```
+e.g. typing at the "|": >
+
+ What |    Before    |     After
+=======================================
+  (   |  function|   |  function(|)
+  (   |  |var        |  (|var
+```
