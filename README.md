@@ -14,25 +14,36 @@ Plug 'Raimondi/delimitMate'
 
 ### Automatic closing & exiting
 
-| Type        | You get   |
-| ----------- | --------- |
-| `(`         | `(|)`     |
-| `()`        | `()|`     |
-| `(<S-Tab>`  | `()|`     |
-| `{("<C-G>g` | `{("")}|` |
+```
+  Type     |  You get
+=======================
+   (       |    (|)
+-----------|-----------
+   ()      |    ()|
+-----------|-----------
+(<S-Tab>   |    ()|
+-----------|-----------
+{("<C-G>g  |  {("")}|
+```
 
 ### Expansion of space and CR
 
-| You start with | You get |
-| -------------- | ------- |
-| `(|)`          | `( | )` |
-
-after press `<Cr>` in `(|)`, you will get:
+Expand `<Space>` to:
 
 ```
-(
-    |
-)
+You start with  |  You get
+==============================
+    (|)         |    ( | )
+```
+
+Expand `<CR>` to:
+
+```
+You start with   |  You get
+==============================
+    (|)         |    (
+                |      |
+                |    )
 ```
 
 ### Backspace
