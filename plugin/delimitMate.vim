@@ -324,7 +324,7 @@ endfunction "}}}
 
 function! s:ExtraMappings() "{{{
   " If pair is empty, delete both delimiters:
-  inoremap <silent> <Plug>delimitMateBS <C-R>=delimitMate#BS()<CR>
+  inoremap <expr><silent> <Plug>delimitMateBS delimitMate#BS()
   if !hasmapto('<Plug>delimitMateBS','i')
     if empty(maparg('<BS>', 'i'))
       silent! imap <unique> <buffer> <BS> <Plug>delimitMateBS
@@ -339,22 +339,22 @@ function! s:ExtraMappings() "{{{
     silent! imap <unique> <buffer> <S-BS> <Plug>delimitMateS-BS
   endif
   " Expand return if inside an empty pair:
-  inoremap <expr><silent> <Plug>delimitMateCR <SID>TriggerAbb()."\<C-R>=delimitMate#ExpandReturn()\<CR>"
+  inoremap <expr><silent> <Plug>delimitMateCR <SID>TriggerAbb().delimitMate#ExpandReturn()
   if s:get('expand_cr') && !hasmapto('<Plug>delimitMateCR', 'i') && maparg('<CR>', 'i') == ''
     silent! imap <unique> <buffer> <CR> <Plug>delimitMateCR
   endif
   " Expand space if inside an empty pair:
-  inoremap <expr><silent> <Plug>delimitMateSpace <SID>TriggerAbb()."\<C-R>=delimitMate#ExpandSpace()\<CR>"
+  inoremap <expr><silent> <Plug>delimitMateSpace <SID>TriggerAbb().delimitMate#ExpandSpace()
   if s:get('expand_space') && !hasmapto('<Plug>delimitMateSpace', 'i') && maparg('<Space>', 'i') == ''
     silent! imap <unique> <buffer> <Space> <Plug>delimitMateSpace
   endif
   " Jump over any delimiter:
-  inoremap <expr><silent> <Plug>delimitMateS-Tab <SID>TriggerAbb()."\<C-R>=delimitMate#JumpAny()\<CR>"
+  inoremap <expr><silent> <Plug>delimitMateS-Tab <SID>TriggerAbb().delimitMate#JumpAny()
   if s:get('tab2exit') && !hasmapto('<Plug>delimitMateS-Tab', 'i') && maparg('<S-Tab>', 'i') == ''
     silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
   endif
   " Jump over next delimiters
-  inoremap <expr><buffer> <Plug>delimitMateJumpMany <SID>TriggerAbb()."\<C-R>=delimitMate#JumpMany()\<CR>"
+  inoremap <expr><buffer> <Plug>delimitMateJumpMany <SID>TriggerAbb().delimitMate#JumpMany()
   if !hasmapto('<Plug>delimitMateJumpMany', 'i') && maparg("<C-G>g", 'i') == ''
     imap <silent> <buffer> <C-G>g <Plug>delimitMateJumpMany
   endif
