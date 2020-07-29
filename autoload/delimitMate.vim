@@ -12,32 +12,20 @@ if !exists('s:options')
   let s:options = {}
 endif
 
-function! s:set(name, value, ...) "{{{
-  let scope = a:0 ? a:1 : 's'
+function! s:set(name, value) "{{{
   let bufnr = bufnr('%')
-  if !exists('s:options[bufnr]')
+  if !has_key(s:options, bufnr)
     let s:options[bufnr] = {}
   endif
-  if scope == 's'
-    let name = 's:options.' . bufnr . '.' . a:name
-  else
-    let name = scope . ':delimitMate_' . a:name
-    if exists('name')
-      exec 'unlet! ' . name
-    endif
-  endif
-  exec 'let ' . name . ' = a:value'
+  let s:options[bufnr][a:name] = a:value
 endfunction "}}}
 
-function! s:get(name, ...) "{{{
-  if a:0 == 2
-    return deepcopy(get(a:2, 'delimitMate_' . a:name, a:1))
-  elseif a:0 == 1
-    let bufoptions = get(s:options, bufnr('%'), {})
-    return deepcopy(get(bufoptions, a:name, a:1))
-  else
-    return deepcopy(eval('s:options.' . bufnr('%') . '.' . a:name))
+function! s:get(...) "{{{
+  let options = deepcopy(eval('s:options.' . bufnr('%')))
+  if a:0
+    return options[a:1]
   endif
+  return options
 endfunction "}}}
 
 function! s:exists(name, ...) "{{{

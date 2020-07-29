@@ -29,15 +29,14 @@ let delimitMate_version = "2.8"
 " Functions: {{{
 
 function! s:option_init(name, default) "{{{
-  let b = exists("b:delimitMate_" . a:name)
-  let g = exists("g:delimitMate_" . a:name)
+  let opt_name = "delimitMate_" . a:name
   " Find value to use.
-  if !b && !g
+  if !has_key(b:, opt_name) && !has_key(g:, opt_name)
     let value = a:default
-  elseif b
-    exec "let value = b:delimitMate_" . a:name
+  elseif has_key(b:, opt_name)
+    let value = b:[opt_name]
   else
-    exec "let value = g:delimitMate_" . a:name
+    let value = g:[opt_name]
   endif
   call s:set(a:name, value)
 endfunction "}}}
@@ -48,8 +47,8 @@ function! s:init() "{{{
   call s:option_init("autoclose", 1)
   " matchpairs
   call s:option_init("matchpairs", string(&matchpairs)[1:-2])
-  call s:option_init("matchpairs_list", map(split(s:get('matchpairs'), '.:.\zs,\ze.:.'), 'split(v:val, ''^.\zs:\ze.$'')'))
-  let pairs = s:get('matchpairs_list')
+  call s:option_init("matchpairs_list", map(split(s:get('matchpairs', ''), '.:.\zs,\ze.:.'), 'split(v:val, ''^.\zs:\ze.$'')'))
+  let pairs = s:get('matchpairs_list', [])
   if len(filter(pairs, 'v:val[0] ==# v:val[1]'))
     echohl ErrorMsg
     echom 'delimitMate: each member of a pair in delimitMate_matchpairs must be different from each other.'
@@ -57,17 +56,17 @@ function! s:init() "{{{
     echohl Normal
     return 0
   endif
-  call s:option_init("left_delims", map(copy(s:get('matchpairs_list')), 'v:val[0]'))
-  call s:option_init("right_delims", map(copy(s:get('matchpairs_list')), 'v:val[1]'))
+  call s:option_init("left_delims", map(copy(s:get('matchpairs_list', [])), 'v:val[0]'))
+  call s:option_init("right_delims", map(copy(s:get('matchpairs_list', [])), 'v:val[1]'))
   " quotes
   call s:option_init("quotes", "\" ' `")
-  call s:option_init("quotes_list",split(s:get('quotes'), '\s\+'))
+  call s:option_init("quotes_list",split(s:get('quotes', ''), '\s\+'))
   " nesting_quotes
   call s:option_init("nesting_quotes", [])
   " excluded_regions
   call s:option_init("excluded_regions", "Comment")
-  call s:option_init("excluded_regions_list", split(s:get('excluded_regions'), ',\s*'))
-  let enabled = len(s:get('excluded_regions_list')) > 0
+  call s:option_init("excluded_regions_list", split(s:get('excluded_regions', ''), ',\s*'))
+  let enabled = len(s:get('excluded_regions_list', [])) > 0
   call s:option_init("excluded_regions_enabled", enabled)
   " expand_space
   if exists("b:delimitMate_expand_space") && type(b:delimitMate_expand_space) == type("")
@@ -110,7 +109,7 @@ function! s:init() "{{{
   call s:option_init("smart_matchpairs", '^\%(\w\|\!\|[£$]\|[^[:punct:][:space:]]\)')
   " smart_quotes
   " XXX: backward compatibility. Ugly, should go the way of the dodo soon.
-  let quotes = escape(join(s:get('quotes_list'), ''), '\-^[]')
+  let quotes = escape(join(s:get('quotes_list', []), ''), '\-^[]')
   let default_smart_quotes = '\%(\w\|[^[:punct:][:space:]' . quotes . ']\|\%(\\\\\)*\\\)\%#\|\%#\%(\w\|[^[:space:][:punct:]' . quotes . ']\)'
   if exists('g:delimitMate_smart_quotes') && type(g:delimitMate_smart_quotes) == type(0)
     if g:delimitMate_smart_quotes
@@ -134,7 +133,7 @@ function! s:init() "{{{
   call s:option_init("smart_quotes", default_smart_quotes)
   " apostrophes
   call s:option_init("apostrophes", "")
-  call s:option_init("apostrophes_list", split(s:get('apostrophes'), ":\s*"))
+  call s:option_init("apostrophes_list", split(s:get('apostrophes', ''), ":\s*"))
   " tab2exit
   call s:option_init("tab2exit", 1)
   " balance_matchpairs
@@ -146,9 +145,10 @@ function! s:init() "{{{
   return 1
 endfunction "}}} Init()
 
-function! s:get(...) " {{{
-  return call('delimitMate#Get', a:000)
-endfunction " }}}
+function! s:get(name, default) "{{{
+  let bufoptions = delimitMate#Get()
+  return get(bufoptions, a:name, a:default)
+endfunction "}}}
 
 function! s:set(...) " {{{
   return call('delimitMate#Set', a:000)
@@ -164,7 +164,7 @@ function! s:Map() "{{{
     set keymap=
     set cpo&vim
     silent! doautocmd <nomodeline> User delimitMate_map
-    if s:get('autoclose')
+    if s:get('autoclose', 1)
       call s:AutoClose()
     else
       call s:NoAutoClose()
@@ -270,7 +270,7 @@ endfunction "}}}
 
 function! s:NoAutoClose() "{{{
   " inoremap <buffer> ) <C-R>=delimitMate#SkipDelim('\)')<CR>
-  for delim in s:get('right_delims') + s:get('quotes_list')
+  for delim in s:get('right_delims', []) + s:get('quotes_list', [])
     if delim == '|'
       let delim = '<Bar>'
     endif
@@ -283,9 +283,9 @@ function! s:AutoClose() "{{{
   " Add matching pair and jump to the midle:
   " inoremap <silent> <buffer> ( ()<Left>
   let i = 0
-  while i < len(s:get('matchpairs_list'))
-    let ld = s:get('left_delims')[i] == '|' ? '<bar>' : s:get('left_delims')[i]
-    let rd = s:get('right_delims')[i] == '|' ? '<bar>' : s:get('right_delims')[i]
+  while i < len(s:get('matchpairs_list', []))
+    let ld = s:get('left_delims', [])[i] == '|' ? '<bar>' : s:get('left_delims', [])[i]
+    let rd = s:get('right_delims', [])[i] == '|' ? '<bar>' : s:get('right_delims', [])[i]
     exec 'inoremap <expr><silent> <Plug>delimitMate' . ld
                 \. ' <SID>TriggerAbb().delimitMate#ParenDelim("' . escape(rd, '|') . '")'
     exec 'silent! imap <unique> <buffer> '.ld
@@ -294,7 +294,7 @@ function! s:AutoClose() "{{{
   endwhile
 
   " Exit from inside the matching pair:
-  for delim in s:get('right_delims')
+  for delim in s:get('right_delims', [])
     let delim = delim == '|' ? '<bar>' : delim
     exec 'inoremap <expr><silent> <Plug>delimitMate' . delim
                 \. ' <SID>TriggerAbb().delimitMate#JumpOut("\' . delim . '")'
@@ -304,7 +304,7 @@ function! s:AutoClose() "{{{
 
   " Add matching quote and jump to the midle, or exit if inside a pair of matching quotes:
   " inoremap <silent> <buffer> " <C-R>=delimitMate#QuoteDelim("\"")<CR>
-  for delim in s:get('quotes_list')
+  for delim in s:get('quotes_list', [])
     if delim == '|'
       let delim = '<Bar>'
     endif
@@ -316,7 +316,7 @@ function! s:AutoClose() "{{{
 
   " Try to fix the use of apostrophes (kept for backward compatibility):
   " inoremap <silent> <buffer> n't n't
-  for map in s:get('apostrophes_list')
+  for map in s:get('apostrophes_list', [])
     exec "inoremap <silent> " . map . " " . map
     exec 'silent! imap <unique> <buffer> ' . map . ' <Plug>delimitMate' . map
   endfor
@@ -340,17 +340,17 @@ function! s:ExtraMappings() "{{{
   endif
   " Expand return if inside an empty pair:
   inoremap <expr><silent> <Plug>delimitMateCR <SID>TriggerAbb()."\<C-R>=delimitMate#ExpandReturn()\<CR>"
-  if s:get('expand_cr') && !hasmapto('<Plug>delimitMateCR', 'i') && maparg('<CR>', 'i') == ''
+  if s:get('expand_cr', 0) && !hasmapto('<Plug>delimitMateCR', 'i') && maparg('<CR>', 'i') == ''
     silent! imap <unique> <buffer> <CR> <Plug>delimitMateCR
   endif
   " Expand space if inside an empty pair:
   inoremap <expr><silent> <Plug>delimitMateSpace <SID>TriggerAbb()."\<C-R>=delimitMate#ExpandSpace()\<CR>"
-  if s:get('expand_space') && !hasmapto('<Plug>delimitMateSpace', 'i') && maparg('<Space>', 'i') == ''
+  if s:get('expand_space', 0) && !hasmapto('<Plug>delimitMateSpace', 'i') && maparg('<Space>', 'i') == ''
     silent! imap <unique> <buffer> <Space> <Plug>delimitMateSpace
   endif
   " Jump over any delimiter:
   inoremap <expr><silent> <Plug>delimitMateS-Tab <SID>TriggerAbb()."\<C-R>=delimitMate#JumpAny()\<CR>"
-  if s:get('tab2exit') && !hasmapto('<Plug>delimitMateS-Tab', 'i') && maparg('<S-Tab>', 'i') == ''
+  if s:get('tab2exit', 0) && !hasmapto('<Plug>delimitMateS-Tab', 'i') && maparg('<S-Tab>', 'i') == ''
     silent! imap <unique> <buffer> <S-Tab> <Plug>delimitMateS-Tab
   endif
   " Jump over next delimiters
