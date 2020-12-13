@@ -191,6 +191,8 @@ e.g.: >
         let delimitMate_nesting_quotes = ['"','`']
         au FileType python let b:delimitMate_nesting_quotes = ['"']
 <
+For Python this is set by default by the plugin.
+
 ------------------------------------------------------------------------------
                                                      *'delimitMate_expand_cr'*
                                                    *'b:delimitMate_expand_cr'*

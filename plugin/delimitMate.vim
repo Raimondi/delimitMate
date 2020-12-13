@@ -383,6 +383,7 @@ augroup delimitMate
   au!
   " Run on file type change.
   au FileType * call <SID>setup()
+  au FileType python let b:delimitMate_nesting_quotes = ['"', "'"]
 
   " Run on new buffers.
   au BufNewFile,BufRead,BufEnter,CmdwinEnter *
