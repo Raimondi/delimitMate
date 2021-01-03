@@ -372,6 +372,9 @@ function! delimitMate#QuoteDelim(char) "{{{
     " If we are in a vim file and it looks like we're starting a comment, do
     " not add a closing char.
     return a:char
+  elseif a:char == "'" && index(split(&ft, '\.'), "clojure") != -1
+    " If we are in a clojure file, do not add a closing apostrophe.
+    return a:char
   elseif s:is_smart_quote(a:char)
     " Seems like a smart quote, insert a single char.
     return a:char
