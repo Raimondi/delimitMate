@@ -1,5 +1,5 @@
 " File:        plugin/delimitMate.vim
-" Version:     2.7.1
+" Version:     2.8.1
 " Modified:    2022-02-02
 " Description: This plugin provides auto-completion for quotes, parens, etc.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
