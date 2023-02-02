@@ -1,6 +1,6 @@
 " File:        plugin/delimitMate.vim
-" Version:     2.7
-" Modified:    2013-07-15
+" Version:     2.8.1
+" Modified:    2022-02-02
 " Description: This plugin provides auto-completion for quotes, parens, etc.
 " Maintainer:  Israel Chauca F. <israelchauca@gmail.com>
 " Manual:      Read ":help delimitMate".
@@ -379,11 +379,13 @@ command! -bar DelimitMateOff call s:setup(0)
 
 " Autocommands: {{{
 
-augroup delimitMate
+augroup __delimitMate__
   au!
   " Run on file type change.
   au FileType * call <SID>setup()
   au FileType python let b:delimitMate_nesting_quotes = ['"', "'"]
+  au FileType lisp,scheme let b:delimitMate_quotes = '"' |
+        \ let b:delimitMate_matchpairs = "(:)"
 
   " Run on new buffers.
   au BufNewFile,BufRead,BufEnter,CmdwinEnter *
