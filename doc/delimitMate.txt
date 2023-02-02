@@ -1,4 +1,4 @@
-*delimitMate.txt*   Trying to keep those beasts at bay! v2.7.1   *delimitMate*
+*delimitMate.txt*   Trying to keep those beasts at bay! v2.8.1   *delimitMate*
 
 
 
@@ -805,6 +805,9 @@ This script was inspired by the auto-completion of delimiters on TextMate.
  11. HISTORY                                               *delimitMateHistory*
 
   Version      Date      Release notes                                       ~
+|---------|------------|-----------------------------------------------------|
+   2.8.1    2020-02-02 * Current release:
+                         - Add support for lisp/scheme.
 |---------|------------|-----------------------------------------------------|
     2.8     2013-07-15 * Current release:
                          - Add :DelimitMateOn & :DelimitMateOff.
