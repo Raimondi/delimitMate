@@ -483,8 +483,9 @@ function! delimitMate#ExpandReturn() "{{{
       " indentation is controlled by 'smartindent', and the first character on
       " the new line is '}'. If this were typed manually it would reindent to
       " match the current line. Let's reproduce that behavior.
-      let shifts = indent('.') / &sw
-      let spaces = indent('.') - (shifts * &sw)
+      let sw = &sw == 0 ? &ts : &sw
+      let shifts = indent('.') / sw
+      let spaces = indent('.') - (shifts * sw)
       let val .= "^\<C-D>".repeat("\<C-T>", shifts).repeat(' ', spaces)
     endif
     " Expand:
