@@ -262,7 +262,6 @@ endfunction "}}}
 function! s:TriggerAbb() "{{{
   if v:version < 703
         \ || ( v:version == 703 && !has('patch489') )
-        \ || pumvisible()
     return ''
   endif
   return "\<C-]>"
